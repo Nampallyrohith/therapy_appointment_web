@@ -1,11 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Young+Serif&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-*{
-  margin: 0px
+* {
+  margin: 0px;
 }
 
-body{
+body {
   box-sizing: border-box;
+  font-family: "Young Serif";
+}
+
+.shadow-inset {
+  box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
 }
