@@ -1,13 +1,14 @@
-import ActionButton from "./shared/ActionButton";
+import { Route, Routes } from "react-router-dom";
+import HomePage from "./components/HomePage";
+import AuthenticationPage from "./components/AuthenticationPage";
 
 const App = () => {
   return (
     <div className="">
-      <h1 className="text-blue-300">Hi, Book appointment</h1>
-      <ActionButton buttonText="Login" />
-      <ActionButton buttonText="Signup" />
-      <ActionButton buttonText="Book Appointment" />
-      <ActionButton buttonText="Logout" />
+     <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<AuthenticationPage />} />
+     </Routes>
     </div>
   );
 };
