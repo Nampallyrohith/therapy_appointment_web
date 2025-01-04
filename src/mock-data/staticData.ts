@@ -50,7 +50,7 @@ export const Therapists: TherapistType[] = [
     therapyId: 2,
     name: "Dr. Emily Johnson",
     experience: "8 years",
-    specialist: "Dr. Emily Johnson",
+    specialist: "Behavioral therapy",
     about:
       "Focuses on changing maladaptive behaviors through learning principles like classical and operant conditioning. Experienced in treating phobias, addictions, and OCD.",
   },
