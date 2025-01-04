@@ -32,7 +32,7 @@ const Header = () => {
   return (
     // larger screen
     <>
-      <nav className="relative flex justify-around items-center py-4 px-0 bg-green-primary-2">
+      <nav className="flex justify-around items-center py-4 fixed w-full z-10 bg-green-primary-2">
         <Link to="/">
           <p className="text-3xl text-orange-primary-1">Logo</p>
         </Link>

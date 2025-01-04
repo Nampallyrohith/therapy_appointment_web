@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import Header from "@/shared/Header";
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
@@ -11,6 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAuthenticated }) => {
     <>
       <Header />
       <Outlet />
+      <Footer />
     </>
   ) : (
     <Navigate to="/login" />
