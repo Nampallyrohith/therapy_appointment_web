@@ -10,15 +10,15 @@ interface therayCardProps {
 const AboutTherapyCard: React.FC<therayCardProps> = ({ therapy }) => {
   const { name, about, image, id } = therapy;
   return (
-    <div className="grid grid-cols-2 grid-row-1 items-center gap-10 my-auto px-60 py-10 w-full">
+    <div className="lg:grid lg:grid-cols-2 items-center md:w-3/4 mx-auto gap-10 lg:px-60 px-14 py-8 lg:w-full">
       <Image
         src={image}
         alt={name + "image"}
-        className={`${id % 2 === 0 && "order-2"} rounded-lg`}
+        className={`${id % 2 === 0 && "order-2"} rounded-lg  md:mx-auto my-3 lg:my-0`}
       />
-      <div className="space-y-4">
+      <div className="space-y-4 text-center lg:text-left">
         <h1 className="text-2xl">{name}</h1>
-        <p>{about}</p>
+        <p className="text-sm lg:text-base">{about}</p>
         <ActionButton buttonText="Book Therapy" />
       </div>
     </div>
