@@ -9,7 +9,7 @@ const HomePage = () => {
       <Banner />
       <h1 className="text-3xl text-center w-full mt-10">About Therapies</h1>
       <hr className="border-2 border-green-primary-1 rounded-full  mt-2 w-36 mx-auto" />
-      <div>
+      <div className="w-full grid grid-cols-1 items-start lg:grid-cols-1 gap-5">
         {ourTherapiesList.map((therapy) => (
           <AboutTherapyCard key={therapy.id} therapy={therapy} />
         ))}

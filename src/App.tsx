@@ -7,7 +7,7 @@ const App = () => {
   const isAuthenticated = true; // Replace with actual authentication logic
 
   return (
-    <div className="">
+    <div className="w-full h-full container">
       <Routes>
         <Route path="/login" element={<AuthenticationPage />} />
         <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
