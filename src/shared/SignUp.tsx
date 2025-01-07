@@ -17,7 +17,7 @@ const schema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
-    path: ["confirmPassword"], 
+    path: ["confirmPassword"],
   });
 
 type Inputs = z.infer<typeof schema>;
@@ -36,76 +36,80 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="relative left-[945px] top-[52px] w-[6.67%] h-[10.25%]">
-      <h1 className="text-orange-primary-1 whitespace-nowrap">
+    <div className="lg:mt-28 self-center flex flex-col justify-center items-center space-y-5 w-full h-full">
+      <Image
+        src={profileIcon}
+        alt="Profile Icon"
+        className="w-10 self-center"
+      />
+      <h1 className="text-2xl text-orange-primary-1 whitespace-nowrap">
         Create a new Account
       </h1>
-      <>
-        <Image
-          src={profileIcon}
-          alt="Profile Icon"
-          className="relative left-[65px]  w-[40px] top-4"
-        />
-        <div className="relative inset-6 flex items-center justify-center">
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-            {/* Full Name */}
-            <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-[400px] h-12 text-orange-primary-1">
-                <input
-                    {...register("fullName")}
-                    className="px-5 border-none outline-none focus:outline-none focus:ring-0 bg-transparent placeholder-orange-primary-1 w-full"
-                    placeholder="Full Name"
-                />
-                <Image src={userIcon} alt="Icon" className="w-5 mr-4" />
-                </div>
-                {errors.fullName?.message && (
-                    <div className="text-red-500">{errors.fullName.message}</div>
-                )}
-            {/* Email */}
-            <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
-              <input
-                {...register("emailId")}
-                className="px-5 border-none outline-none focus:outline-none focus:ring-0 bg-transparent  placeholder-orange-primary-1 "
-                placeholder="Email Id"
-              />
-                <Image src={emailIcon} alt="Icon" className="w-5  mr-4" />
+      <div className="w-11/12 md:w-3/4 lg:w-[400px] inset-6 flex items-center justify-center">
+        <form
+          className="flex flex-col gap-4 w-full"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          {/* Full Name */}
+          <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
+            <input
+              {...register("fullName")}
+              className="px-5 border-none outline-none focus:outline-none focus:ring-0 bg-transparent placeholder-orange-primary-1 w-full"
+              placeholder="Full Name"
+            />
+            <Image src={userIcon} alt="Icon" className="w-5 mr-4" />
+          </div>
+          {errors.fullName?.message && (
+            <div className="text-red-500 text-xs">
+              {errors.fullName.message}
             </div>
-            {errors.emailId?.message && (
-                <div className="text-red-500">{errors.emailId.message}</div>
-              )}
+          )}
+          {/* Email */}
+          <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
+            <input
+              {...register("emailId")}
+              className="px-5 border-none outline-none focus:outline-none focus:ring-0 bg-transparent  placeholder-orange-primary-1 "
+              placeholder="Email Id"
+            />
+            <Image src={emailIcon} alt="Icon" className="w-5  mr-4" />
+          </div>
+          {errors.emailId?.message && (
+            <div className="text-red-500 text-xs">{errors.emailId.message}</div>
+          )}
 
-            {/* Password */}
-            <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
-              <input
-                type="password"
-                {...register("password")}
-                className="px-5 border-none outline-none focus:outline-none focus:ring-0 bg-transparent  placeholder-orange-primary-1"
-                placeholder="Password"
-              />
-                <Image src={passwordIcon} alt="Icon" className="w-5 mr-4" />     
+          {/* Password */}
+          <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
+            <input
+              type="password"
+              {...register("password")}
+              className="px-5 border-none outline-none focus:outline-none focus:ring-0 bg-transparent  placeholder-orange-primary-1"
+              placeholder="Password"
+            />
+            <Image src={passwordIcon} alt="Icon" className="w-5 mr-4" />
+          </div>
+          {errors.password?.message && (
+            <div className="text-red-500 text-xs">
+              {errors.password.message}
             </div>
-            {errors.password?.message && (
-                <div className="text-red-500">{errors.password.message}</div>
-              )}
+          )}
 
-            {/* Confirm Password */}
-            <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
-              <input
-                type="password"
-                {...register("confirmPassword")}
-                className="px-5 border-none outline-none focus:outline-none focus:ring-0 bg-transparent  placeholder-orange-primary-1 "
-                placeholder="Confirm Password"
-              />
-                <Image src={passwordIcon} alt="Icon" className="w-5 mr-4" />
-              
-            </div>
+          {/* Confirm Password */}
+          <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
+            <input
+              type="password"
+              {...register("confirmPassword")}
+              className="px-5 border-none outline-none focus:outline-none focus:ring-0 bg-transparent  placeholder-orange-primary-1 "
+              placeholder="Confirm Password"
+            />
+            <Image src={passwordIcon} alt="Icon" className="w-5 mr-4" />
+          </div>
 
-            {/* Submit Button */}
-            <div className="text-center my-6">
-              <ActionButton buttonText="Sign in" />
-            </div>
-          </form>
-        </div>
-      </>
+          {/* Submit Button */}
+          <div className="text-center my-6">
+            <ActionButton buttonText="Sign in" />
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
