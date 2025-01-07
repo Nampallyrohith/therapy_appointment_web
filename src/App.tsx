@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import HomePage from "./components/HomePage";
+import MyAppointmentsPage from "./components/MyAppointmentsPage";
 import AuthenticationPage from "./components/AuthenticationPage";
 import ProtectedRoute from "./Handler/ProtectedRoute";
 
@@ -12,6 +13,7 @@ const App = () => {
         <Route path="/login" element={<AuthenticationPage />} />
         <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/user/my-appointments" element={<MyAppointmentsPage />} />
         </Route>
       </Routes>
     </div>
