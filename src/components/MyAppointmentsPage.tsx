@@ -172,7 +172,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset">
-      <h1 className="text-2xl mb-6">My Appointments</h1>
+      <h1 className="text-2xl mb-6 mt-16 lg:mt-20">My Appointments</h1>
       <div className="flex flex-wrap justify-center gap-4">
         {filterDetails.map((eachFilter) => (
           <FilterButton
