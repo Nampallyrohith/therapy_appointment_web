@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Young+Serif&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Young+Serif&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,6 +6,7 @@
 
 * {
   margin: 0px;
+  letter-spacing: 0.05em;
 }
 
 body {
@@ -24,4 +25,48 @@ body {
   height: 406px;
   opacity: 1;
   
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #ff9f1c;
+}
+p {
+  color: #2ec4b6;
+}
+
+
+/* scroll bar css */
+
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: lightgray;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #2EC4B6;
+  border-radius: 14px;
+  border: 2px solid #2EC4B6;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: orange;
+  border: none;
+}
+
+
+.swiper-slide {
+  height: auto !important;
+}
+/* Hide default navigation buttons */
+.swiper-button-next,
+.swiper-button-prev {
+  display: none !important;
 }
