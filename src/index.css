@@ -16,3 +16,12 @@ body {
 .shadow-inset {
   box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
 }
+.login-page-Decor{
+  position: absolute;
+  left: -13px;
+  top: -66px;
+  width: 559px;
+  height: 406px;
+  opacity: 1;
+  
+}
