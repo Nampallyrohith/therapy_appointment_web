@@ -184,11 +184,11 @@ const MyAppointmentsPage: React.FC = () => {
           />
         ))}
       </div>
-      <div className="mt-6 pb-8 px-6 w-full bg-[#FDF8EF] shadow-inset">
-        <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
+      <div className="mt-6 pb-8 px-6 w-full bg-[#FDF8EF] shadow-inner">
+        {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
-        </h2>
-        <div className="sm:mx-4 md:mx-12 lg:mx-40 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </h2> */}
+        <div className="sm:mx-4 md:mx-12 lg:mx-40 my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dummyData[filter]?.map((appointment, index) => (
             <div
               key={index}
