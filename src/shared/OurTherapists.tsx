@@ -41,7 +41,7 @@ const OurTherapists = () => {
             <div className="flex justify-center mt-2 w-full h-full rounded-lg">
               <div className="flex flex-col justify-center space-y-2 mb-2">
                 <Image src={therapistImg} alt="therapist image" />
-                <div className="pl-4 sapce-y-2">
+                <div className="pl-4 sapce-y-2 text-green-primary-1">
                   <h2>{therapist.name}</h2>
                   <p className="text-xs lg:text-base">{therapist.specialist}</p>
                   <p className="text-xs lg:text-base">{therapist.experience}</p>

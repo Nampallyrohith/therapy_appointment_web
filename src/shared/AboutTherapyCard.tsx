@@ -18,7 +18,7 @@ const AboutTherapyCard: React.FC<therayCardProps> = ({ therapy }) => {
       />
       <div className="space-y-4 text-center lg:text-left">
         <h1 className="text-2xl">{name}</h1>
-        <p className="text-sm lg:text-base">{about}</p>
+        <p className="text-sm lg:text-base text-green-primary-1">{about}</p>
         <ActionButton buttonText="Book Therapy" />
       </div>
     </div>
