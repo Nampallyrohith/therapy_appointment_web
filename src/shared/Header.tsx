@@ -57,12 +57,12 @@ const Header = () => {
               <Link to="/user/my-appointments">My Appointments</Link>
             </li>
             <li>
-              <Button
-                type="button"
-                className="bg-orange-primary-1 text-white px-5 tracking-wider rounded-lg shadow-inset"
+              <Link
+                to="/user/booking-appointment"
+                className="bg-orange-primary-1 text-white px-5 py-2 tracking-wider rounded-lg shadow-inset"
               >
                 Book Appointment
-              </Button>
+              </Link>
             </li>
             <li>
               <Button
