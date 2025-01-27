@@ -1,21 +1,25 @@
+import { useAppointmentContext } from "@/context/AppointmentContext";
 import Footer from "@/shared/Footer";
 import Header from "@/shared/Header";
-import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
-interface ProtectedRouteProps {
-  isAuthenticated: boolean; // Replace with your actual authentication logic
-}
+const ProtectedRoute = () => {
+  const { authFailed } = useAppointmentContext();
+  const navigate = useNavigate();
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAuthenticated }) => {
-  return isAuthenticated ? (
+  useEffect(() => {
+    if (authFailed) {
+      navigate("/login");
+    }
+  }, [authFailed]);
+
+  return (
     <>
       <Header />
       <Outlet />
       <Footer />
     </>
-  ) : (
-    <Navigate to="/login" />
   );
 };
 

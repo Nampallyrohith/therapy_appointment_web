@@ -13,3 +13,10 @@ export interface TherapistType {
   specialist: string;
   about: string;
 }
+
+export interface User {
+  id: string | undefined;
+  name: string;
+  email: string | undefined;
+  providerToken: string | undefined | null;
+}
