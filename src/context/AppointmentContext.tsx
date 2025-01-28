@@ -38,6 +38,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const getUserSession = async () => {
     setAuthFailed(false);
     const { data, error } = await supabaseClient.auth.getSession();
+    console.log(data);
     if (error) {
       console.error("Error fetching session:", error.message);
       setUser(null);
@@ -52,6 +53,12 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         name: userName,
         email: userDetails?.email,
         providerToken: data.session?.provider_token,
+        avatarUrl: data.session.user.user_metadata?.avatar_url,
+        phone: null,
+        gender: null,
+        dob: null,
+        createdAt: userDetails.created_at,
+        lastSignInAt: userDetails.last_sign_in_at,
       });
     }
   };

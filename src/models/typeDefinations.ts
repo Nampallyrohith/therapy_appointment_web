@@ -19,4 +19,10 @@ export interface User {
   name: string;
   email: string | undefined;
   providerToken: string | undefined | null;
+  avatarUrl: string | null;
+  phone: string | null;
+  gender: string | null;
+  dob: string | null;
+  createdAt: string
+  lastSignInAt: string | undefined
 }

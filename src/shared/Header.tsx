@@ -15,7 +15,7 @@ import { useAppointmentContext } from "@/context/AppointmentContext";
 
 const Header = () => {
   const [isDropdown, setDropdown] = useState<boolean>(false);
-  const { handleUserSignOut } = useAppointmentContext();
+  const { handleUserSignOut, user } = useAppointmentContext();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -82,7 +82,7 @@ const Header = () => {
             ref={dropdownRef}
             className="w-1/6 px-5 py-3 bg-white border-2 border-orange-primary-3 text-orange-primary-1 flex flex-col text-center shadow-md absolute top-20 right-20 rounded-md gap-2"
           >
-            <p className="my-2">Rohan Kumar</p>
+            <p className="my-2">{user?.name}</p>
             <hr className="border-orange-primary-2" />
             <Link to="/user/profile" className="my-2">
               Profile
