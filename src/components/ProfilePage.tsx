@@ -19,8 +19,7 @@ const UserProfileCard = () => {
     handleSubmit,
     formState: { errors },
     watch,
-    setValue,
-  } = useForm({
+  } = useForm<UserProfileData>({
     defaultValues: {
       name: "N. Rohith",
       email: "rohith@gmail.com",
@@ -35,14 +34,6 @@ const UserProfileCard = () => {
     setIsEditing(false);
   };
 
-  const handleEditClick = () => {
-    setIsEditing(!isEditing);
-    if (!isEditing) {
-      setValue("name", "N. Rohith");
-      setValue("email", "rohith@gmail.com");
-    }
-  };
-
   return (
     <div className="flex justify-center items-center w-full min-h-screen">
       <form
@@ -53,7 +44,7 @@ const UserProfileCard = () => {
           <div className="absolute top-4 right-4">
             <button
               type="button"
-              onClick={handleEditClick}
+              onClick={() => setIsEditing(true)}
               className="p-2 bg-white rounded-full"
             >
               <FaPen className="text-gray-700" />
@@ -67,85 +58,86 @@ const UserProfileCard = () => {
             className="w-24 h-24 rounded-full"
           />
         </div>
-        <div className="grid grid-cols-2 gap-2 md:gap-4">
-          <div className="flex items-center w-full gap-2">
+        <div className="grid grid-cols-1 md:mx-10 md:grid-cols-2 gap-2 md:gap-4">
+          {/* Name */}
+          <div className="flex justify-center md:justify-start items-center w-full gap-2">
             <label className=" text-teal-700">Name:</label>
-            <p className="text-green-primary-3 cursor-not-allowed">Rohith</p>
+            <p className="text-green-primary-3">{watch("name")}</p>
           </div>
-          <div className="flex items-center w-full gap-2 ">
+          {/* Email */}
+          <div className="flex justify-center md:justify-start items-center w-full gap-2">
             <label className="font-medium text-green-primary-3">Email:</label>
-            <p className="cursor-not-allowed text-green-primary-3">
-              rohith@gmail.com
-            </p>
+            <p className="text-green-primary-3">{watch("email")}</p>
           </div>
-          <div className="flex items-center w-full text-green-primary-3">
+          {/* Gender */}
+          <div className="flex gap-3 justify-center md:justify-start items-center w-full text-green-primary-3">
             <label>Gender:</label>
-            {isEditing && (
+            {isEditing ? (
               <select
                 {...register("gender", { required: "Gender is required" })}
-                className={`bg-transparent focus:outline-none border-0 ${
-                  isEditing ? "border-b-2" : ""
-                }`}
+                className="bg-transparent border-0 border-b-green-primary-1 focus:border-b-green-primary-1 focus:ring-0  border-b-2"
               >
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </select>
+            ) : (
+              <p className="ml-5">{watch("gender")}</p>
             )}
-
-            {!isEditing && (
-              <span className="ml-5">{watch("gender") || "Not specified"}</span>
-            )}
-
             {errors.gender && (
               <p className="text-red-500 text-xs">{errors.gender.message}</p>
             )}
           </div>
-
-          <div className="flex items-center w-full text-green-primary-3">
+          {/* Phone */}
+          <div className="flex gap-3 justify-center md:justify-start items-center text-green-primary-3">
             <label>Phone:</label>
-            <input
-              {...register("phone", {
-                required: "Phone is required",
-                pattern: {
-                  value: /^\+?[0-9\s]+$/,
-                  message: "Invalid phone number",
-                },
-              })}
-              className={`bg-transparent  border-0 ${
-                isEditing
-                  ? "border-b-2 w-1/2 border-b-green-primary-3 focus:outline-none outline-none"
-                  : ""
-              }`}
-              type="text"
-              placeholder="9949289098"
-              disabled={!isEditing}
-            />
+            {isEditing ? (
+              <input
+                {...register("phone", {
+                  required: "Phone is required",
+                  pattern: {
+                    value: /^[0-9]+$/,
+                    message: "Invalid phone number",
+                  },
+                })}
+                placeholder="mobile number"
+                className="bg-transparent border-0 border-b-green-primary-1 focus:border-b-green-primary-1 focus:ring-0 border-b-2 focus:outline-none w-1/2"
+                type="text"
+              />
+            ) : (
+              <p>{watch("phone")}</p>
+            )}
             {errors.phone && (
               <p className="text-red-500 text-xs">{errors.phone.message}</p>
             )}
           </div>
-          <div className="flex items-center text-green-primary-3 ">
-            <label className="">Age:</label>
-            <input
-              {...register("age", {
-                required: "Age is required",
-                pattern: { value: /^[0-9]+$/, message: "Age must be a number" },
-              })}
-              className={`bg-transparent focus:outline-none border-0 ${
-                isEditing ? "border-b-2 w-1/6" : ""
-              }`}
-              type="text"
-              placeholder="20"
-              disabled={!isEditing}
-            />
+          {/* Age */}
+          <div className="flex gap-3 justify-center md:justify-start items-center text-green-primary-3 w-full">
+            <label>Age:</label>
+            {isEditing ? (
+              <input
+                {...register("age", {
+                  required: "Age is required",
+                  pattern: {
+                    value: /^[0-9]+$/,
+                    message: "Age must be a number",
+                  },
+                })}
+                placeholder="age"
+                className="bg-transparent border-0 border-b-green-primary-1 focus:border-b-green-primary-1 focus:ring-0 border-b-2 focus:outline-none w-1/5"
+                type="text"
+              />
+            ) : (
+              <p>{watch("age")}</p>
+            )}
             {errors.age && (
               <p className="text-red-500 text-xs">{errors.age.message}</p>
             )}
           </div>
         </div>
+        {/* Buttons */}
         {isEditing && (
-          <div className="flex gap-4 justify-end font-Young Serif my-2 ">
+          <div className="flex gap-4 justify-end my-2">
             <button
               type="button"
               onClick={() => setIsEditing(false)}
@@ -161,6 +153,7 @@ const UserProfileCard = () => {
             </button>
           </div>
         )}
+        <p className="italic text-green-primary-3 text-[10px]">*Note: Name and email cannot be changed.</p>
       </form>
     </div>
   );
