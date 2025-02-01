@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <div className="bg-green-primary-2 w-full h-full mt-10 flex justify-around items-center gap-10 p-10">
+    <div className="bg-green-primary-2 w-screen h-full mt-10 md:flex md:justify-around md:items-center gap-10 p-10">
       <Link to="/">
-        <h1 className="text-4xl">Logo</h1>
+        <h1 className="text-4xl mb-5 md:mb-0">Logo</h1>
       </Link>
       <div className="space-y-2">
         <h3>Phone Number: 0987654321</h3>

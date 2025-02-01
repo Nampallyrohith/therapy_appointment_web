@@ -3,12 +3,17 @@ import Psychodynamic from "@/assets/images/therapies/psychodynamic.jpg";
 import Behavioural from "@/assets/images/therapies/behavioural.jpg";
 import CBT from "@/assets/images/therapies/cbt.jpg";
 import Humanistic from "@/assets/images/therapies/humanistic.jpg";
+import DOC1 from "../assets/images/DoctorImages/doc1.png";
+import DOC2 from "../assets/images/DoctorImages/doc2.png";
+import DOC3 from "../assets/images/DoctorImages/doc3.png";
+import DOC4 from "../assets/images/DoctorImages/doc4.png";
 
 export const ourTherapiesList: therapyType[] = [
   {
     id: 1,
     image: Psychodynamic,
     name: "Psychodynamic Therapy",
+
     about:
       "Psychodynamic therapy focuses on exploring unconscious thoughts, emotions, and past experiences to understand how they influence current behavior and relationships. It aims to resolve internal conflicts through techniques like free association and dream analysis. ",
   },
@@ -44,6 +49,7 @@ export const Therapists: TherapistType[] = [
     specialist: "Psychodynamic Therapy",
     about:
       "Specializes in exploring unconscious thoughts, emotions, and past experiences to resolve internal conflicts using techniques like free association and dream analysis.",
+    image: DOC1,
   },
   {
     id: 2,
@@ -53,6 +59,7 @@ export const Therapists: TherapistType[] = [
     specialist: "Behavioral therapy",
     about:
       "Focuses on changing maladaptive behaviors through learning principles like classical and operant conditioning. Experienced in treating phobias, addictions, and OCD.",
+    image: DOC2,
   },
   {
     id: 3,
@@ -62,6 +69,7 @@ export const Therapists: TherapistType[] = [
     specialist: "Cognitive Behavioral Therapy (CBT)",
     about:
       "Integrates cognitive and behavioral approaches to identify and reframe distorted thoughts, helping clients manage anxiety, depression, and stress effectively.",
+    image: DOC3,
   },
   {
     id: 4,
@@ -71,5 +79,6 @@ export const Therapists: TherapistType[] = [
     specialist: "Humanistic Therapy",
     about:
       "Emphasizes personal growth and self-actualization, using empathy and unconditional positive regard to enhance self-awareness, self-esteem, and interpersonal relationships.",
+    image: DOC4,
   },
 ];
