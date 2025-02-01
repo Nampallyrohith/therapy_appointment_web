@@ -153,7 +153,11 @@ const UserProfileCard = () => {
             </button>
           </div>
         )}
-        <p className="italic text-green-primary-3 text-[10px]">*Note: Name and email cannot be changed.</p>
+        {isEditing && (
+          <p className="italic text-green-primary-3 text-[10px]">
+            *Note: Name and email cannot be changed.
+          </p>
+        )}
       </form>
     </div>
   );
