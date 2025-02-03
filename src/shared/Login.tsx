@@ -1,5 +1,5 @@
 import profileIcon from "../assets/images/AuthenticationIcons/profile-icon.png";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import ActionButton from "@/shared/ActionButton";
 import userIcon from "../assets/images/AuthenticationIcons/user-icon.png";
 import passwordIcon from "../assets/images/AuthenticationIcons/password-icon.png";
@@ -21,7 +21,6 @@ type Inputs = z.infer<typeof schema>;
 const Login: React.FC = () => {
   const {
     register,
-    handleSubmit,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
@@ -37,7 +36,6 @@ const Login: React.FC = () => {
     };
     fetchData();
   }, []);
-  
 
   return (
     <div className="lg:mt-36 self-center flex flex-col justify-center items-center space-y-5 w-full h-full">
@@ -50,9 +48,7 @@ const Login: React.FC = () => {
         Login
       </h1>
       <div className="w-11/12 md:w-3/4 lg:w-[400px]  inset-6 flex items-center justify-center">
-        <form
-          className="flex flex-col gap-4 w-full"
-        >
+        <form className="flex flex-col gap-4 w-full">
           <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
             <input
               {...register("email")}

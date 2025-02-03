@@ -1,12 +1,15 @@
 // import { Input } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
-import React, { useState } from "react";
+import React from "react";
 // import { DatePicker } from "@orange_digital/chakra-datepicker";
 import { Button } from "./ui/button";
-import { supabaseClient } from "@/supabase/connection";
+import { env, supabaseClient } from "@/supabase/connection";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { LuInfo } from "react-icons/lu";
 import avatar from "@/assets/images/doctor-avatar.png";
+import { Input, Textarea} from "@chakra-ui/react";
+import { convertToISO8601 } from "./utils/commonFunction";
+import { useAppointmentContext } from "@/context/AppointmentContext";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -41,55 +44,77 @@ type DoctorKeys = keyof typeof DoctorOptions;
 interface FormInputs {
   therapy: TherapyKeys;
   doctor: DoctorKeys;
+  date: string;
+  time: string;
+  eventDescription: string;
 }
 
 const BookAppointment: React.FC = () => {
-  const [activeTherapy, setActiveTherapy] = useState<TherapyKeys | "">("");
-  const [activeDoctor, setActiveDoctor] = useState<DoctorKeys | "">("");
-  const [meetingDate, setMeetingDate] = useState<string>("");
-  const [meetingTime, setMeetingTime] = useState<string>("");
   // const [guests, setGuests] = useState<string[]>([""]);
-  const [eventDescription, setEventDescription] = useState<string>("");
+  const { user } = useAppointmentContext();
 
-  const { register, handleSubmit } = useForm<FormInputs>();
-  // TODO: Add onSubmit functionality
-  const onSubmit: SubmitHandler<FormInputs> = () => {};
+  const { register, handleSubmit, watch } = useForm<FormInputs>({
+    defaultValues: {
+      therapy: "" as TherapyKeys,
+      doctor: "" as DoctorKeys,
+      date: "",
+      time: "",
+      eventDescription: "",
+    },
+  });
 
-  const createEventWithGuestsAndReminders = async () => {
+  const [
+    activeTherapy,
+    activeDoctor,
+    meetingDate,
+    meetingTime,
+    eventDescription,
+  ] = watch(["therapy", "doctor", "date", "time", "eventDescription"]);
+
+  const onSubmit: SubmitHandler<FormInputs> = async (data) => {
+    console.log("data", data);
+    await createEventWithGuestsAndReminders(data);
+  };
+
+  const createEventWithGuestsAndReminders = async (
+    eventDetails: FormInputs
+  ) => {
     const requestId = Date.now().toString();
     console.log(requestId);
     const event = {
-      summary: "Testing2",
-      description: "Temperory meeting checkup testing",
+      summary: user?.name + " is scheduled with " + eventDetails.doctor,
+      description: eventDetails.eventDescription,
       start: {
-        dateTime: "2025-01-18T06:00:00-07:00", // Start time in ISO 8601 format
+        dateTime: convertToISO8601(eventDetails.date, eventDetails.time), // Start time in ISO 8601 format
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       end: {
-        dateTime: "2025-01-18T08:00:00-07:00", // End time in ISO 8601 format
+        dateTime: convertToISO8601(eventDetails.date, eventDetails.time, 1), // End time in ISO 8601 format
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, //Asia/Kolkata
       },
+      // TODO: Add doctors email further
       attendees: [
-        { email: "rohithnampelly123@gmail.com" },
-        { email: "lokesh.pasam29@gmail.com" },
+        { email: "rohithnampelly57@gmail.com" },
+        { email: env.VITE_DEFAULT_THERAPY_EMAIL as string },
       ],
       reminders: {
-        useDefault: false, // Set to true if you want default reminders
+        useDefault: false,
         overrides: [
-          { method: "email", minutes: 24 * 60 }, // Reminder 1 day before
-          { method: "popup", minutes: 10 }, // Popup reminder 10 minutes before
+          { method: "email", minutes: 24 * 60 },
+          { method: "popup", minutes: 10 },
         ],
       },
       // Google meet
       conferenceData: {
         createRequest: {
-          requestId: requestId, // Replace with a unique string
+          requestId: requestId,
           conferenceSolutionKey: {
-            type: "hangoutsMeet", // Specifies Google Meet
+            type: "hangoutsMeet",
           },
         },
       },
     };
+    console.log("event", event);
 
     try {
       const { data } = await supabaseClient.auth.getSession();
@@ -101,7 +126,7 @@ const BookAppointment: React.FC = () => {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${accessToken}`, // Add a space after 'Bearer'
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(event),
@@ -132,10 +157,7 @@ const BookAppointment: React.FC = () => {
   const renderTherapyOptions = () => (
     <>
       <h1 className="text-green-primary-1 text-lg">Select Therapy</h1>
-      <div
-        {...register("therapy")}
-        className="flex gap-6 flex-wrap justify-center mt-6 mb-6"
-      >
+      <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
         {Object.entries(TherapyOptions).map(([id, name]) => (
           <label
             key={id}
@@ -151,9 +173,8 @@ const BookAppointment: React.FC = () => {
               type="radio"
               id={id}
               value={id}
-              name="therapy"
+              {...register("therapy")}
               className="hidden"
-              onChange={() => setActiveTherapy(id as TherapyKeys)}
             />
             <span className="text-sm">{name}</span>
           </label>
@@ -165,10 +186,7 @@ const BookAppointment: React.FC = () => {
   const renderDoctorOptions = () => (
     <div className="bg-[#CBF6EF] w-3/4 px-6 py-4 my-4 shadow-inset rounded-3xl">
       <h1 className="text-green-primary-1 text-lg">Select Doctor</h1>
-      <div
-        {...register("doctor")}
-        className="flex gap-6 flex-wrap justify-center mt-6 mb-6"
-      >
+      <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
         {Object.entries(DoctorOptions).map(([id, { name, avatar }]) => (
           <label
             key={id}
@@ -179,13 +197,13 @@ const BookAppointment: React.FC = () => {
             htmlFor={id}
           >
             <img src={avatar} alt="doc-avatar" className="w-[40px]" />
-            <input
+            <Input
               type="radio"
               id={id}
+              {...register("doctor")}
               value={id}
               name="doctor"
               className="hidden"
-              onChange={() => setActiveDoctor(id as DoctorKeys)}
             />
             <span className="text-sm">{name}</span>
             <Tooltip
@@ -222,17 +240,17 @@ const BookAppointment: React.FC = () => {
       <p className="text-green-primary-1 text-xs mb-4">
         (Please note that you can only select available time slots)
       </p>
-      <div className="w-full flex flex-wrap justify-center gap-6">
-        <input
+      <div className="w-full flex flex-col md:flex-row justify-center gap-6">
+        <Input
           type="date"
+          {...register("date")}
           value={meetingDate}
-          onChange={(event) => setMeetingDate(event.target.value)}
           className="text-green-primary-1 border-0 rounded-xl min-w-full sm:min-w-[40%] p-3 shadow-inset-2"
         />
-        <input
+        <Input
           type="time"
           value={meetingTime}
-          onChange={(event) => setMeetingTime(event.target.value)}
+          {...register("time")}
           className="text-green-primary-1 border-0 rounded-xl min-w-full sm:min-w-[40%] p-3 shadow-inset-2"
         />
       </div>
@@ -247,25 +265,29 @@ const BookAppointment: React.FC = () => {
           (Provide us with some detailed description of your issues so the
           consultant understands you better)
         </p>
-        <textarea
+        <Textarea
           rows={4}
+          minLength={100}
+          maxLength={1000}
           value={eventDescription}
-          onChange={(event) => setEventDescription(event.target.value)}
-          className="text-black px-6 py-4 border-0 rounded-xl w-full shadow-inset-2 outline-0"
-        ></textarea>
+          {...register("eventDescription")}
+          className="text-green-primary-1 px-6 py-4 border-0 rounded-xl w-full shadow-inset-2 outline-0"
+        ></Textarea>
+        <div className="text-right text-xs text-green-primary-1">
+          {eventDescription.length}/1000
+        </div>
       </div>
       {/* TODO: Integrate createEvent functionality on clicking the Book Event button */}
       <Button
         type="submit"
-        onClick={createEventWithGuestsAndReminders}
-        disabled={eventDescription === ""}
+        disabled={eventDescription.length < 100}
         className="bg-green-primary-1 text-white shadow-inset px-12 mt-8 mb-8 rounded-3xl"
       >
         Book Event
       </Button>
-      <p className="text-[#2CC3B4] text-xs mb-20 max-w-60">
-        * After clicking on "Book Event", you will be sent an email regarding
-        the appointment that has been created
+      <p className="text-[#2CC3B4] text-xs mb-20">
+        *After clicking on "Book Event", you will be sent an email regarding the
+        appointment that has been created
       </p>
     </>
   );

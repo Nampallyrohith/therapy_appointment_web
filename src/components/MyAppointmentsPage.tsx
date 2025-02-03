@@ -107,7 +107,7 @@ const MyAppointmentsPage: React.FC = () => {
       isOpen={isModalOpen}
       onRequestClose={closeModal}
       contentLabel="Appointment Details"
-      className={`flex flex-col outline-0 text-center md:text-left ${
+      className={`flex flex-col outline-0 text-center  md:text-left ${
         isMeetingUpcoming
           ? "bg-white text-green-primary-1"
           : isMeetingCancelled
@@ -155,7 +155,17 @@ const MyAppointmentsPage: React.FC = () => {
       >
         Meeting: {selectedAppointment?.typeOfTherapy}
       </h1>
-      <h2 className="underline mb-2">Guests:</h2>
+      <h2
+        className={`underline mb-2 ${
+          isMeetingUpcoming
+            ? "text-green-primary-1"
+            : isMeetingCancelled
+            ? "text-gray-500"
+            : "text-white"
+        }`}
+      >
+        Guests:
+      </h2>
       {/* TODO: Add user and doctor emails */}
       <p className="text-sm">
         <span className="font-bold">Client:</span>{" "}
@@ -165,11 +175,31 @@ const MyAppointmentsPage: React.FC = () => {
         <span className="font-bold">Consultant:</span>{" "}
         {selectedAppointment?.doctorName}
       </p>
-      <h2 className="underline my-2">Description:</h2>
+      <h2
+        className={`underline my-2 ${
+          isMeetingUpcoming
+            ? "text-green-primary-1"
+            : isMeetingCancelled
+            ? "text-gray-500"
+            : "text-white"
+        }`}
+      >
+        Description:
+      </h2>
       <p className="text-sm indent-8 mb-4">
         {selectedAppointment?.description}
       </p>
-      <h2 className="underline mb-2">Meeting date & time:</h2>
+      <h2
+        className={`underline my-2 ${
+          isMeetingUpcoming
+            ? "text-green-primary-1"
+            : isMeetingCancelled
+            ? "text-gray-500"
+            : "text-white"
+        }`}
+      >
+        Meeting date & time:
+      </h2>
       <p>
         {selectedAppointment?.timingOfMeeting
           ? new Date(selectedAppointment.timingOfMeeting).toLocaleString()
@@ -177,13 +207,13 @@ const MyAppointmentsPage: React.FC = () => {
       </p>
       {selectedAppointment && "cancelledOn" in selectedAppointment && (
         <div>
-          <h2 className="underline my-2">Cancelled on:</h2>
+          <h2 className="underline my-2 text-gray-500">Cancelled on:</h2>
           <p>{selectedAppointment?.cancelledOn}</p>
         </div>
       )}
       {selectedAppointment && "attended" in selectedAppointment && (
         <div>
-          <h2 className="underline my-2">Attended:</h2>
+          <h2 className="underline text-white my-2">Attended:</h2>
           <p>{selectedAppointment?.attended ? "Yes" : "No"}</p>
         </div>
       )}
@@ -207,8 +237,12 @@ const MyAppointmentsPage: React.FC = () => {
         )}
       </button>
       {!isMeetingUpcoming ? (
-        <p className="self-end text-[10px] text-red-400 max-w-40">
-          * The meeting is either a previous or a cancelled one
+        <p
+          className={`self-end text-[10px] ${
+            isMeetingCancelled ? "text-gray-500" : "text-white"
+          }`}
+        >
+          *The meeting is either a previous or a cancelled one
         </p>
       ) : (
         ""
