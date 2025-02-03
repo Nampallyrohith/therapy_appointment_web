@@ -107,7 +107,7 @@ const MyAppointmentsPage: React.FC = () => {
       isOpen={isModalOpen}
       onRequestClose={closeModal}
       contentLabel="Appointment Details"
-      className={`flex flex-col outline-0 text-center  md:text-left ${
+      className={`flex flex-col outline-0 text-center md:text-left ${
         isMeetingUpcoming
           ? "bg-white text-green-primary-1"
           : isMeetingCancelled

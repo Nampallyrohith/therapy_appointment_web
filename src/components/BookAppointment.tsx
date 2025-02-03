@@ -7,7 +7,7 @@ import { env, supabaseClient } from "@/supabase/connection";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { LuInfo } from "react-icons/lu";
 import avatar from "@/assets/images/doctor-avatar.png";
-import { Input, Textarea} from "@chakra-ui/react";
+import { Input, Textarea } from "@chakra-ui/react";
 import { convertToISO8601 } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 
