@@ -7,7 +7,7 @@ import BookAppointment from "./components/BookAppointment";
 
 const App = () => {
   return (
-    <div className="w-full h-full container">
+    <div className="w-full h-full">
       <Routes>
         <Route path="/login" element={<AuthenticationPage />} />
         <Route element={<ProtectedRoute />}>

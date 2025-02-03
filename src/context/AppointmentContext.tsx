@@ -28,7 +28,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [authFailed, setAuthFailed] = useState<boolean>(false);
+  const [authFailed, setAuthFailed] = useState<boolean>(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,12 +38,12 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const getUserSession = async () => {
     setAuthFailed(false);
     const { data, error } = await supabaseClient.auth.getSession();
-    console.log(data);
     if (error) {
       console.error("Error fetching session:", error.message);
       setUser(null);
       setAuthFailed(true);
     }
+    console.log(data);
 
     if (data.session) {
       const userName = data.session.user?.user_metadata?.full_name;

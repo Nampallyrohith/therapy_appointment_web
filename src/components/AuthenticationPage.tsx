@@ -1,17 +1,12 @@
-// import { useState } from "react";
 import top from "../assets/images/AuthenticationIcons/top.png";
-// import Login from "@/shared/Login";
-// import SignUp from "@/shared/SignUp";
 import { Image } from "@chakra-ui/react";
 import { useAppointmentContext } from "@/context/AppointmentContext";
-import { Navigate } from "react-router-dom";
 import { supabaseClient } from "@/supabase/connection";
 import { FcGoogle } from "react-icons/fc";
 
 const AuthenticationPage = () => {
-  // const [isLogin, setIsLogin] = useState(true);
-  const { user } = useAppointmentContext();
-  console.log(user);
+  const { user, authFailed } = useAppointmentContext();
+  console.log(user, authFailed);
 
   const handleOAuthSignUp = async () => {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
@@ -27,10 +22,6 @@ const AuthenticationPage = () => {
       console.log("error:", error);
     }
   };
-
-  if (user?.id !== undefined) {
-    return <Navigate to="/user/home" />;
-  }
 
   return (
     <div className="w-full h-screen ">

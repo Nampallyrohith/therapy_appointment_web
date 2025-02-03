@@ -6,7 +6,9 @@ import Loader from "@/shared/Loader";
 import OurTherapists from "@/shared/OurTherapists";
 
 const HomePage = () => {
-  const { user } = useAppointmentContext();
+  const { user, authFailed } = useAppointmentContext();
+  console.log("user", user);
+  console.log("auth failed:", authFailed);
 
   return (
     <div className="w-full h-full flex flex-col justify-around items-start">
