@@ -17,7 +17,7 @@ const App = () => {
             element={<MyAppointmentsPage />}
           />
           <Route
-            path="/user/booking-appointment"
+            path="/user/book-appointment"
             element={<BookAppointment />}
           />
         </Route>

@@ -58,7 +58,7 @@ const Header = () => {
             </li>
             <li>
               <Link
-                to="/user/booking-appointment"
+                to="/user/book-appointment"
                 className="bg-orange-primary-1 text-white px-5 py-2 tracking-wider rounded-lg shadow-inset"
               >
                 Book Appointment
