@@ -13,7 +13,7 @@ import ActionButton from "./ActionButton";
 
 const OurTherapists = () => {
   return (
-    <div className="mx-auto relative w-3/4 h-full">
+    <div className="mx-auto relative w-3/4 h-full mb-6">
       <button className="custom-swiper-button-prev absolute -left-[42px] sm:-left-[48px] top-1/2 -translate-y-1/2 z-10 rounded-full p-2 transition-colors">
         <ChevronLeft size={42} className="text-[#5281A2]" />
       </button>
