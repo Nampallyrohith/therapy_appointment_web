@@ -4,6 +4,7 @@ import MyAppointmentsPage from "./components/MyAppointmentsPage";
 import AuthenticationPage from "./components/AuthenticationPage";
 import ProtectedRoute from "./Handler/ProtectedRoute";
 import BookAppointment from "./components/BookAppointment";
+import ProfilePage from "./components/ProfilePage";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
             element={<MyAppointmentsPage />}
           />
           <Route path="/user/book-appointment" element={<BookAppointment />} />
+          <Route path="/user/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </div>

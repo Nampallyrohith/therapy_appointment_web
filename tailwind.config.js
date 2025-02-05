@@ -9,6 +9,7 @@ export default {
         "orange-primary-3": "#FFBF69", // Example: orange
         "green-primary-1": "#2EC4B6",
         "green-primary-2": "#CBF3F0",
+        "green-primary-3": "#1f5d5d",
       },
     },
   },

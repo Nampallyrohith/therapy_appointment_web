@@ -12,11 +12,14 @@ const Banner = () => {
           Welcome back,{" "}
           <span className="text-green-primary-1 font-bold">{user?.name}!</span>
         </h1>
-        <p className=" text-green-primary-1">
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dolore
-          perferendis inventore animi quod sint cupiditate accusamus, autem
-          provident amet labore iusto odio nulla consequatur commodi, facilis
-          veniam alias molestias dignissimos!
+        <p className=" text-green-primary-1 italic ">
+          "Mental health is not a destination, but a process. It’s about how you
+          drive, not where you’re going."
+          <br />
+          "You are not your illness. You have a story to tell, a path to walk,
+          and a purpose to live."
+          <br />
+          "Healing takes time, and asking for help is a courageous step."
         </p>
         <ActionButton buttonText="Book Appointment" />
       </div>

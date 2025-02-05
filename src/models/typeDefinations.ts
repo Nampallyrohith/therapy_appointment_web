@@ -12,6 +12,7 @@ export interface TherapistType {
   experience: string;
   specialist: string;
   about: string;
+  image: string;
 }
 
 export interface User {
