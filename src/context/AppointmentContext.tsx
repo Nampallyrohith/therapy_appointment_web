@@ -14,6 +14,7 @@ type AppointmentContextType = {
   isAuthToken: boolean;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
+  isLoading: boolean;
 };
 
 const AppointmentContext = createContext<AppointmentContextType | undefined>(
@@ -29,6 +30,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthToken, setIsAuthToken] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,50 +38,50 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   }, []);
 
   useEffect(() => {
-    const authToken = localStorage.getItem(
-      "sb-apzfbogbgyznmzsxknxb-auth-token"
-    );
-    if (authToken) {
-      setIsAuthToken(true);
-    }
-  }, [isAuthToken]);
+    setIsAuthToken(!!user);
+    setIsLoading(false);
+  }, [user]);
 
   useEffect(() => {
     const refreshTokenInterval = setInterval(async () => {
       const { data, error } = await supabaseClient.auth.refreshSession();
       if (error) {
         console.error("Error refreshing session:", error.message);
+        handleUserSignOut();
         return;
       }
       console.log("Session refreshed:", data);
-      setUser((prevUser) => ({
-        id: prevUser?.id || "",
-        name: prevUser?.name || "",
-        email: prevUser?.email,
-        providerToken: data.session?.provider_token,
-        avatarUrl: prevUser?.avatarUrl || null,
-        phone: prevUser?.phone || null,
-        gender: prevUser?.gender || null,
-        dob: prevUser?.dob || null,
-        createdAt: prevUser?.createdAt || "",
-        lastSignInAt: prevUser?.lastSignInAt,
-        expiresAt: data.session?.expires_at,
-        refreshToken: data.session?.refresh_token,
-        accessToken: data.session?.access_token,
-      }));
+      if (data?.session?.user) {
+        setUser({
+          id: data.session.user.id,
+          name: data.session.user?.user_metadata?.full_name,
+          email: data.session.user.email,
+          providerToken: data.session.provider_token,
+          avatarUrl: data.session.user.user_metadata?.avatar_url,
+          phone: null,
+          gender: null,
+          dob: null,
+          createdAt: data.session.user.created_at,
+          lastSignInAt: data.session.user.last_sign_in_at,
+          expiresAt: data.session.expires_at,
+          refreshToken: data.session.refresh_token,
+          accessToken: data.session.access_token,
+        });
+      }
     }, 1000 * 60 * 14);
 
     return () => clearInterval(refreshTokenInterval);
-  }, [user]);
+  }, []);
 
   const getUserSession = async () => {
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) {
       console.error("Error fetching session:", error.message);
       setUser(null);
+      return;
     }
 
-    if (data.session) {
+    if (data?.session?.user) {
       const userName = data.session.user?.user_metadata?.full_name;
       const userDetails = data.session.user;
       setUser({
@@ -105,11 +107,9 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     if (error) {
       console.error("Error:", error);
     }
-    localStorage.removeItem("sb-apzfbogbgyznmzsxknxb-auth-token");
-    navigate("/login");
-
     setUser(null);
-    window.location.reload();
+    setIsAuthToken(false);
+    navigate("/login");
   };
 
   const handleUpdateUserDetailsState = (data: User) => {
@@ -121,6 +121,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
       value={{
         user,
         isAuthToken,
+        isLoading,
         handleUpdateUserDetailsState,
         handleUserSignOut,
       }}

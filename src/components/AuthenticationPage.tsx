@@ -10,6 +10,8 @@ const AuthenticationPage = () => {
   const { isAuthToken } = useAppointmentContext();
   const navigate = useNavigate();
 
+  console.log("Hi");
+
   useEffect(() => {
     if (isAuthToken) {
       navigate("/user/home");
