@@ -11,6 +11,7 @@ import { Input, Textarea } from "@chakra-ui/react";
 import { convertToISO8601 } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { useNavigate } from "react-router-dom";
+import { toaster } from "./ui/toaster";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -76,6 +77,10 @@ const BookAppointment: React.FC = () => {
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     console.log("data", data);
     await createEventWithGuestsAndReminders(data);
+    toaster.create({
+      description: "File saved successfully",
+      type: "info",
+    })
   };
 
   const createEventWithGuestsAndReminders = async (
