@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import MyAppointmentsPage from "./components/MyAppointmentsPage";
 import AuthenticationPage from "./components/AuthenticationPage";
@@ -10,6 +10,7 @@ const App = () => {
   return (
     <div className="w-full h-full">
       <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<AuthenticationPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/user/home" element={<HomePage />} />
