@@ -1,11 +1,13 @@
 import profileIcon from "../assets/images/AuthenticationIcons/profile-icon.png";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import ActionButton from "@/shared/ActionButton";
 import userIcon from "../assets/images/AuthenticationIcons/user-icon.png";
 import passwordIcon from "../assets/images/AuthenticationIcons/password-icon.png";
 import { Image } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { supabaseClient } from "@/supabase/connection";
+import { useEffect } from "react";
 
 const schema = z.object({
   email: z.string().email(),
@@ -19,14 +21,21 @@ type Inputs = z.infer<typeof schema>;
 const Login: React.FC = () => {
   const {
     register,
-    handleSubmit,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
   });
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
-  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) {
+        console.log(error);
+      }
+      console.log(data.session?.provider_token);
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="lg:mt-36 self-center flex flex-col justify-center items-center space-y-5 w-full h-full">
@@ -39,10 +48,7 @@ const Login: React.FC = () => {
         Login
       </h1>
       <div className="w-11/12 md:w-3/4 lg:w-[400px]  inset-6 flex items-center justify-center">
-        <form
-          className="flex flex-col gap-4 w-full"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="flex flex-col gap-4 w-full">
           <div className="flex justify-between items-center bg-[#AAE9E3] placeholder-orange-primary-1 rounded-full w-full h-12 text-orange-primary-1">
             <input
               {...register("email")}

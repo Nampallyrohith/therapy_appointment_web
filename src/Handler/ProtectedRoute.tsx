@@ -1,14 +1,21 @@
+import { useAppointmentContext } from "@/context/AppointmentContext";
 import Footer from "@/shared/Footer";
 import Header from "@/shared/Header";
-import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import Loader from "@/shared/Loader";
+import { Navigate, Outlet } from "react-router-dom"; 
 
-interface ProtectedRouteProps {
-  isAuthenticated: boolean; // Replace with your actual authentication logic
-}
+const ProtectedRoute = () => {
+  const { isAuthToken, isLoading } = useAppointmentContext();
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAuthenticated }) => {
-  return isAuthenticated ? (
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  return isAuthToken ? (
     <>
       <Header />
       <Outlet />
@@ -18,5 +25,4 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAuthenticated }) => {
     <Navigate to="/login" />
   );
 };
-
 export default ProtectedRoute;

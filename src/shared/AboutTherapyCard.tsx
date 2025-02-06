@@ -14,7 +14,9 @@ const AboutTherapyCard: React.FC<therayCardProps> = ({ therapy }) => {
       <Image
         src={image}
         alt={name + "image"}
-        className={`${id % 2 === 0 && "order-2"} rounded-lg  md:mx-auto my-3 lg:my-0`}
+        className={`${
+          id % 2 === 0 && "order-2"
+        } rounded-lg  md:mx-auto my-3 lg:my-0`}
       />
       <div className="space-y-4 text-center lg:text-left">
         <h1 className="text-2xl">{name}</h1>

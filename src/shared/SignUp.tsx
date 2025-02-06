@@ -7,6 +7,9 @@ import emailIcon from "../assets/images/AuthenticationIcons/email-icon.png";
 import { Image } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FcGoogle } from "react-icons/fc";
+import { supabaseClient } from "@/supabase/connection";
+import { useEffect } from "react";
 
 const schema = z
   .object({
@@ -33,6 +36,32 @@ const SignUp: React.FC = () => {
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     console.log(data);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) {
+        console.log(error);
+      }
+      console.log(data.session?.provider_token);
+    };
+    fetchData();
+  }, []);
+
+  const handleOAuthSignUp = async () => {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        scopes: "https://www.googleapis.com/auth/calendar",
+        redirectTo: "http://localhost:5173/user/booking-appointment",
+      },
+    });
+    console.log(data);
+
+    if (error) {
+      console.log("error:", error);
+    }
   };
 
   return (
@@ -107,6 +136,17 @@ const SignUp: React.FC = () => {
           {/* Submit Button */}
           <div className="text-center my-6">
             <ActionButton buttonText="Sign in" />
+          </div>
+
+          <div className="flex justify-center items-center gap-2 text-green-primary-1">
+            <span>Sign up with Google account</span>
+            <button
+              type="button"
+              onClick={handleOAuthSignUp}
+              className="p-1 hover:drop-shadow-[0_6px_6px_rgba(72,187,120,1)] hover:scale-105  rounded-lg hover:ease-out hover:delay-100"
+            >
+              <FcGoogle size={30} />
+            </button>
           </div>
         </form>
       </div>

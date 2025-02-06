@@ -1,11 +1,37 @@
-import { useState } from "react";
 import top from "../assets/images/AuthenticationIcons/top.png";
-import Login from "@/shared/Login";
-import SignUp from "@/shared/SignUp";
 import { Image } from "@chakra-ui/react";
+import { useAppointmentContext } from "@/context/AppointmentContext";
+import { supabaseClient } from "@/supabase/connection";
+import { FcGoogle } from "react-icons/fc";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AuthenticationPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const { isAuthToken } = useAppointmentContext();
+  const navigate = useNavigate();
+
+  console.log("Hi");
+
+  useEffect(() => {
+    if (isAuthToken) {
+      navigate("/user/home");
+    }
+  }, [isAuthToken, navigate]);
+
+  const handleOAuthSignUp = async () => {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        scopes: "https://www.googleapis.com/auth/calendar",
+        redirectTo: "http://localhost:5173/user/home",
+      },
+    });
+    console.log(data);
+
+    if (error) {
+      console.log("error:", error);
+    }
+  };
 
   return (
     <div className="w-full h-screen ">
@@ -18,29 +44,14 @@ const AuthenticationPage = () => {
       <h1 className="text-4xl block lg:hidden mt-16 mb-10 text-center w-full">
         Logo
       </h1>
-      <div className="flex flex-col justify-center items-center">
-        {isLogin ? <Login /> : <SignUp />}
-        {isLogin ? (
-          <div className="flex justify-center gap-1 md:gap-3 items-center mt-3 w-full text-xs md:text-base">
-            <p>Don't have an account yet?</p>
-            <button
-              className="underline text-green-primary-1 font-semibold"
-              onClick={() => setIsLogin(false)}
-            >
-              Create a new Account
-            </button>
-          </div>
-        ) : (
-          <div className="flex justify-center gap-1 md:gap-3 items-center mt-3 w-full text-xs md:text-base">
-            <p className="text-green-primary-1">Already have an account?</p>
-            <button
-              className="text-green-primary-1 font-semibold underline"
-              onClick={() => setIsLogin(true)}
-            >
-              Login
-            </button>
-          </div>
-        )}
+      <div className="flex w-full lg:h-full justify-center items-center gap-2 text-green-primary-1">
+        <span className="flex items-center p-2 border border-green-primary-1 rounded-lg hover:shadow-lg hover:scale-105 hover:linear hover:delay-100">
+          Sign in with{" "}
+          <button type="button" onClick={handleOAuthSignUp} className="p-1 ">
+            {/* hover:drop-shadow-[0_6px_6px_rgba(72,187,120,1)] */}
+            <FcGoogle size={30} />
+          </button>
+        </span>
       </div>
     </div>
   );

@@ -8,7 +8,12 @@ interface ButtonProps {
   onClickEvent: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-const FilterButton: React.FC<ButtonProps> = ({ buttonText, id, filter, onClickEvent }) => {
+const FilterButton: React.FC<ButtonProps> = ({
+  buttonText,
+  id,
+  filter,
+  onClickEvent,
+}) => {
   return (
     <Button
       id={id}

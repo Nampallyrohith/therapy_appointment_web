@@ -6,7 +6,7 @@
 
 * {
   margin: 0px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 body {
@@ -17,6 +17,11 @@ body {
 .shadow-inset {
   box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
 }
+
+.shadow-inset-2 {
+  box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.2);
+}
+
 .login-page-Decor {
   position: absolute;
   left: -13px;
@@ -25,6 +30,7 @@ body {
   height: 406px;
   opacity: 1;
 }
+
 h1,
 h2,
 h3,
@@ -33,6 +39,7 @@ h5,
 h6 {
   color: #ff9f1c;
 }
+
 /* p {
   color: #2ec4b6;
 } */
@@ -62,8 +69,14 @@ h6 {
 .swiper-slide {
   height: auto !important;
 }
+
 /* Hide default navigation buttons */
 .swiper-button-next,
 .swiper-button-prev {
   display: none !important;
+}
+
+.no-effect-tw {
+  /* all: initial; */
+  all: unset;
 }

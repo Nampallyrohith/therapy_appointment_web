@@ -11,12 +11,18 @@ import { useEffect, useRef, useState } from "react";
 import ActionButton from "./ActionButton";
 
 import { IoMenu } from "react-icons/io5";
+import { useAppointmentContext } from "@/context/AppointmentContext";
 
 const Header = () => {
   const [isDropdown, setDropdown] = useState<boolean>(false);
+  const { handleUserSignOut, user } = useAppointmentContext();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const handleLogout = async () => {
+    handleUserSignOut();
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,7 +47,7 @@ const Header = () => {
     // larger screen
     <>
       <nav className="flex justify-around items-center py-4 fixed w-full z-10 bg-green-primary-2">
-        <Link to="/">
+        <Link to="/user/home">
           <p className="text-3xl text-orange-primary-1">Logo</p>
         </Link>
 
@@ -51,12 +57,12 @@ const Header = () => {
               <Link to="/user/my-appointments">My Appointments</Link>
             </li>
             <li>
-              <Button
-                type="button"
-                className="bg-orange-primary-1 text-white px-5 tracking-wider rounded-lg shadow-inset"
+              <Link
+                to="/user/book-appointment"
+                className="bg-orange-primary-1 text-white px-5 py-2 tracking-wider rounded-lg shadow-inset"
               >
                 Book Appointment
-              </Button>
+              </Link>
             </li>
             <li>
               <Button
@@ -71,17 +77,19 @@ const Header = () => {
           </div>
         </div>
         {isDropdown && (
-          // TO-DO: Dumming data for UI testing
+          // TODO: Dumming data for UI testing
           <div
             ref={dropdownRef}
             className="w-1/6 px-5 py-3 bg-white border-2 border-orange-primary-3 text-orange-primary-1 flex flex-col text-center shadow-md absolute top-20 right-20 rounded-md gap-2"
           >
-            <p className="my-2">Rohan Kumar</p>
+            <p className="my-2">{user?.name}</p>
             <hr className="border-orange-primary-2" />
             <Link to="/user/profile" className="my-2">
               Profile
             </Link>
-            <ActionButton buttonText="Logout" />
+            <div onClick={handleLogout}>
+              <ActionButton buttonText="Logout" />
+            </div>
           </div>
         )}
 
@@ -99,10 +107,10 @@ const Header = () => {
               <Link to="/user/my-appointments">My Appointments</Link>
             </MenuItem>
             <MenuItem asChild value="book-a-appointment">
-              <Link to="/user/booking-flow">Book a Appointment</Link>
+              <Link to="/user/booking-appointment">Book a Appointment</Link>
             </MenuItem>
             <MenuItem asChild value="logout">
-              <Link to="">Logout</Link>
+              <Button onClick={handleLogout}>Logout</Button>
             </MenuItem>
           </MenuContent>
         </MenuRoot>

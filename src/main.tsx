@@ -4,12 +4,15 @@ import "./index.css";
 import App from "./App.tsx";
 import { Provider } from "@/components/ui/provider.tsx";
 import { BrowserRouter } from "react-router-dom";
+import { AppointmentProvider } from "./context/AppointmentContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider defaultTheme="light">
       <BrowserRouter>
-        <App />
+        <AppointmentProvider>
+          <App />
+        </AppointmentProvider>
       </BrowserRouter>
     </Provider>
   </StrictMode>
