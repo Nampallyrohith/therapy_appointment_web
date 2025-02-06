@@ -1,3 +1,6 @@
+import { useAppointmentContext } from "@/context/AppointmentContext";
+import { useNavigate } from "react-router-dom";
+
 export const convertToISO8601 = (
   date: string,
   time: string,
@@ -11,4 +14,16 @@ export const convertToISO8601 = (
   }
 
   return dateTime.toISOString();
+};
+
+export const useBookAppointment = () => {
+  const { selectedTherapy, setSelectedTherapy } = useAppointmentContext();
+  const navigate = useNavigate();
+
+  return () => {
+    if (selectedTherapy) {
+      setSelectedTherapy("");
+    }
+    navigate("/user/book-appointment");
+  };
 };

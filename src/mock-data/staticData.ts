@@ -6,28 +6,28 @@ import Humanistic from "@/assets/images/therapies/humanistic.jpg";
 
 export const ourTherapiesList: therapyType[] = [
   {
-    id: 1,
+    id: "psychodynamic",
     image: Psychodynamic,
     name: "Psychodynamic Therapy",
     about:
       "Psychodynamic therapy focuses on exploring unconscious thoughts, emotions, and past experiences to understand how they influence current behavior and relationships. It aims to resolve internal conflicts through techniques like free association and dream analysis. ",
   },
   {
-    id: 2,
+    id: "behavioural",
     image: Behavioural,
     name: "Behavioral therapy",
     about:
       " Behavioral therapy emphasizes changing maladaptive behaviors by applying learning principles such as classical and operant conditioning, often used to treat phobias, addictions, and OCD.",
   },
   {
-    id: 3,
+    id: "cognitiveBehavioural",
     image: CBT,
     name: "Cognitive behavioral Therapy",
     about:
       "Cognitive Behavioral Therapy (CBT) integrates cognitive and behavioral approaches, focusing on identifying and reframing distorted thoughts to influence emotions and behaviors, commonly used for anxiety, depression, and stress.",
   },
   {
-    id: 4,
+    id: "humanistic",
     image: Humanistic,
     name: "Humanistic Therapy",
     about:

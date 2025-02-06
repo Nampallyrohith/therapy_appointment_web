@@ -16,10 +16,7 @@ const App = () => {
             path="/user/my-appointments"
             element={<MyAppointmentsPage />}
           />
-          <Route
-            path="/user/book-appointment"
-            element={<BookAppointment />}
-          />
+          <Route path="/user/book-appointment" element={<BookAppointment />} />
         </Route>
       </Routes>
     </div>

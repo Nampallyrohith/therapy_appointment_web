@@ -1,5 +1,5 @@
 export interface therapyType {
-  id: number;
+  id: string;
   image: string;
   name: string;
   about: string;
@@ -23,6 +23,6 @@ export interface User {
   phone: string | null;
   gender: string | null;
   dob: string | null;
-  createdAt: string
-  lastSignInAt: string | undefined
+  createdAt: string;
+  lastSignInAt: string | undefined;
 }

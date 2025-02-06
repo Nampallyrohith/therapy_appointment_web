@@ -1,6 +1,6 @@
 // import { Input } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
-import React from "react";
+import React, { useEffect } from "react";
 // import { DatePicker } from "@orange_digital/chakra-datepicker";
 import { Button } from "./ui/button";
 import { env, supabaseClient } from "@/supabase/connection";
@@ -51,9 +51,9 @@ interface FormInputs {
 
 const BookAppointment: React.FC = () => {
   // const [guests, setGuests] = useState<string[]>([""]);
-  const { user } = useAppointmentContext();
+  const { user, selectedTherapy } = useAppointmentContext();
 
-  const { register, handleSubmit, watch } = useForm<FormInputs>({
+  const { register, handleSubmit, setValue, watch } = useForm<FormInputs>({
     defaultValues: {
       therapy: "" as TherapyKeys,
       doctor: "" as DoctorKeys,
@@ -70,6 +70,16 @@ const BookAppointment: React.FC = () => {
     meetingTime,
     eventDescription,
   ] = watch(["therapy", "doctor", "date", "time", "eventDescription"]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (selectedTherapy) {
+      setValue("therapy", selectedTherapy as TherapyKeys);
+    }
+  }, [selectedTherapy, setValue]);
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     console.log("data", data);

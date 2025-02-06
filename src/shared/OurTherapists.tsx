@@ -46,8 +46,7 @@ const OurTherapists = () => {
                   <p className="text-xs lg:text-base">{therapist.specialist}</p>
                   <p className="text-xs lg:text-base">{therapist.experience}</p>
                 </div>
-
-                <ActionButton buttonText="Book Appointment" />
+                <ActionButton buttonText="Schedule an appointment" />
               </div>
             </div>
           </SwiperSlide>

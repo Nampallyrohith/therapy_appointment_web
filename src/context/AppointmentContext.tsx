@@ -207,8 +207,10 @@ export const dummyData: Record<string, Appointment[]> = {
 type AppointmentContextType = {
   user: User | null;
   authFailed: boolean;
+  selectedTherapy: string;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
+  setSelectedTherapy: (therapy: string) => void;
 };
 
 const AppointmentContext = createContext<AppointmentContextType | undefined>(
@@ -224,6 +226,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [authFailed, setAuthFailed] = useState<boolean>(true);
+  const [selectedTherapy, setSelectedTherapy] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -280,6 +283,8 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         handleUpdateUserDetailsState,
         handleUserSignOut,
         authFailed,
+        selectedTherapy,
+        setSelectedTherapy,
       }}
     >
       {children}
