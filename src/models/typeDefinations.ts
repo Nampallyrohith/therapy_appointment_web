@@ -11,6 +11,7 @@ export interface TherapistType {
   name: string;
   experience: string;
   specialist: string;
+  specialisationId: string
   about: string;
 }
 

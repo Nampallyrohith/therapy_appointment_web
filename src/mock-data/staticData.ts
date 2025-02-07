@@ -41,6 +41,7 @@ export const Therapists: TherapistType[] = [
     therapyId: 1,
     name: "Dr. John Smith",
     experience: "10 years",
+    specialisationId: "psychodynamic",
     specialist: "Psychodynamic Therapy",
     about:
       "Specializes in exploring unconscious thoughts, emotions, and past experiences to resolve internal conflicts using techniques like free association and dream analysis.",
@@ -50,6 +51,7 @@ export const Therapists: TherapistType[] = [
     therapyId: 2,
     name: "Dr. Emily Johnson",
     experience: "8 years",
+    specialisationId: "behavioral",
     specialist: "Behavioral therapy",
     about:
       "Focuses on changing maladaptive behaviors through learning principles like classical and operant conditioning. Experienced in treating phobias, addictions, and OCD.",
@@ -59,6 +61,7 @@ export const Therapists: TherapistType[] = [
     therapyId: 3,
     name: "Dr. Michael Brown",
     experience: "12 years",
+    specialisationId: "cognitiveBehavioural",
     specialist: "Cognitive Behavioral Therapy (CBT)",
     about:
       "Integrates cognitive and behavioral approaches to identify and reframe distorted thoughts, helping clients manage anxiety, depression, and stress effectively.",
@@ -69,6 +72,7 @@ export const Therapists: TherapistType[] = [
     name: "Dr. Sarah Lee",
     experience: "7 years",
     specialist: "Humanistic Therapy",
+    specialisationId: "humanistic",
     about:
       "Emphasizes personal growth and self-actualization, using empathy and unconditional positive regard to enhance self-awareness, self-esteem, and interpersonal relationships.",
   },

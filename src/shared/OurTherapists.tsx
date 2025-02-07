@@ -46,7 +46,11 @@ const OurTherapists = () => {
                   <p className="text-xs lg:text-base">{therapist.specialist}</p>
                   <p className="text-xs lg:text-base">{therapist.experience}</p>
                 </div>
-                <ActionButton buttonText="Schedule an appointment" />
+                {/* TODO: Add handler to select therapist. */}
+                <ActionButton
+                  buttonText="Schedule an appointment"
+                  // onClick={handleTherapistAppointment}
+                />
               </div>
             </div>
           </SwiperSlide>
