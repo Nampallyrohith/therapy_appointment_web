@@ -17,12 +17,20 @@ export const convertToISO8601 = (
 };
 
 export const useBookAppointment = () => {
-  const { selectedTherapy, setSelectedTherapy } = useAppointmentContext();
+  const {
+    selectedTherapy,
+    setSelectedTherapy,
+    selectedDoctor,
+    setSelectedDoctor,
+  } = useAppointmentContext();
   const navigate = useNavigate();
 
   return () => {
     if (selectedTherapy) {
       setSelectedTherapy("");
+    }
+    if (selectedDoctor) {
+      setSelectedDoctor("");
     }
     navigate("/user/book-appointment");
   };

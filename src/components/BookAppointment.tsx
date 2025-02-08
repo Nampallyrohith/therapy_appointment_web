@@ -10,6 +10,7 @@ import avatar from "@/assets/images/doctor-avatar.png";
 import { Input, Textarea } from "@chakra-ui/react";
 import { convertToISO8601 } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
+import { Therapists } from "@/mock-data/staticData";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -18,24 +19,13 @@ const TherapyOptions = {
   humanistic: "Humanistic Therapy",
 };
 
-const DoctorOptions = {
-  doctor1: {
-    name: "Doctor Name 1",
+const DoctorOptions = Therapists.reduce((acc, therapist) => {
+  acc[therapist.id] = {
+    name: therapist.name,
     avatar: avatar,
-  },
-  doctor2: {
-    name: "Doctor Name 2",
-    avatar: avatar,
-  },
-  doctor3: {
-    name: "Doctor Name 3",
-    avatar: avatar,
-  },
-  doctor4: {
-    name: "Doctor Name 4",
-    avatar: avatar,
-  },
-};
+  };
+  return acc;
+}, {} as Record<string, { name: string; avatar: string }>);
 
 type TherapyKeys = keyof typeof TherapyOptions;
 
@@ -51,7 +41,7 @@ interface FormInputs {
 
 const BookAppointment: React.FC = () => {
   // const [guests, setGuests] = useState<string[]>([""]);
-  const { user, selectedTherapy } = useAppointmentContext();
+  const { user, selectedTherapy, selectedDoctor } = useAppointmentContext();
 
   const { register, handleSubmit, setValue, watch } = useForm<FormInputs>({
     defaultValues: {
@@ -79,7 +69,10 @@ const BookAppointment: React.FC = () => {
     if (selectedTherapy) {
       setValue("therapy", selectedTherapy as TherapyKeys);
     }
-  }, [selectedTherapy, setValue]);
+    if (selectedDoctor) {
+      setValue("doctor", selectedDoctor as DoctorKeys);
+    }
+  }, [selectedTherapy, selectedDoctor, setValue]);
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     console.log("data", data);
@@ -196,6 +189,9 @@ const BookAppointment: React.FC = () => {
   const renderDoctorOptions = () => (
     <div className="bg-[#CBF6EF] w-3/4 px-6 py-4 my-4 shadow-inset rounded-3xl">
       <h1 className="text-green-primary-1 text-lg">Select Doctor</h1>
+      {/* TODO: Dynamically update doctor list based on selected therapy
+                retrieve only doctors who have specialisationId as the
+                current selected therapy option */}
       <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
         {Object.entries(DoctorOptions).map(([id, { name, avatar }]) => (
           <label

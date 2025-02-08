@@ -6,8 +6,7 @@ export interface therapyType {
 }
 
 export interface TherapistType {
-  id: number;
-  therapyId: number;
+  id: string;
   name: string;
   experience: string;
   specialist: string;

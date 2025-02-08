@@ -208,9 +208,11 @@ type AppointmentContextType = {
   user: User | null;
   authFailed: boolean;
   selectedTherapy: string;
+  selectedDoctor: string;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
   setSelectedTherapy: (therapy: string) => void;
+  setSelectedDoctor: (doctor: string) => void;
 };
 
 const AppointmentContext = createContext<AppointmentContextType | undefined>(
@@ -227,6 +229,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const [authFailed, setAuthFailed] = useState<boolean>(true);
   const [selectedTherapy, setSelectedTherapy] = useState<string>("");
+  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -284,7 +287,9 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         handleUserSignOut,
         authFailed,
         selectedTherapy,
+        selectedDoctor,
         setSelectedTherapy,
+        setSelectedDoctor,
       }}
     >
       {children}
