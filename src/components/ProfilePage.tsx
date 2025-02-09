@@ -1,44 +1,42 @@
 import { useForm } from "react-hook-form";
 import { FaPen } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProfilePic from "../assets/images/profile_pic.png";
-
-interface UserProfileData {
-  name: string;
-  email: string;
-  gender: string;
-  age: number;
-  phone: number;
-}
+import { useFetchData } from "@/hooks/apiCall";
+import { useAppointmentContext } from "@/context/AppointmentContext";
+import { User } from "@/models/typeDefinations";
 
 const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const { user, userMeta } = useAppointmentContext();
+
+  const { fetchDataNow } = useFetchData<User>();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
     watch,
-  } = useForm<UserProfileData>({
-    defaultValues: {
-      name: "N. Rohith",
-      email: "rohith@gmail.com",
-      gender: "Male",
-      age: 20,
-      phone: 9876543210,
-    },
-  });
+  } = useForm<User>();
 
-  const onSubmit = (data: UserProfileData) => {
-    console.log("Updated Profile Data:", data);
-    setIsEditing(false);
+  useEffect(() => {
+    if (user) {
+      reset(user);
+    }
+  }, [user, reset]);
+
+  const onSubmit = async (data: User) => {
+    console.log({ ...data, ...userMeta })
+
+    await fetchDataNow("auth/google/signin", "POST", { ...data, ...userMeta });
   };
 
   return (
     <div className="flex justify-center items-center w-full min-h-screen">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="relative bg-[#CBF6EF] rounded-2xl mx-3 space-y-4 p-6 shadow-lg w-[650px]"
+        className="relative bg-[#CBF6EF] rounded-2xl mx-3 space-y-4 p-6 shadow-lg w-11/12 text-sm md:w-[900px]"
       >
         {!isEditing && (
           <div className="absolute top-4 right-4">
@@ -116,22 +114,22 @@ const UserProfileCard = () => {
             <label>Age:</label>
             {isEditing ? (
               <input
-                {...register("age", {
+                {...register("dob", {
                   required: "Age is required",
                   pattern: {
                     value: /^[0-9]+$/,
                     message: "Age must be a number",
                   },
                 })}
-                placeholder="age"
+                placeholder="dob"
                 className="bg-transparent border-0 border-b-green-primary-1 focus:border-b-green-primary-1 focus:ring-0 border-b-2 focus:outline-none w-1/5"
                 type="text"
               />
             ) : (
-              <p>{watch("age")}</p>
+              <p>{watch("dob")}</p>
             )}
-            {errors.age && (
-              <p className="text-red-500 text-xs">{errors.age.message}</p>
+            {errors.dob && (
+              <p className="text-red-500 text-xs">{errors.dob.message}</p>
             )}
           </div>
         </div>

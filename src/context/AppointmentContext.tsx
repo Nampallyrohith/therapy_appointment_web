@@ -1,4 +1,4 @@
-import { User } from "@/models/typeDefinations";
+import { User, UserMeta } from "@/models/typeDefinations";
 import { supabaseClient } from "@/supabase/connection";
 import React, {
   createContext,
@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 type AppointmentContextType = {
   user: User | null;
+  userMeta: UserMeta | null;
   isAuthToken: boolean;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
@@ -29,6 +30,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userMeta, setUserMeta] = useState<UserMeta | null>(null);
   const [isAuthToken, setIsAuthToken] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -56,11 +58,13 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
           id: data.session.user.id,
           name: data.session.user?.user_metadata?.full_name,
           email: data.session.user.email,
-          providerToken: data.session.provider_token,
           avatarUrl: data.session.user.user_metadata?.avatar_url,
           phone: null,
           gender: null,
           dob: null,
+        });
+        setUserMeta({
+          providerToken: data.session.provider_token,
           createdAt: data.session.user.created_at,
           lastSignInAt: data.session.user.last_sign_in_at,
           expiresAt: data.session.expires_at,
@@ -82,17 +86,20 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     }
 
     if (data?.session?.user) {
+      console.log("user", data.session);
       const userName = data.session.user?.user_metadata?.full_name;
       const userDetails = data.session.user;
       setUser({
         id: userDetails?.id,
         name: userName,
         email: userDetails?.email,
-        providerToken: data.session?.provider_token,
         avatarUrl: data.session.user.user_metadata?.avatar_url,
         phone: null,
         gender: null,
         dob: null,
+      });
+      setUserMeta({
+        providerToken: data.session?.provider_token,
         createdAt: userDetails.created_at,
         lastSignInAt: userDetails.last_sign_in_at,
         expiresAt: data.session.expires_at,
@@ -109,6 +116,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     }
     setUser(null);
     setIsAuthToken(false);
+    localStorage.removeItem("sb-apzfbogbgyznmzsxknxb-auth-token")
     navigate("/login");
   };
 
@@ -122,6 +130,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         user,
         isAuthToken,
         isLoading,
+        userMeta,
         handleUpdateUserDetailsState,
         handleUserSignOut,
       }}
