@@ -5,9 +5,23 @@ import { RiShareForward2Fill } from "react-icons/ri";
 import React, { useState } from "react";
 import { Button } from "@chakra-ui/react";
 
-import { Appointment } from "@/context/AppointmentContext";
-import { filterDetails } from "@/context/AppointmentContext";
-import { dummyData } from "@/context/AppointmentContext";
+import { Appointment, FilterProps } from "@/models/typeDefinations";
+import { dummyData } from "@/mock-data/staticData";
+
+export const filterDetails: FilterProps[] = [
+  {
+    filterId: "upcoming",
+    filterButtonText: "Upcoming Appointments",
+  },
+  {
+    filterId: "cancelled",
+    filterButtonText: "Cancelled Appointments",
+  },
+  {
+    filterId: "previous",
+    filterButtonText: "Previous Appointments",
+  },
+];
 
 const MyAppointmentsPage: React.FC = () => {
   const [filter, setFilter] = useState<string>("upcoming");
@@ -105,6 +119,7 @@ const MyAppointmentsPage: React.FC = () => {
   const renderAppropriateModal = () => (
     <Modal
       isOpen={isModalOpen}
+      ariaHideApp={false}
       onRequestClose={closeModal}
       contentLabel="Appointment Details"
       className={`flex flex-col outline-0 text-center md:text-left ${

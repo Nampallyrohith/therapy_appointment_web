@@ -9,208 +9,14 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface BaseUpcoming {
-  typeOfTherapy: string;
-  doctorName: string;
-  bookedBy: string;
-  bookedOn: string;
-  timingOfMeeting: string;
-  description: string;
-}
-
-interface Cancelled extends BaseUpcoming {
-  cancelledOn: string;
-}
-
-interface Previous extends BaseUpcoming {
-  attended: boolean;
-}
-
-export type Appointment = BaseUpcoming | Cancelled | Previous;
-
-interface FilterProps {
-  filterId: string;
-  filterButtonText: string;
-}
-
-export const filterDetails: FilterProps[] = [
-  {
-    filterId: "upcoming",
-    filterButtonText: "Upcoming Appointments",
-  },
-  {
-    filterId: "cancelled",
-    filterButtonText: "Cancelled Appointments",
-  },
-  {
-    filterId: "previous",
-    filterButtonText: "Previous Appointments",
-  },
-];
-
-// TODO: Replace dummy data with actual data from db
-// TODO: Add meetingLink field inside every appointment
-export const dummyData: Record<string, Appointment[]> = {
-  upcoming: [
-    {
-      typeOfTherapy: "Humanistic Therapy",
-      doctorName: "Dr. Emily Carter",
-      bookedBy: "John Doe",
-      bookedOn: "2025-01-01",
-      timingOfMeeting: "2025-01-10T10:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-    },
-    {
-      typeOfTherapy: "Psychodynamic Therapy",
-      doctorName: "Dr. Michael Thompson",
-      bookedBy: "Jane Smith",
-      bookedOn: "2025-01-02",
-      timingOfMeeting: "2025-01-11T14:30:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-    },
-    {
-      typeOfTherapy: "Behavioral Therapy",
-      doctorName: "Dr. Olivia Johnson",
-      bookedBy: "Alice Brown",
-      bookedOn: "2025-01-03",
-      timingOfMeeting: "2025-01-12T16:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-    },
-    {
-      typeOfTherapy: "Cognitive Behavioral Therapy",
-      doctorName: "Dr. William Lee",
-      bookedBy: "Charlie Davis",
-      bookedOn: "2025-01-04",
-      timingOfMeeting: "2025-01-13T09:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-    },
-    {
-      typeOfTherapy: "Humanistic Therapy",
-      doctorName: "Dr. Sophia Martinez",
-      bookedBy: "Emma Wilson",
-      bookedOn: "2025-01-05",
-      timingOfMeeting: "2025-01-14T13:30:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-    },
-  ],
-  cancelled: [
-    {
-      typeOfTherapy: "Humanistic Therapy",
-      doctorName: "Dr. Emily Carter",
-      bookedBy: "John Doe",
-      bookedOn: "2025-01-01",
-      timingOfMeeting: "2025-01-10T10:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      cancelledOn: "2025-01-08",
-    },
-    {
-      typeOfTherapy: "Psychodynamic Therapy",
-      doctorName: "Dr. Michael Thompson",
-      bookedBy: "Jane Smith",
-      bookedOn: "2025-01-02",
-      timingOfMeeting: "2025-01-11T14:30:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      cancelledOn: "2025-01-07",
-    },
-    {
-      typeOfTherapy: "Behavioral Therapy",
-      doctorName: "Dr. Olivia Johnson",
-      bookedBy: "Alice Brown",
-      bookedOn: "2025-01-03",
-      timingOfMeeting: "2025-01-12T16:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      cancelledOn: "2025-01-09",
-    },
-    {
-      typeOfTherapy: "Cognitive Behavioral Therapy",
-      doctorName: "Dr. William Lee",
-      bookedBy: "Charlie Davis",
-      bookedOn: "2025-01-04",
-      timingOfMeeting: "2025-01-13T09:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      cancelledOn: "2025-01-10",
-    },
-    {
-      typeOfTherapy: "Humanistic Therapy",
-      doctorName: "Dr. Sophia Martinez",
-      bookedBy: "Emma Wilson",
-      bookedOn: "2025-01-05",
-      timingOfMeeting: "2025-01-14T13:30:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      cancelledOn: "2025-01-11",
-    },
-  ],
-  previous: [
-    {
-      typeOfTherapy: "Humanistic Therapy",
-      doctorName: "Dr. Emily Carter",
-      bookedBy: "John Doe",
-      bookedOn: "2025-01-01",
-      timingOfMeeting: "2025-01-10T10:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      attended: true,
-    },
-    {
-      typeOfTherapy: "Psychodynamic Therapy",
-      doctorName: "Dr. Michael Thompson",
-      bookedBy: "Jane Smith",
-      bookedOn: "2025-01-02",
-      timingOfMeeting: "2025-01-11T14:30:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      attended: false,
-    },
-    {
-      typeOfTherapy: "Behavioral Therapy",
-      doctorName: "Dr. Olivia Johnson",
-      bookedBy: "Alice Brown",
-      bookedOn: "2025-01-03",
-      timingOfMeeting: "2025-01-12T16:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      attended: true,
-    },
-    {
-      typeOfTherapy: "Cognitive Behavioral Therapy",
-      doctorName: "Dr. William Lee",
-      bookedBy: "Charlie Davis",
-      bookedOn: "2025-01-04",
-      timingOfMeeting: "2025-01-13T09:00:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      attended: true,
-    },
-    {
-      typeOfTherapy: "Humanistic Therapy",
-      doctorName: "Dr. Sophia Martinez",
-      bookedBy: "Emma Wilson",
-      bookedOn: "2025-01-05",
-      timingOfMeeting: "2025-01-14T13:30:00Z",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.",
-      attended: false,
-    },
-  ],
-};
-
 type AppointmentContextType = {
   user: User | null;
-  authFailed: boolean;
+  isAuthToken: boolean;
   selectedTherapy: string;
   selectedDoctor: string;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
+  isLoading: boolean;
   setSelectedTherapy: (therapy: string) => void;
   setSelectedDoctor: (doctor: string) => void;
 };
@@ -227,7 +33,8 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [authFailed, setAuthFailed] = useState<boolean>(true);
+  const [isAuthToken, setIsAuthToken] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTherapy, setSelectedTherapy] = useState<string>("");
   const [selectedDoctor, setSelectedDoctor] = useState<string>("");
   const navigate = useNavigate();
@@ -236,17 +43,51 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     getUserSession();
   }, []);
 
+  useEffect(() => {
+    setIsAuthToken(!!user);
+    setIsLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    const refreshTokenInterval = setInterval(async () => {
+      const { data, error } = await supabaseClient.auth.refreshSession();
+      if (error) {
+        console.error("Error refreshing session:", error.message);
+        handleUserSignOut();
+        return;
+      }
+      console.log("Session refreshed:", data);
+      if (data?.session?.user) {
+        setUser({
+          id: data.session.user.id,
+          name: data.session.user?.user_metadata?.full_name,
+          email: data.session.user.email,
+          providerToken: data.session.provider_token,
+          avatarUrl: data.session.user.user_metadata?.avatar_url,
+          phone: null,
+          gender: null,
+          dob: null,
+          createdAt: data.session.user.created_at,
+          lastSignInAt: data.session.user.last_sign_in_at,
+          expiresAt: data.session.expires_at,
+          refreshToken: data.session.refresh_token,
+          accessToken: data.session.access_token,
+        });
+      }
+    }, 1000 * 60 * 14);
+
+    return () => clearInterval(refreshTokenInterval);
+  }, []);
+
   const getUserSession = async () => {
-    setAuthFailed(false);
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) {
       console.error("Error fetching session:", error.message);
       setUser(null);
-      setAuthFailed(true);
+      return;
     }
-    console.log(data);
 
-    if (data.session) {
+    if (data?.session?.user) {
       const userName = data.session.user?.user_metadata?.full_name;
       const userDetails = data.session.user;
       setUser({
@@ -260,6 +101,9 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         dob: null,
         createdAt: userDetails.created_at,
         lastSignInAt: userDetails.last_sign_in_at,
+        expiresAt: data.session.expires_at,
+        refreshToken: data.session.refresh_token,
+        accessToken: data.session.access_token,
       });
     }
   };
@@ -269,10 +113,9 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     if (error) {
       console.error("Error:", error);
     }
-    navigate("/login");
     setUser(null);
-    setAuthFailed(false);
-    // window.location.reload();
+    setIsAuthToken(false);
+    navigate("/login");
   };
 
   const handleUpdateUserDetailsState = (data: User) => {
@@ -283,9 +126,10 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     <AppointmentContext.Provider
       value={{
         user,
+        isAuthToken,
+        isLoading,
         handleUpdateUserDetailsState,
         handleUserSignOut,
-        authFailed,
         selectedTherapy,
         selectedDoctor,
         setSelectedTherapy,

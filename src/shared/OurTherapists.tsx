@@ -1,14 +1,16 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import "swiper/css";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import "swiper/css/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Therapists } from "@/mock-data/staticData";
 import { Image } from "@chakra-ui/react";
 
-import therapistImg from "@/assets/images/therapist1.png";
+//import therapistImg from "@/assets/images/therapist1.png";
 import ActionButton from "./ActionButton";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { useNavigate } from "react-router-dom";
@@ -52,8 +54,13 @@ const OurTherapists = () => {
           <SwiperSlide key={therapist.id} className="h-full w-full">
             <div className="flex justify-center mt-2 w-full h-full rounded-lg">
               <div className="flex flex-col justify-center space-y-2 mb-2">
-                <Image src={therapistImg} alt="therapist image" />
-                <div className="pl-4 sapce-y-2 text-green-primary-1">
+                <Image
+                  src={therapist.image}
+                  alt="therapist image"
+                  className="bg-green-primary-2 rounded-t-2xl"
+                />
+
+                <div className="pl-4 space-y-2 text-green-primary-1">
                   <h2>{therapist.name}</h2>
                   <p className="text-xs lg:text-base">{therapist.specialist}</p>
                   <p className="text-xs lg:text-base">{therapist.experience}</p>

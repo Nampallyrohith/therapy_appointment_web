@@ -3,10 +3,20 @@ import { Image } from "@chakra-ui/react";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { supabaseClient } from "@/supabase/connection";
 import { FcGoogle } from "react-icons/fc";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AuthenticationPage = () => {
-  const { user, authFailed } = useAppointmentContext();
-  console.log(user, authFailed);
+  const { isAuthToken } = useAppointmentContext();
+  const navigate = useNavigate();
+
+  console.log("Hi");
+
+  useEffect(() => {
+    if (isAuthToken) {
+      navigate("/user/home");
+    }
+  }, [isAuthToken, navigate]);
 
   const handleOAuthSignUp = async () => {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({

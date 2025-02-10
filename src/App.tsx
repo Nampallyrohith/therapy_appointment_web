@@ -1,14 +1,16 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import MyAppointmentsPage from "./components/MyAppointmentsPage";
 import AuthenticationPage from "./components/AuthenticationPage";
 import ProtectedRoute from "./Handler/ProtectedRoute";
 import BookAppointment from "./components/BookAppointment";
+import ProfilePage from "./components/ProfilePage";
 
 const App = () => {
   return (
     <div className="w-full h-full">
       <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<AuthenticationPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/user/home" element={<HomePage />} />
@@ -17,6 +19,7 @@ const App = () => {
             element={<MyAppointmentsPage />}
           />
           <Route path="/user/book-appointment" element={<BookAppointment />} />
+          <Route path="/user/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </div>

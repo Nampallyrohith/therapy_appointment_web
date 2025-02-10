@@ -10,6 +10,8 @@ import avatar from "@/assets/images/doctor-avatar.png";
 import { Input, Textarea } from "@chakra-ui/react";
 import { convertToISO8601 } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
+import { useNavigate } from "react-router-dom";
+import { toaster } from "./ui/toaster";
 import { Therapists } from "@/mock-data/staticData";
 
 const TherapyOptions = {
@@ -41,6 +43,7 @@ interface FormInputs {
 
 const BookAppointment: React.FC = () => {
   // const [guests, setGuests] = useState<string[]>([""]);
+  const navigate = useNavigate();
   const { user, selectedTherapy, selectedDoctor } = useAppointmentContext();
 
   const { register, handleSubmit, setValue, watch } = useForm<FormInputs>({
@@ -77,6 +80,10 @@ const BookAppointment: React.FC = () => {
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     console.log("data", data);
     await createEventWithGuestsAndReminders(data);
+    toaster.create({
+      description: "File saved successfully",
+      type: "info",
+    })
   };
 
   const createEventWithGuestsAndReminders = async (
@@ -98,7 +105,7 @@ const BookAppointment: React.FC = () => {
       // TODO: Add doctors email further
       attendees: [
         { email: "rohithnampelly57@gmail.com" },
-        { email: env.VITE_DEFAULT_THERAPY_EMAIL as string },
+        { email: env.VITE_DEFAULT_THERAPY_EMAIL },
       ],
       reminders: {
         useDefault: false,
@@ -139,6 +146,8 @@ const BookAppointment: React.FC = () => {
       const responseData = await response.json();
       if (response.ok) {
         console.log("Event created successfully:", responseData);
+        //TODO: Update the list of upcoming events
+        navigate("/user/my-appointments");
         console.log(responseData.hangoutLink);
       }
     } catch (error) {
