@@ -1,16 +1,16 @@
 export interface therapyType {
-  id: number;
+  id: string;
   image: string;
   name: string;
   about: string;
 }
 
 export interface TherapistType {
-  id: number;
-  therapyId: number;
+  id: string;
   name: string;
   experience: string;
   specialist: string;
+  specialisationId: string
   about: string;
   image: string;
 }
