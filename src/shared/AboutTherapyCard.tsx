@@ -12,11 +12,12 @@ interface therapyCardProps {
 
 const AboutTherapyCard: React.FC<therapyCardProps> = ({ therapy }) => {
   const { name, about, image, id } = therapy;
-  const { setSelectedTherapy } = useAppointmentContext();
+  const { setSelectedTherapy,setSelectedDoctor } = useAppointmentContext();
   const navigate = useNavigate();
 
   const handleBookTherapy = () => {
     setSelectedTherapy(id);
+    setSelectedDoctor("")
     window.scrollTo(0, 0);
     navigate("/user/book-appointment");
   };

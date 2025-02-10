@@ -68,9 +68,9 @@ const BookAppointment: React.FC = () => {
   useEffect(() => {
     if (selectedTherapy) {
       setValue("therapy", selectedTherapy as TherapyKeys);
-    }
-    if (selectedDoctor) {
-      setValue("doctor", selectedDoctor as DoctorKeys);
+      if (selectedDoctor) {
+        setValue("doctor", selectedDoctor as DoctorKeys);
+      }
     }
   }, [selectedTherapy, selectedDoctor, setValue]);
 
@@ -283,7 +283,6 @@ const BookAppointment: React.FC = () => {
           {eventDescription.length}/1000
         </div>
       </div>
-      {/* TODO: Integrate createEvent functionality on clicking the Book Event button */}
       <Button
         type="submit"
         disabled={eventDescription.length < 100}
