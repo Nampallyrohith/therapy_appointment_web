@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { FaPen } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import ProfilePic from "../assets/images/profile_pic.png";
 import { useFetchData } from "@/hooks/apiCall";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { User } from "@/models/typeDefinations";
@@ -28,11 +27,10 @@ const UserProfileCard = () => {
   }, [user, reset]);
 
   const onSubmit = async (data: User) => {
-    console.log({ ...data, ...userMeta });
-
     await fetchDataNow("auth/google/signin", "POST", { ...data, ...userMeta });
     setIsEditing(false);
   };
+
 
   return (
     <div className="flex justify-center items-center w-full min-h-screen">
@@ -53,7 +51,7 @@ const UserProfileCard = () => {
         )}
         <div className="flex flex-col items-center">
           <img
-            src={ProfilePic}
+            src={watch('avatarUrl')}
             alt="Profile"
             className="w-24 h-24 rounded-full"
           />

@@ -18,7 +18,6 @@ const Header = () => {
   const [isDropdown, setDropdown] = useState<boolean>(false);
   const { handleUserSignOut, user } = useAppointmentContext();
   const location = useLocation();
-  console.log(user)
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);

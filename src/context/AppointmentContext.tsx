@@ -106,7 +106,6 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     }
 
     if (data?.session?.user) {
-      console.log("user", data.session);
       const userName = data.session.user?.user_metadata?.full_name;
       const userDetails = data.session.user;
       setUser({

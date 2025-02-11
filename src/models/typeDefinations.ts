@@ -19,7 +19,7 @@ export interface User {
   googleUserId: string;
   name: string;
   email: string | undefined;
-  avatarUrl: string | null;
+  avatarUrl: string | undefined;
   phone: string | null;
   gender: string | null;
   dob: string | null;
