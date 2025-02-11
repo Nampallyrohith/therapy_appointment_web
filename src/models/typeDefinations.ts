@@ -16,7 +16,7 @@ export interface TherapistType {
 }
 
 export interface User {
-  id: string;
+  googleUserId: string;
   name: string;
   email: string | undefined;
   avatarUrl: string | null;

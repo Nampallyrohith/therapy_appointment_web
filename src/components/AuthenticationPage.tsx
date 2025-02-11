@@ -5,7 +5,7 @@ import { supabaseClient } from "@/supabase/connection";
 import { FcGoogle } from "react-icons/fc";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/images/Logo.png";
+import logo from "@/assets/images/Logo2.png";
 
 const AuthenticationPage = () => {
   const { isAuthToken } = useAppointmentContext();

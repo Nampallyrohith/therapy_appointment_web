@@ -1,3 +1,4 @@
+import { useFetchData } from "@/hooks/apiCall";
 import { User, UserMeta } from "@/models/typeDefinations";
 import { supabaseClient } from "@/supabase/connection";
 import React, {
@@ -35,9 +36,28 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // API's Call
+  const { data: userResult, fetchDataNow } = useFetchData<{
+    userDetails: User;
+    userMeta: UserMeta;
+  }>();
+
   useEffect(() => {
     getUserSession();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      const getUserDetailsFromDB = async () => {
+        await fetchDataNow(`user/profile-info/${user?.googleUserId}`, "GET");
+      };
+      getUserDetailsFromDB();
+    }
+    if (userResult) {
+      setUser(userResult.userDetails);
+      setUserMeta(userResult.userMeta);
+    }
+  }, [user]);
 
   useEffect(() => {
     setIsAuthToken(!!user);
@@ -55,7 +75,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
       console.log("Session refreshed:", data);
       if (data?.session?.user) {
         setUser({
-          id: data.session.user.id,
+          googleUserId: data.session.user.id,
           name: data.session.user?.user_metadata?.full_name,
           email: data.session.user.email,
           avatarUrl: data.session.user.user_metadata?.avatar_url,
@@ -90,7 +110,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
       const userName = data.session.user?.user_metadata?.full_name;
       const userDetails = data.session.user;
       setUser({
-        id: userDetails?.id,
+        googleUserId: userDetails?.id,
         name: userName,
         email: userDetails?.email,
         avatarUrl: data.session.user.user_metadata?.avatar_url,
@@ -116,7 +136,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     }
     setUser(null);
     setIsAuthToken(false);
-    localStorage.removeItem("sb-apzfbogbgyznmzsxknxb-auth-token")
+    localStorage.removeItem("sb-apzfbogbgyznmzsxknxb-auth-token");
     navigate("/login");
   };
 

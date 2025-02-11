@@ -22,14 +22,16 @@ const UserProfileCard = () => {
 
   useEffect(() => {
     if (user) {
+      console.log(user);
       reset(user);
     }
   }, [user, reset]);
 
   const onSubmit = async (data: User) => {
-    console.log({ ...data, ...userMeta })
+    console.log({ ...data, ...userMeta });
 
     await fetchDataNow("auth/google/signin", "POST", { ...data, ...userMeta });
+    setIsEditing(false);
   };
 
   return (
