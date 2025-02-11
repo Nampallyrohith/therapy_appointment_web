@@ -13,11 +13,13 @@ import ActionButton from "./ActionButton";
 
 import { IoMenu } from "react-icons/io5";
 import { useAppointmentContext } from "@/context/AppointmentContext";
+import { useBookAppointment } from "@/components/utils/commonFunction";
 
 const Header = () => {
   const [isDropdown, setDropdown] = useState<boolean>(false);
   const { handleUserSignOut, user } = useAppointmentContext();
   const location = useLocation();
+  const handleBookAppointment = useBookAppointment();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -66,12 +68,10 @@ const Header = () => {
               <Link to="/user/my-appointments">My Appointments</Link>
             </li>
             <li>
-              <Link
-                to="/user/book-appointment"
-                className="bg-orange-primary-1 text-white px-5 py-2 tracking-wider rounded-lg shadow-inset"
-              >
-                Book Appointment
-              </Link>
+              <ActionButton
+                buttonText="Book Appointment"
+                onClick={handleBookAppointment}
+              />
             </li>
             <li>
               <Button

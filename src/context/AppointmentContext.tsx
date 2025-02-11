@@ -14,9 +14,13 @@ type AppointmentContextType = {
   user: User | null;
   userMeta: UserMeta | null;
   isAuthToken: boolean;
+  selectedTherapy: string;
+  selectedDoctor: string;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
   isLoading: boolean;
+  setSelectedTherapy: (therapy: string) => void;
+  setSelectedDoctor: (doctor: string) => void;
 };
 
 const AppointmentContext = createContext<AppointmentContextType | undefined>(
@@ -34,6 +38,8 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const [userMeta, setUserMeta] = useState<UserMeta | null>(null);
   const [isAuthToken, setIsAuthToken] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedTherapy, setSelectedTherapy] = useState<string>("");
+  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
   const navigate = useNavigate();
 
   // API's Call
@@ -152,6 +158,10 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         userMeta,
         handleUpdateUserDetailsState,
         handleUserSignOut,
+        selectedTherapy,
+        selectedDoctor,
+        setSelectedTherapy,
+        setSelectedDoctor,
       }}
     >
       {children}

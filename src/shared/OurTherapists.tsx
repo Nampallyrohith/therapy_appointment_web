@@ -12,8 +12,20 @@ import { Image } from "@chakra-ui/react";
 
 //import therapistImg from "@/assets/images/therapist1.png";
 import ActionButton from "./ActionButton";
+import { useAppointmentContext } from "@/context/AppointmentContext";
+import { useNavigate } from "react-router-dom";
 
 const OurTherapists = () => {
+  const { setSelectedTherapy, setSelectedDoctor } = useAppointmentContext();
+  const navigate = useNavigate();
+
+  const handleTherapistAppointment = (id: string, specialisationId: string) => {
+    setSelectedTherapy(specialisationId);
+    setSelectedDoctor(id);
+    window.scrollTo(0, 0);
+    navigate("/user/book-appointment");
+  };
+
   return (
     <div className="mx-auto relative w-3/4 h-full mb-6">
       <button className="custom-swiper-button-prev absolute -left-[42px] sm:-left-[48px] top-1/2 -translate-y-1/2 z-10 rounded-full p-2 transition-colors">
@@ -53,8 +65,15 @@ const OurTherapists = () => {
                   <p className="text-xs lg:text-base">{therapist.specialist}</p>
                   <p className="text-xs lg:text-base">{therapist.experience}</p>
                 </div>
-
-                <ActionButton buttonText="Book Appointment" />
+                <ActionButton
+                  buttonText="Schedule an appointment"
+                  onClick={() =>
+                    handleTherapistAppointment(
+                      therapist.id,
+                      therapist.specialisationId
+                    )
+                  }
+                />
               </div>
             </div>
           </SwiperSlide>

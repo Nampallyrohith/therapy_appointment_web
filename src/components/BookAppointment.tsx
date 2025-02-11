@@ -1,6 +1,6 @@
 // import { Input } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
-import React from "react";
+import React, { useEffect } from "react";
 // import { DatePicker } from "@orange_digital/chakra-datepicker";
 import { Button } from "./ui/button";
 import { env, supabaseClient } from "@/supabase/connection";
@@ -12,6 +12,7 @@ import { convertToISO8601 } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { useNavigate } from "react-router-dom";
 import { toaster } from "./ui/toaster";
+import { Therapists } from "@/mock-data/staticData";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -20,24 +21,13 @@ const TherapyOptions = {
   humanistic: "Humanistic Therapy",
 };
 
-const DoctorOptions = {
-  doctor1: {
-    name: "Doctor Name 1",
+const DoctorOptions = Therapists.reduce((acc, therapist) => {
+  acc[therapist.id] = {
+    name: therapist.name,
     avatar: avatar,
-  },
-  doctor2: {
-    name: "Doctor Name 2",
-    avatar: avatar,
-  },
-  doctor3: {
-    name: "Doctor Name 3",
-    avatar: avatar,
-  },
-  doctor4: {
-    name: "Doctor Name 4",
-    avatar: avatar,
-  },
-};
+  };
+  return acc;
+}, {} as Record<string, { name: string; avatar: string }>);
 
 type TherapyKeys = keyof typeof TherapyOptions;
 
@@ -54,9 +44,9 @@ interface FormInputs {
 const BookAppointment: React.FC = () => {
   // const [guests, setGuests] = useState<string[]>([""]);
   const navigate = useNavigate();
-  const { user } = useAppointmentContext();
+  const { user, selectedTherapy, selectedDoctor } = useAppointmentContext();
 
-  const { register, handleSubmit, watch } = useForm<FormInputs>({
+  const { register, handleSubmit, setValue, watch } = useForm<FormInputs>({
     defaultValues: {
       therapy: "" as TherapyKeys,
       doctor: "" as DoctorKeys,
@@ -73,6 +63,19 @@ const BookAppointment: React.FC = () => {
     meetingTime,
     eventDescription,
   ] = watch(["therapy", "doctor", "date", "time", "eventDescription"]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (selectedTherapy) {
+      setValue("therapy", selectedTherapy as TherapyKeys);
+      if (selectedDoctor) {
+        setValue("doctor", selectedDoctor as DoctorKeys);
+      }
+    }
+  }, [selectedTherapy, selectedDoctor, setValue]);
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     console.log("data", data);
@@ -196,6 +199,9 @@ const BookAppointment: React.FC = () => {
   const renderDoctorOptions = () => (
     <div className="bg-[#CBF6EF] w-3/4 px-6 py-4 my-4 shadow-inset rounded-3xl">
       <h1 className="text-green-primary-1 text-lg">Select Doctor</h1>
+      {/* TODO: Dynamically update doctor list based on selected therapy
+                retrieve only doctors who have specialisationId as the
+                current selected therapy option */}
       <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
         {Object.entries(DoctorOptions).map(([id, { name, avatar }]) => (
           <label
