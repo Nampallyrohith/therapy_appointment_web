@@ -16,21 +16,23 @@ export interface TherapistType {
 }
 
 export interface User {
-  id: string;
+  googleUserId: string;
   name: string;
   email: string | undefined;
-  providerToken: string | undefined | null;
-  avatarUrl: string | null;
+  avatarUrl: string | undefined;
   phone: string | null;
   gender: string | null;
   dob: string | null;
+}
+
+export interface UserMeta {
+  providerToken: string | undefined | null;
   createdAt: string;
   lastSignInAt: string | undefined;
   expiresAt: number | undefined;
   refreshToken: string | undefined;
   accessToken: string | undefined;
 }
-
 
 interface BaseUpcoming {
   typeOfTherapy: string;

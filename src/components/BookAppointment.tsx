@@ -83,7 +83,7 @@ const BookAppointment: React.FC = () => {
     toaster.create({
       description: "File saved successfully",
       type: "info",
-    })
+    });
   };
 
   const createEventWithGuestsAndReminders = async (
@@ -105,7 +105,8 @@ const BookAppointment: React.FC = () => {
       // TODO: Add doctors email further
       attendees: [
         { email: "rohithnampelly57@gmail.com" },
-        { email: env.VITE_DEFAULT_THERAPY_EMAIL },
+        { email: "madhumithatekumal@gmail.com" },
+        { email: env.VITE_DEFAULT_THERAPY_EMAIL as string },
       ],
       reminders: {
         useDefault: false,

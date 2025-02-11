@@ -262,6 +262,8 @@ const MyAppointmentsPage: React.FC = () => {
       ) : (
         ""
       )}
+
+      {/* TODO: Add review inputs*/}
     </Modal>
   );
 

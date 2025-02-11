@@ -5,8 +5,9 @@ import {
   MenuRoot,
   MenuTrigger,
 } from "@/components/ui/menu";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import profileIcon from "@/assets/images/profile-icon.png";
+import logo from "@/assets/images/Logo2.png";
 import { useEffect, useRef, useState } from "react";
 import ActionButton from "./ActionButton";
 
@@ -17,6 +18,7 @@ import { useBookAppointment } from "@/components/utils/commonFunction";
 const Header = () => {
   const [isDropdown, setDropdown] = useState<boolean>(false);
   const { handleUserSignOut, user } = useAppointmentContext();
+  const location = useLocation();
   const handleBookAppointment = useBookAppointment();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -25,6 +27,12 @@ const Header = () => {
   const handleLogout = async () => {
     handleUserSignOut();
   };
+
+  useEffect(() => {
+    if (location.pathname === "/user/profile") {
+      setDropdown(false);
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -48,9 +56,10 @@ const Header = () => {
   return (
     // larger screen
     <>
-      <nav className="flex justify-around items-center py-4 fixed w-full z-10 bg-green-primary-2">
+      <nav className="flex justify-around items-center py-5 fixed w-full z-10 bg-green-primary-2 drop-shadow-lg">
         <Link to="/user/home">
-          <p className="text-3xl text-orange-primary-1">Logo</p>
+          {/* <p className="text-3xl text-orange-primary-1">Logo</p> */}
+          <Image src={logo} className="w-[200px]" />
         </Link>
 
         <div className="hidden lg:block">
@@ -84,6 +93,7 @@ const Header = () => {
           >
             <p className="my-2">{user?.name}</p>
             <hr className="border-orange-primary-2" />
+            {/* TODO: Add close out functionality after navigating to profile */}
             <Link to="/user/profile" className="my-2">
               Profile
             </Link>

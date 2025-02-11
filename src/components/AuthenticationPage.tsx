@@ -5,12 +5,11 @@ import { supabaseClient } from "@/supabase/connection";
 import { FcGoogle } from "react-icons/fc";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from "@/assets/images/Logo2.png";
 
 const AuthenticationPage = () => {
   const { isAuthToken } = useAppointmentContext();
   const navigate = useNavigate();
-
-  console.log("Hi");
 
   useEffect(() => {
     if (isAuthToken) {
@@ -38,12 +37,19 @@ const AuthenticationPage = () => {
       <div className="relative hidden lg:block w-1/3">
         <Image src={top} className="absolute -top-5 -left-16" alt="Top Image" />
         <div className="absolute mx-36 my-24">
-          <h1 className="text-3xl">LOGO</h1>
+          {/* <h1 className="text-3xl">LOGO</h1> */}
+          <Image src={logo} className="w-[350px]" />
         </div>
       </div>
-      <h1 className="text-4xl block lg:hidden mt-16 mb-10 text-center w-full">
+      {/* <h1 className="text-4xl block lg:hidden mt-16 mb-10 text-center w-full">
         Logo
-      </h1>
+      </h1> */}
+
+      <Image
+        src={logo}
+        width={80}
+        className="block lg:hidden mt-16 mb-10 text-center w-11/12 mx-auto"
+      />
       <div className="flex w-full lg:h-full justify-center items-center gap-2 text-green-primary-1">
         <span className="flex items-center p-2 border border-green-primary-1 rounded-lg hover:shadow-lg hover:scale-105 hover:linear hover:delay-100">
           Sign in with{" "}

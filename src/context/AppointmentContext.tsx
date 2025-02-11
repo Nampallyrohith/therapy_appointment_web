@@ -1,4 +1,5 @@
-import { User } from "@/models/typeDefinations";
+import { useFetchData } from "@/hooks/apiCall";
+import { User, UserMeta } from "@/models/typeDefinations";
 import { supabaseClient } from "@/supabase/connection";
 import React, {
   createContext,
@@ -11,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 type AppointmentContextType = {
   user: User | null;
+  userMeta: UserMeta | null;
   isAuthToken: boolean;
   selectedTherapy: string;
   selectedDoctor: string;
@@ -33,15 +35,35 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userMeta, setUserMeta] = useState<UserMeta | null>(null);
   const [isAuthToken, setIsAuthToken] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTherapy, setSelectedTherapy] = useState<string>("");
   const [selectedDoctor, setSelectedDoctor] = useState<string>("");
   const navigate = useNavigate();
 
+  // API's Call
+  const { data: userResult, fetchDataNow } = useFetchData<{
+    userDetails: User;
+    userMeta: UserMeta;
+  }>();
+
   useEffect(() => {
     getUserSession();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      const getUserDetailsFromDB = async () => {
+        await fetchDataNow(`user/profile-info/${user?.googleUserId}`, "GET");
+      };
+      getUserDetailsFromDB();
+    }
+    if (userResult) {
+      setUser(userResult.userDetails);
+      setUserMeta(userResult.userMeta);
+    }
+  }, [user]);
 
   useEffect(() => {
     setIsAuthToken(!!user);
@@ -59,14 +81,16 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
       console.log("Session refreshed:", data);
       if (data?.session?.user) {
         setUser({
-          id: data.session.user.id,
+          googleUserId: data.session.user.id,
           name: data.session.user?.user_metadata?.full_name,
           email: data.session.user.email,
-          providerToken: data.session.provider_token,
           avatarUrl: data.session.user.user_metadata?.avatar_url,
           phone: null,
           gender: null,
           dob: null,
+        });
+        setUserMeta({
+          providerToken: data.session.provider_token,
           createdAt: data.session.user.created_at,
           lastSignInAt: data.session.user.last_sign_in_at,
           expiresAt: data.session.expires_at,
@@ -91,14 +115,16 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
       const userName = data.session.user?.user_metadata?.full_name;
       const userDetails = data.session.user;
       setUser({
-        id: userDetails?.id,
+        googleUserId: userDetails?.id,
         name: userName,
         email: userDetails?.email,
-        providerToken: data.session?.provider_token,
         avatarUrl: data.session.user.user_metadata?.avatar_url,
         phone: null,
         gender: null,
         dob: null,
+      });
+      setUserMeta({
+        providerToken: data.session?.provider_token,
         createdAt: userDetails.created_at,
         lastSignInAt: userDetails.last_sign_in_at,
         expiresAt: data.session.expires_at,
@@ -115,6 +141,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     }
     setUser(null);
     setIsAuthToken(false);
+    localStorage.removeItem("sb-apzfbogbgyznmzsxknxb-auth-token");
     navigate("/login");
   };
 
@@ -128,6 +155,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         user,
         isAuthToken,
         isLoading,
+        userMeta,
         handleUpdateUserDetailsState,
         handleUserSignOut,
         selectedTherapy,
