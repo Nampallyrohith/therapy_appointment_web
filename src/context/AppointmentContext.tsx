@@ -43,7 +43,11 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const navigate = useNavigate();
 
   // API's Call
-  const { data: userResult, fetchDataNow } = useFetchData<{
+  const {
+    data: userResult,
+    loading,
+    fetchDataNow,
+  } = useFetchData<{
     userDetails: User;
     userMeta: UserMeta;
   }>();
@@ -53,17 +57,21 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (!user?.gender && !user?.dob && !user?.phone) {
       const getUserDetailsFromDB = async () => {
         await fetchDataNow(`user/profile-info/${user?.googleUserId}`, "GET");
       };
       getUserDetailsFromDB();
     }
-    if (userResult) {
+  }, [user]);
+
+  useEffect(() => {
+    if (!loading && userResult) {
       setUser(userResult.userDetails);
       setUserMeta(userResult.userMeta);
+      console.log("storing");
     }
-  }, [user]);
+  }, [loading, userResult]);
 
   useEffect(() => {
     setIsAuthToken(!!user);
