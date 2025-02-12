@@ -7,7 +7,7 @@ import { User } from "@/models/typeDefinations";
 
 const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const { user, userMeta } = useAppointmentContext();
+  const { user, userMeta, getUserDetailsFromDB } = useAppointmentContext();
 
   const { fetchDataNow } = useFetchData<User>();
 
@@ -21,7 +21,6 @@ const UserProfileCard = () => {
 
   useEffect(() => {
     if (user) {
-      console.log(user);
       reset(user);
     }
   }, [user, reset]);
@@ -29,8 +28,15 @@ const UserProfileCard = () => {
   const onSubmit = async (data: User) => {
     await fetchDataNow("auth/google/signin", "POST", { ...data, ...userMeta });
     setIsEditing(false);
+    getUserDetailsFromDB();
   };
 
+  const handleCancel = () => {
+    if (user) {
+      reset(user);
+    }
+    setIsEditing(false);
+  };
 
   return (
     <div className="flex justify-center items-center w-full min-h-screen">
@@ -51,7 +57,7 @@ const UserProfileCard = () => {
         )}
         <div className="flex flex-col items-center">
           <img
-            src={watch('avatarUrl')}
+            src={watch("avatarUrl")}
             alt="Profile"
             className="w-24 h-24 rounded-full"
           />
@@ -75,6 +81,9 @@ const UserProfileCard = () => {
                 {...register("gender", { required: "Gender is required" })}
                 className="bg-transparent border-0 border-b-green-primary-1 focus:border-b-green-primary-1 focus:ring-0  border-b-2"
               >
+                <option value="select gender" disabled>
+                  Select gender
+                </option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
@@ -138,7 +147,7 @@ const UserProfileCard = () => {
           <div className="flex gap-4 justify-end my-2">
             <button
               type="button"
-              onClick={() => setIsEditing(false)}
+              onClick={handleCancel}
               className="px-4 py-2 text-[#2EC4B6] rounded-md border-2 border-[#2EC4B6]"
             >
               Cancel

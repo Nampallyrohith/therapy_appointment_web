@@ -21,6 +21,7 @@ type AppointmentContextType = {
   isLoading: boolean;
   setSelectedTherapy: (therapy: string) => void;
   setSelectedDoctor: (doctor: string) => void;
+  getUserDetailsFromDB: () => void;
 };
 
 const AppointmentContext = createContext<AppointmentContextType | undefined>(
@@ -57,13 +58,14 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!user?.gender && !user?.dob && !user?.phone) {
-      const getUserDetailsFromDB = async () => {
-        await fetchDataNow(`user/profile-info/${user?.googleUserId}`, "GET");
-      };
+    if (!user?.gender && !user?.dob && !user?.phone && user?.googleUserId) {
       getUserDetailsFromDB();
     }
   }, [user]);
+
+  const getUserDetailsFromDB = async () => {
+    await fetchDataNow(`user/profile-info/${user?.googleUserId}`, "GET");
+  };
 
   useEffect(() => {
     if (!loading && userResult) {
@@ -170,6 +172,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         selectedDoctor,
         setSelectedTherapy,
         setSelectedDoctor,
+        getUserDetailsFromDB,
       }}
     >
       {children}
