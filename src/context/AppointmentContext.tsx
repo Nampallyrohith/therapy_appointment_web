@@ -147,11 +147,13 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const handleUserSignOut = async () => {
     const { error } = await supabaseClient.auth.signOut();
     if (error) {
-      console.error("Error:", error);
+      console.error("Error signing out:", error);
+      return;
     }
     setUser(null);
+    setUserMeta(null);
     setIsAuthToken(false);
-    localStorage.removeItem("sb-apzfbogbgyznmzsxknxb-auth-token");
+    sessionStorage.removeItem("intendedRoute"); // Clear on logout!
     navigate("/login");
   };
 

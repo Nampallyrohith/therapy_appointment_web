@@ -13,7 +13,10 @@ const AuthenticationPage = () => {
 
   useEffect(() => {
     if (isAuthToken) {
-      navigate("/user/home");
+      const intendedRoute =
+        sessionStorage.getItem("intendedRoute") || "/user/home";
+      sessionStorage.removeItem("intendedRoute");
+      navigate(intendedRoute, { replace: true });
     }
   }, [isAuthToken, navigate]);
 
