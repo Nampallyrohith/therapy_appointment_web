@@ -14,7 +14,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toaster } from "./ui/toaster";
 import { Therapists } from "@/mock-data/staticData";
 import Modal from "react-modal";
-
+import { GoAlertFill } from "react-icons/go";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -74,6 +74,8 @@ const BookAppointment: React.FC = () => {
   useEffect(() => {
     if (!user?.dob && !user?.gender && !user?.phone) {
       setIsModalOpen(true);
+    } else {
+      setIsModalOpen(false);
     }
   }, [user]);
 
@@ -327,7 +329,7 @@ const BookAppointment: React.FC = () => {
             isOpen={isModalOpen}
             ariaHideApp={false}
             contentLabel="Incomplete Profile Warning"
-            className="bg-white text-green-primary-1 flex flex-col outline-0 rounded-md shadow-lg p-4 relative"
+            className="bg-white text-green-primary-1 flex flex-col outline-0 rounded-md shadow-lg px-4 py-10 relative"
             style={{
               content: {
                 position: "absolute",
@@ -347,16 +349,19 @@ const BookAppointment: React.FC = () => {
               },
             }}
           >
-            <p className="text-sm font-semibold mb-4">
-              ⚠️ Please complete your profile to proceed smoothly with therapy
-              selection.
-            </p>
-            <Link
-              to="/user/profile"
-              className="bg-green-primary-1 text-white text-sm px-4 py-2 border-radius rounded-lg shadow hover:bg-green-600 transition-all"
-            >
-              Go to Profile Page
-            </Link>
+            <div className="w-full flex flex-col justify-center space-y-4 items-center">
+              <GoAlertFill size={80} fill="#FF9F1C" className="animate-shake" />
+              <p className="text-sm text-center mb-4">
+                Please complete your profile to proceed smoothly with therapy
+                selection.
+              </p>
+              <Link
+                to="/user/profile"
+                className="bg-green-primary-1 text-white text-xs px-6 py-3 border-radius rounded-full hover:shadow-lg hover:scale-105 transition-all"
+              >
+                Go to Profile Page
+              </Link>
+            </div>
           </Modal>
         )}
         {renderTherapyOptions()}
