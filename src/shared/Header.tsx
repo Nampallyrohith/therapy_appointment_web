@@ -117,7 +117,7 @@ const Header = () => {
               <Link to="/user/my-appointments">My Appointments</Link>
             </MenuItem>
             <MenuItem asChild value="book-a-appointment">
-              <Link to="/user/booking-appointment">Book a Appointment</Link>
+              <Link to="/user/book-appointment">Book a Appointment</Link>
             </MenuItem>
             <MenuItem asChild value="logout">
               <Button onClick={handleLogout}>Logout</Button>

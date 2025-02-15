@@ -3,10 +3,9 @@ import Modal from "react-modal";
 import { IoClose } from "react-icons/io5";
 import { RiShareForward2Fill } from "react-icons/ri";
 import React, { useState } from "react";
-import { Button } from "@chakra-ui/react";
-
 import { Appointment, FilterProps } from "@/models/typeDefinations";
 import { dummyData } from "@/mock-data/staticData";
+import { Button } from "@chakra-ui/react";
 
 export const filterDetails: FilterProps[] = [
   {
