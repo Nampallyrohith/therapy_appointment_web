@@ -1,6 +1,6 @@
 // import { Input } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // import { DatePicker } from "@orange_digital/chakra-datepicker";
 import { Button } from "./ui/button";
 import { env, supabaseClient } from "@/supabase/connection";
@@ -10,9 +10,11 @@ import avatar from "@/assets/images/doctor-avatar.png";
 import { Input, Textarea } from "@chakra-ui/react";
 import { convertToISO8601 } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toaster } from "./ui/toaster";
 import { Therapists } from "@/mock-data/staticData";
+import Modal from "react-modal";
+
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -44,6 +46,7 @@ interface FormInputs {
 const BookAppointment: React.FC = () => {
   // const [guests, setGuests] = useState<string[]>([""]);
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, selectedTherapy, selectedDoctor } = useAppointmentContext();
 
   const { register, handleSubmit, setValue, watch } = useForm<FormInputs>({
@@ -67,6 +70,12 @@ const BookAppointment: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!user?.dob && !user?.gender && !user?.phone) {
+      setIsModalOpen(true);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (selectedTherapy) {
@@ -313,6 +322,43 @@ const BookAppointment: React.FC = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="text-center flex flex-col items-center"
       >
+        {isModalOpen && (
+          <Modal
+            isOpen={isModalOpen}
+            ariaHideApp={false}
+            contentLabel="Incomplete Profile Warning"
+            className="bg-white text-green-primary-1 flex flex-col outline-0 rounded-md shadow-lg p-4 relative"
+            style={{
+              content: {
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "80%",
+                maxWidth: "400px",
+                padding: "20px",
+                borderRadius: "8px",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              },
+              overlay: {
+                backgroundColor: "rgba(0, 0, 0, 0.2)",
+                backdropFilter: "blur(2px)",
+                zIndex: 1000,
+              },
+            }}
+          >
+            <p className="text-sm font-semibold mb-4">
+              ⚠️ Please complete your profile to proceed smoothly with therapy
+              selection.
+            </p>
+            <Link
+              to="/user/profile"
+              className="bg-green-primary-1 text-white text-sm px-4 py-2 border-radius rounded-lg shadow hover:bg-green-600 transition-all"
+            >
+              Go to Profile Page
+            </Link>
+          </Modal>
+        )}
         {renderTherapyOptions()}
         {activeTherapy && renderDoctorOptions()}
         {activeDoctor && renderDateAndTimeSection()}
