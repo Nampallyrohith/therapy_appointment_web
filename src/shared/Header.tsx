@@ -32,7 +32,7 @@ const Header = () => {
     if (location.pathname === "/user/profile") {
       setDropdown(false);
     }
-  }, []);
+  }, [location]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
