@@ -71,7 +71,6 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     if (!loading && userResult) {
       setUser(userResult.userDetails);
       setUserMeta(userResult.userMeta);
-      console.log("storing");
     }
   }, [loading, userResult]);
 

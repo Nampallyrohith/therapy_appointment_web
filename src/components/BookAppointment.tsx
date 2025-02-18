@@ -15,6 +15,7 @@ import { toaster } from "./ui/toaster";
 import { Therapists } from "@/mock-data/staticData";
 import Modal from "react-modal";
 import { GoAlertFill } from "react-icons/go";
+import { useFetchData } from "@/hooks/apiCall";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -22,6 +23,21 @@ const TherapyOptions = {
   cognitiveBehavioural: "Cognitive Behavioral Therapy",
   humanistic: "Humanistic Therapy",
 };
+
+interface Therapy {
+  id: string;
+  therapyName: string;
+}
+
+interface Doctor {
+  id: number;
+  therapyId: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  experience: number;
+  specialistIn: string;
+}
 
 const DoctorOptions = Therapists.reduce((acc, therapist) => {
   acc[therapist.id] = {
@@ -66,6 +82,33 @@ const BookAppointment: React.FC = () => {
     meetingTime,
     eventDescription,
   ] = watch(["therapy", "doctor", "date", "time", "eventDescription"]);
+
+  // API's Call
+  const { data: therapiesResult, fetchDataNow: TherapyAPICaller } =
+    useFetchData<{
+      therapies: Therapy[];
+    }>();
+
+  const { data: doctorsResult, fetchDataNow: DoctorsAPICaller } = useFetchData<{
+    doctors: Doctor[];
+  }>();
+
+  useEffect(() => {
+    const getTherapies = async () => {
+      await TherapyAPICaller("user/appointment/therapies", "GET");
+    };
+    getTherapies();
+  }, []);
+
+  useEffect(() => {
+    if (activeTherapy) {
+      getDoctors();
+    }
+  }, [activeTherapy]);
+
+  const getDoctors = async () => {
+    await DoctorsAPICaller(`user/appointment/${activeTherapy}/doctors`, "GET");
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -182,27 +225,28 @@ const BookAppointment: React.FC = () => {
     <>
       <h1 className="text-green-primary-1 text-lg">Select Therapy</h1>
       <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
-        {Object.entries(TherapyOptions).map(([id, name]) => (
-          <label
-            key={id}
-            className={`min-w-[70%] sm:min-w-[80%] md:min-w-[40%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
+        {therapiesResult &&
+          therapiesResult.therapies.map((therapy: Therapy) => (
+            <label
+              key={therapy.id}
+              className={`min-w-[70%] sm:min-w-[80%] md:min-w-[40%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
                 ${
-                  activeTherapy === id
+                  activeTherapy === therapy.id
                     ? "bg-[#2CC3B4] text-white"
                     : "bg-[#AAE9E3] text-green-primary-1"
                 }`}
-            htmlFor={id}
-          >
-            <input
-              type="radio"
-              id={id}
-              value={id}
-              {...register("therapy")}
-              className="hidden"
-            />
-            <span className="text-sm">{name}</span>
-          </label>
-        ))}
+              htmlFor={therapy.id}
+            >
+              <input
+                type="radio"
+                id={therapy.id}
+                value={therapy.id}
+                {...register("therapy")}
+                className="hidden"
+              />
+              <span className="text-sm">{therapy.therapyName}</span>
+            </label>
+          ))}
       </div>
     </>
   );
@@ -214,47 +258,50 @@ const BookAppointment: React.FC = () => {
                 retrieve only doctors who have specialisationId as the
                 current selected therapy option */}
       <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
-        {Object.entries(DoctorOptions).map(([id, { name, avatar }]) => (
-          <label
-            key={id}
-            className={`bg-white text-[#2CC3B4] min-w-[80%] md:min-w-[40%] px-2 py-1 rounded-xl shadow-inset-2 cursor-pointer flex justify-center items-center gap-2
+        {doctorsResult &&
+          doctorsResult.doctors.map((doctor) => (
+            <label
+              key={doctor.id}
+              className={`bg-white text-[#2CC3B4] min-w-[80%] md:min-w-[40%] px-2 py-1 rounded-xl shadow-inset-2 cursor-pointer flex justify-center items-center gap-2
                 ${
-                  activeDoctor === id ? "border-2 border-green-primary-1" : ""
+                  Number(activeDoctor) === doctor.id
+                    ? "border-2 border-green-primary-1"
+                    : ""
                 }`}
-            htmlFor={id}
-          >
-            <img src={avatar} alt="doc-avatar" className="w-[40px]" />
-            <Input
-              type="radio"
-              id={id}
-              {...register("doctor")}
-              value={id}
-              name="doctor"
-              className="hidden"
-            />
-            <span className="text-sm">{name}</span>
-            <Tooltip
-              showArrow
-              content={`${
-                DoctorOptions[id as DoctorKeys].name
-              } specialized in ${TherapyOptions[activeTherapy as TherapyKeys]}`}
-              contentProps={{
-                css: {
-                  "--tooltip-bg": "#F5DEBF",
-                  color: "#4E3C22",
-                  padding: "4px",
-                },
-              }}
-              positioning={{ offset: { mainAxis: -2, crossAxis: 4 } }}
-              openDelay={500}
-              closeDelay={100}
+              htmlFor={doctor.name}
             >
-              <Button size="xs" variant="outline">
-                <LuInfo />
-              </Button>
-            </Tooltip>
-          </label>
-        ))}
+              <img src={avatar} alt="doc-avatar" className="w-[40px]" />
+              <Input
+                type="radio"
+                id={doctor.name}
+                {...register("doctor")}
+                value={doctor.id}
+                name="doctor"
+                className="hidden"
+              />
+              <span className="text-sm">{doctor.name}</span>
+              <Tooltip
+                showArrow
+                content={`${doctor.name} specialized in ${
+                  TherapyOptions[activeTherapy as TherapyKeys]
+                }`}
+                contentProps={{
+                  css: {
+                    "--tooltip-bg": "#F5DEBF",
+                    color: "#4E3C22",
+                    padding: "4px",
+                  },
+                }}
+                positioning={{ offset: { mainAxis: -2, crossAxis: 4 } }}
+                openDelay={500}
+                closeDelay={100}
+              >
+                <Button size="xs" variant="outline">
+                  <LuInfo />
+                </Button>
+              </Tooltip>
+            </label>
+          ))}
       </div>
     </div>
   );
