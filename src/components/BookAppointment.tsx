@@ -16,6 +16,7 @@ import { Therapists } from "@/mock-data/staticData";
 import Modal from "react-modal";
 import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
+import { Doctor } from "@/models/typeDefinations";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -29,15 +30,6 @@ interface Therapy {
   therapyName: string;
 }
 
-interface Doctor {
-  id: number;
-  therapyId: string;
-  name: string;
-  email: string;
-  avatarUrl: string;
-  experience: number;
-  specialistIn: string;
-}
 
 const DoctorOptions = Therapists.reduce((acc, therapist) => {
   acc[therapist.id] = {
@@ -84,12 +76,11 @@ const BookAppointment: React.FC = () => {
   ] = watch(["therapy", "doctor", "date", "time", "eventDescription"]);
 
   // API's Call
-  const { data: therapiesResult, fetchDataNow: TherapyAPICaller } =
-    useFetchData<{
-      therapies: Therapy[];
-    }>();
+  const { data: therapiesResult, call: TherapyAPICaller } = useFetchData<{
+    therapies: Therapy[];
+  }>();
 
-  const { data: doctorsResult, fetchDataNow: DoctorsAPICaller } = useFetchData<{
+  const { data: doctorsResult, call: DoctorsAPICaller } = useFetchData<{
     doctors: Doctor[];
   }>();
 
@@ -270,6 +261,7 @@ const BookAppointment: React.FC = () => {
                 }`}
               htmlFor={doctor.name}
             >
+              {/* TODO: Temporary image (avatar) */}
               <img src={avatar} alt="doc-avatar" className="w-[40px]" />
               <Input
                 type="radio"

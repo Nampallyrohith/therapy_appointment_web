@@ -14,6 +14,16 @@ export interface TherapistType {
   about: string;
   image: string;
 }
+export interface Doctor {
+  id: number;
+  therapyId: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  experience: number;
+  specialistIn: string;
+  about: string
+}
 
 export interface User {
   googleUserId: string;

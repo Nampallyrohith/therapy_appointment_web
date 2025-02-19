@@ -47,7 +47,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const {
     data: userResult,
     loading,
-    fetchDataNow,
+    call,
   } = useFetchData<{
     userDetails: User;
     userMeta: UserMeta;
@@ -64,7 +64,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   }, [user]);
 
   const getUserDetailsFromDB = async () => {
-    await fetchDataNow(`user/profile-info/${user?.googleUserId}`, "GET");
+    await call(`user/profile-info/${user?.googleUserId}`, "GET");
   };
 
   useEffect(() => {

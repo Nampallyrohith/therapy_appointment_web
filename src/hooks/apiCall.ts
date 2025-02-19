@@ -7,7 +7,7 @@ export const useFetchData = <T>() => {
   const [loading, setLoading] = useState<boolean>(false);
 
   // ✅ Create a function to manually trigger the API call
-  const fetchDataNow = async (
+  const call = async (
     endpoint: string,
     method: "GET" | "POST" | "PUT" | "DELETE",
     body?: any
@@ -19,5 +19,5 @@ export const useFetchData = <T>() => {
     setLoading(false);
   };
 
-  return { data, error, loading, fetchDataNow };
+  return { data, error, loading, call };
 };

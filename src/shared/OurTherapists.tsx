@@ -7,15 +7,19 @@ import "swiper/css";
 // @ts-ignore
 import "swiper/css/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Therapists } from "@/mock-data/staticData";
 import { Image } from "@chakra-ui/react";
 
 //import therapistImg from "@/assets/images/therapist1.png";
 import ActionButton from "./ActionButton";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { useNavigate } from "react-router-dom";
+import { Doctor } from "@/models/typeDefinations";
 
-const OurTherapists = () => {
+interface ourTherapistProps {
+  Therapists: Doctor[];
+}
+
+const OurTherapists: React.FC<ourTherapistProps> = ({ Therapists }) => {
   const { setSelectedTherapy, setSelectedDoctor } = useAppointmentContext();
   const navigate = useNavigate();
 
@@ -55,22 +59,24 @@ const OurTherapists = () => {
             <div className="flex justify-center mt-2 w-full h-full rounded-lg">
               <div className="flex flex-col justify-center space-y-2 mb-2">
                 <Image
-                  src={therapist.image}
+                  src={therapist.avatarUrl}
                   alt="therapist image"
                   className="bg-green-primary-2 rounded-t-2xl"
                 />
 
                 <div className="pl-4 space-y-2 text-green-primary-1">
                   <h2>{therapist.name}</h2>
-                  <p className="text-xs lg:text-base">{therapist.specialist}</p>
+                  <p className="text-xs lg:text-base">
+                    {therapist.specialistIn}
+                  </p>
                   <p className="text-xs lg:text-base">{therapist.experience}</p>
                 </div>
                 <ActionButton
                   buttonText="Schedule an appointment"
                   onClick={() =>
                     handleTherapistAppointment(
-                      therapist.id,
-                      therapist.specialisationId
+                      therapist.id.toString(),
+                      therapist.therapyId
                     )
                   }
                 />

@@ -1,4 +1,8 @@
-import { Appointment, TherapistType, therapyType } from "@/models/typeDefinations";
+import {
+  Appointment,
+  TherapistType,
+  therapyType,
+} from "@/models/typeDefinations";
 import Psychodynamic from "@/assets/images/therapies/psychodynamic.jpg";
 import Behavioural from "@/assets/images/therapies/behavioural.jpg";
 import CBT from "@/assets/images/therapies/cbt.jpg";
@@ -82,9 +86,6 @@ export const Therapists: TherapistType[] = [
     image: DOC4,
   },
 ];
-
-
-
 
 // TODO: Replace dummy data with actual data from db
 // TODO: Add meetingLink field inside every appointment
