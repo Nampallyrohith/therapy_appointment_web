@@ -10,7 +10,7 @@ export interface TherapistType {
   name: string;
   experience: string;
   specialist: string;
-  specialisationId: string
+  specialisationId: string;
   about: string;
   image: string;
 }
@@ -22,7 +22,7 @@ export interface Doctor {
   avatarUrl: string;
   experience: number;
   specialistIn: string;
-  about: string
+  about: string;
 }
 
 export interface User {
@@ -66,4 +66,11 @@ export type Appointment = BaseUpcoming | Cancelled | Previous;
 export interface FilterProps {
   filterId: string;
   filterButtonText: string;
+}
+
+export interface DateTimeType {
+  id: number;
+  doctorId: number;
+  leaveDates: string[];
+  availableTime: null;
 }

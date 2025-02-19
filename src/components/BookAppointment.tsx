@@ -16,7 +16,7 @@ import { Therapists } from "@/mock-data/staticData";
 import Modal from "react-modal";
 import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
-import { Doctor } from "@/models/typeDefinations";
+import { DateTimeType, Doctor } from "@/models/typeDefinations";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -29,7 +29,6 @@ interface Therapy {
   id: string;
   therapyName: string;
 }
-
 
 const DoctorOptions = Therapists.reduce((acc, therapist) => {
   acc[therapist.id] = {
@@ -84,6 +83,10 @@ const BookAppointment: React.FC = () => {
     doctors: Doctor[];
   }>();
 
+  const { data: dateTimeResult, call: DateTimeAPICaller } = useFetchData<{
+    dateTime: DateTimeType;
+  }>();
+
   useEffect(() => {
     const getTherapies = async () => {
       await TherapyAPICaller("user/appointment/therapies", "GET");
@@ -97,9 +100,65 @@ const BookAppointment: React.FC = () => {
     }
   }, [activeTherapy]);
 
+  useEffect(() => {
+    if (activeDoctor) {
+      getDateTime();
+    }
+  }, [activeDoctor]);
+
   const getDoctors = async () => {
     await DoctorsAPICaller(`user/appointment/${activeTherapy}/doctors`, "GET");
   };
+
+  const getDateTime = async () => {
+    await DateTimeAPICaller(
+      `user/appointment/${activeDoctor}/available_datetime`,
+      "GET"
+    );
+  };
+
+  // Date and Time -------------------
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const formattedToday = today.toISOString().split("T")[0];
+
+  const maxSelectableDate = new Date();
+  maxSelectableDate.setDate(today.getDate() + 20);
+  const formattedMaxDate = maxSelectableDate.toISOString().split("T")[0];
+
+  const leaveDates =
+    (dateTimeResult && dateTimeResult.dateTime.leaveDates) || [];
+
+  const leaveDatesFormatted = leaveDates.map((leaveDate) => {
+    const leaveDateObj = new Date(leaveDate);
+    leaveDateObj.setHours(0, 0, 0, 0);
+    return leaveDateObj.toISOString().split("T")[0];
+  });
+
+  const isDateDisabled = (date: string) => {
+    const inputDate = new Date(date);
+    inputDate.setHours(0, 0, 0, 0);
+    const formattedInputDate = inputDate.toISOString().split("T")[0];
+
+    if (leaveDatesFormatted.includes(formattedInputDate)) {
+      const doctorName =
+        doctorsResult &&
+        doctorsResult?.doctors.find((doc) => doc.id === Number(activeDoctor));
+      alert(`${doctorName?.name} is in leave on this day`);
+      return true;
+    } // Only disable leave dates
+
+    if (inputDate > maxSelectableDate || inputDate < today) return true; //Disable outside of 20 days range
+
+    if (inputDate.getDay() === 0) {
+      alert("No service on sunday");
+      return true;
+    }
+
+    return false;
+  };
+
+  // -------------------
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -140,12 +199,12 @@ const BookAppointment: React.FC = () => {
       summary: user?.name + " is scheduled with " + eventDetails.doctor,
       description: eventDetails.eventDescription,
       start: {
-        dateTime: convertToISO8601(eventDetails.date, eventDetails.time), // Start time in ISO 8601 format
+        dateTime: convertToISO8601(eventDetails.date, eventDetails.time),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       end: {
-        dateTime: convertToISO8601(eventDetails.date, eventDetails.time, 1), // End time in ISO 8601 format
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, //Asia/Kolkata
+        dateTime: convertToISO8601(eventDetails.date, eventDetails.time, 1),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       // TODO: Add doctors email further
       attendees: [
@@ -311,13 +370,23 @@ const BookAppointment: React.FC = () => {
           type="date"
           {...register("date")}
           value={meetingDate}
-          className="text-green-primary-1 border-0 rounded-xl min-w-full sm:min-w-[40%] p-3 shadow-inset-2"
+          className={`text-green-primary-1 border-0 rounded-xl min-w-full sm:min-w-[40%] p-3 shadow-inset-2}`}
+          min={formattedToday}
+          max={formattedMaxDate}
+          onChange={(e) => {
+            const selectedDate = e.target.value;
+            if (isDateDisabled(selectedDate)) {
+              setValue("date", "");
+            } else {
+              setValue("date", selectedDate);
+            }
+          }}
         />
         <Input
           type="time"
-          value={meetingTime}
           {...register("time")}
           className="text-green-primary-1 border-0 rounded-xl min-w-full sm:min-w-[40%] p-3 shadow-inset-2"
+          disabled={!meetingDate || isDateDisabled(meetingDate)}
         />
       </div>
     </div>
