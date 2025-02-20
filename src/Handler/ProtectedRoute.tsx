@@ -2,7 +2,7 @@ import { useAppointmentContext } from "@/context/AppointmentContext";
 import Footer from "@/shared/Footer";
 import Header from "@/shared/Header";
 import Loader from "@/shared/Loader";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Modal from "react-modal";
 import { Button } from "@chakra-ui/react";
 
@@ -12,7 +12,6 @@ const ProtectedRoute = () => {
   const { isAuthToken, isLoading, isSessionExpired, handleUserSignOut } =
     useAppointmentContext();
   const location = useLocation();
-  const navigate = useNavigate();
 
   if (isLoading) {
     return <Loader />;
@@ -49,10 +48,7 @@ const ProtectedRoute = () => {
           Your session has expired. Please log in again.
         </p>
         <Button
-          onClick={() => {
-            handleUserSignOut();
-            navigate("/login");
-          }}
+          onClick={() => handleUserSignOut()}
           className="mt-4 bg-orange-primary-1 p-3 text-white"
         >
           Return to Login
