@@ -64,7 +64,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   }, [user]);
 
   const getUserDetailsFromDB = async () => {
-    await call(`user/profile-info/${user?.googleUserId}`, "GET");
+    await call(`user/profile-info/${user?.googleUserId}`);
   };
 
   useEffect(() => {

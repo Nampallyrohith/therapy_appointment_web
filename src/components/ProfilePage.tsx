@@ -9,7 +9,7 @@ const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { user, userMeta, getUserDetailsFromDB } = useAppointmentContext();
 
-  const { fetchDataNow } = useFetchData<User>();
+  const { call: UpdateUserAPICaller } = useFetchData<User>();
 
   const {
     register,
@@ -26,7 +26,10 @@ const UserProfileCard = () => {
   }, [user, reset]);
 
   const onSubmit = async (data: User) => {
-    await fetchDataNow("auth/google/signin", "POST", { ...data, ...userMeta });
+    await UpdateUserAPICaller("auth/google/signin", "POST", {
+      ...data,
+      ...userMeta,
+    });
     setIsEditing(false);
     getUserDetailsFromDB();
   };

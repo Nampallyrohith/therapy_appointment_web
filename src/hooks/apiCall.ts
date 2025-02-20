@@ -9,7 +9,7 @@ export const useFetchData = <T>() => {
   // ✅ Create a function to manually trigger the API call
   const call = async (
     endpoint: string,
-    method: "GET" | "POST" | "PUT" | "DELETE",
+    method: "GET" | "POST" | "PUT" | "DELETE" = 'GET',
     body?: any
   ) => {
     setLoading(true);

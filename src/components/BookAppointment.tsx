@@ -89,7 +89,7 @@ const BookAppointment: React.FC = () => {
 
   useEffect(() => {
     const getTherapies = async () => {
-      await TherapyAPICaller("user/appointment/therapies", "GET");
+      await TherapyAPICaller("user/appointment/therapies");
     };
     getTherapies();
   }, []);
@@ -107,13 +107,12 @@ const BookAppointment: React.FC = () => {
   }, [activeDoctor]);
 
   const getDoctors = async () => {
-    await DoctorsAPICaller(`user/appointment/${activeTherapy}/doctors`, "GET");
+    await DoctorsAPICaller(`user/appointment/${activeTherapy}/doctors`);
   };
 
   const getDateTime = async () => {
     await DateTimeAPICaller(
-      `user/appointment/${activeDoctor}/available_datetime`,
-      "GET"
+      `user/appointment/${activeDoctor}/available_datetime`
     );
   };
 
