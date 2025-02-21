@@ -14,11 +14,13 @@ type AppointmentContextType = {
   user: User | null;
   userMeta: UserMeta | null;
   isAuthToken: boolean;
+  isSessionExpired: boolean;
   selectedTherapy: string;
   selectedDoctor: string;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
   isLoading: boolean;
+  setIsSessionExpired: (session: boolean) => void;
   setSelectedTherapy: (therapy: string) => void;
   setSelectedDoctor: (doctor: string) => void;
   getUserDetailsFromDB: () => void;
@@ -41,6 +43,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTherapy, setSelectedTherapy] = useState<string>("");
   const [selectedDoctor, setSelectedDoctor] = useState<string>("");
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
   const navigate = useNavigate();
 
   // API's Call
@@ -80,38 +83,70 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     setIsLoading(false);
   }, [user]);
 
-  useEffect(() => {
-    const refreshTokenInterval = setInterval(async () => {
-      const { data, error } = await supabaseClient.auth.refreshSession();
-      if (error) {
-        console.error("Error refreshing session:", error.message);
-        handleUserSignOut();
-        return;
-      }
-      console.log("Session refreshed:", data);
-      if (data?.session?.user) {
-        setUser({
-          googleUserId: data.session.user.id,
-          name: data.session.user?.user_metadata?.full_name,
-          email: data.session.user.email,
-          avatarUrl: data.session.user.user_metadata?.avatar_url,
-          phone: null,
-          gender: null,
-          dob: null,
-        });
-        setUserMeta({
-          providerToken: data.session.provider_token,
-          createdAt: data.session.user.created_at,
-          lastSignInAt: data.session.user.last_sign_in_at,
-          expiresAt: data.session.expires_at,
-          refreshToken: data.session.refresh_token,
-          accessToken: data.session.access_token,
-        });
-      }
-    }, 1000 * 60 * 14);
+  // useEffect(() => {
+  //   const refreshTokenInterval = setInterval(async () => {
+  //     const { data, error } = await supabaseClient.auth.refreshSession();
+  //     if (error) {
+  //       console.error("Error refreshing session:", error.message);
+  //       handleUserSignOut();
+  //       return;
+  //     }
+  //     console.log("Session refreshed:", data);
+  //     if (data?.session?.user) {
+  //       setUser({
+  //         googleUserId: data.session.user.id,
+  //         name: data.session.user?.user_metadata?.full_name,
+  //         email: data.session.user.email,
+  //         avatarUrl: data.session.user.user_metadata?.avatar_url,
+  //         phone: null,
+  //         gender: null,
+  //         dob: null,
+  //       });
+  //       setUserMeta({
+  //         providerToken: data.session.provider_token,
+  //         createdAt: data.session.user.created_at,
+  //         lastSignInAt: data.session.user.last_sign_in_at,
+  //         expiresAt: data.session.expires_at,
+  //         refreshToken: data.session.refresh_token,
+  //         accessToken: data.session.access_token,
+  //       });
 
-    return () => clearInterval(refreshTokenInterval);
-  }, []);
+  //       // if (!data.session.provider_token) {
+  //       //   setIsSessionExpired(true);
+  //       // } else {
+  //       //   setIsSessionExpired(false);
+  //       // }
+  //     }
+  //   }, 1000 * 60 * 1);
+
+  //   return () => clearInterval(refreshTokenInterval);
+  // }, []);
+
+  useEffect(() => {
+    if (user) {
+      const loginTimestamp = sessionStorage.getItem("loginTimestamp");
+      if (!loginTimestamp) {
+        sessionStorage.setItem("loginTimestamp", Date.now().toString());
+      }
+      startSessionTimer();
+    }
+  }, [user]);
+
+  const startSessionTimer = () => {
+    const loginTimestamp = Number(sessionStorage.getItem("loginTimestamp"));
+    const expirationTime = loginTimestamp + 60 * 1000 * 59;
+
+    const timeLeft = expirationTime - Date.now();
+    if (timeLeft > 0) {
+      setTimeout(() => {
+        setIsSessionExpired(true);
+        // handleUserSignOut();
+      }, timeLeft);
+    } else {
+      setIsSessionExpired(true);
+      // handleUserSignOut();
+    }
+  };
 
   const getUserSession = async () => {
     const { data, error } = await supabaseClient.auth.getSession();
@@ -124,6 +159,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     if (data?.session?.user) {
       const userName = data.session.user?.user_metadata?.full_name;
       const userDetails = data.session.user;
+
       setUser({
         googleUserId: userDetails?.id,
         name: userName,
@@ -133,6 +169,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         gender: null,
         dob: null,
       });
+
       setUserMeta({
         providerToken: data.session?.provider_token,
         createdAt: userDetails.created_at,
@@ -153,7 +190,8 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     setUser(null);
     setUserMeta(null);
     setIsAuthToken(false);
-    sessionStorage.removeItem("intendedRoute"); // Clear on logout!
+    sessionStorage.removeItem("intendedRoute");
+    sessionStorage.removeItem("loginTimestamp");
     navigate("/login");
   };
 
@@ -170,8 +208,10 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         userMeta,
         handleUpdateUserDetailsState,
         handleUserSignOut,
+        isSessionExpired,
         selectedTherapy,
         selectedDoctor,
+        setIsSessionExpired,
         setSelectedTherapy,
         setSelectedDoctor,
         getUserDetailsFromDB,
