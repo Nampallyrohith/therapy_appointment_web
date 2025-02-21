@@ -134,7 +134,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
 
   const startSessionTimer = () => {
     const loginTimestamp = Number(sessionStorage.getItem("loginTimestamp"));
-    const expirationTime = loginTimestamp + (60 * 1000) * 59;
+    const expirationTime = loginTimestamp + 60 * 1000 * 59;
 
     const timeLeft = expirationTime - Date.now();
     if (timeLeft > 0) {
@@ -178,8 +178,6 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
         refreshToken: data.session.refresh_token,
         accessToken: data.session.access_token,
       });
-
-      setIsAuthToken(true);
     }
   };
 
@@ -192,7 +190,8 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     setUser(null);
     setUserMeta(null);
     setIsAuthToken(false);
-    sessionStorage.removeItem("loginTimestamp"); // Clear on logout!
+    sessionStorage.removeItem("intendedRoute");
+    sessionStorage.removeItem("loginTimestamp");
     navigate("/login");
   };
 
