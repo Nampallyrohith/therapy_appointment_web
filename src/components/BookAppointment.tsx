@@ -16,7 +16,7 @@ import { Therapists } from "@/mock-data/staticData";
 import Modal from "react-modal";
 import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
-import { DateTimeType, Doctor } from "@/models/typeDefinations";
+import { DateTimeType, Doctor } from "@/models/typeDefinitions";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -85,6 +85,11 @@ const BookAppointment: React.FC = () => {
 
   const { data: dateTimeResult, call: DateTimeAPICaller } = useFetchData<{
     dateTime: DateTimeType;
+  }>();
+
+  const { data: insertResult, call: CreateEventAPICaller } = useFetchData<{
+    message: string;
+    error: string;
   }>();
 
   useEffect(() => {
@@ -183,19 +188,28 @@ const BookAppointment: React.FC = () => {
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     console.log("data", data);
     await createEventWithGuestsAndReminders(data);
-    toaster.create({
-      description: "File saved successfully",
-      type: "info",
-    });
   };
+
+  useEffect(() => {
+    if (insertResult?.message) {
+      toaster.create({
+        description: "File saved successfully",
+        type: "info",
+      });
+      navigate("/user/my-appointments");
+    }
+  });
 
   const createEventWithGuestsAndReminders = async (
     eventDetails: FormInputs
   ) => {
     const requestId = Date.now().toString();
-    console.log(requestId);
+    const doctor =
+      doctorsResult &&
+      doctorsResult?.doctors.find((doc) => doc.id === Number(activeDoctor));
+    console.log(doctor);
     const event = {
-      summary: user?.name + " is scheduled with " + eventDetails.doctor,
+      summary: user?.name + " is scheduled with " + doctor?.name,
       description: eventDetails.eventDescription,
       start: {
         dateTime: convertToISO8601(eventDetails.date, eventDetails.time),
@@ -207,8 +221,8 @@ const BookAppointment: React.FC = () => {
       },
       // TODO: Add doctors email further
       attendees: [
-        { email: "rohithnampelly57@gmail.com" },
-        { email: "madhumithatekumal@gmail.com" },
+        { email: user?.email },
+        { email: doctor?.email },
         { email: env.VITE_DEFAULT_THERAPY_EMAIL as string },
       ],
       reminders: {
@@ -232,9 +246,7 @@ const BookAppointment: React.FC = () => {
 
     try {
       const { data } = await supabaseClient.auth.getSession();
-      console.log("data:", data);
       const accessToken = data.session?.provider_token;
-      console.log(accessToken);
       const response = await fetch(
         "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1",
         {
@@ -249,10 +261,24 @@ const BookAppointment: React.FC = () => {
       console.log(response);
       const responseData = await response.json();
       if (response.ok) {
-        console.log("Event created successfully:", responseData);
-        //TODO: Update the list of upcoming events
-        navigate("/user/my-appointments");
         console.log(responseData.hangoutLink);
+        const body = {
+          summary: event.summary,
+          description: event.description,
+          start: event.start,
+          end: event.end,
+          attendees: event.attendees,
+          hangoutLink: responseData.hangoutLink,
+        };
+        console.log("event:", body);
+
+        await CreateEventAPICaller(
+          `user/appointment/create-event/${user?.googleUserId}`,
+          "POST",
+          body
+        );
+
+        //TODO: Update the list of upcoming events
       }
     } catch (error) {
       console.error("Error creating event:", error);

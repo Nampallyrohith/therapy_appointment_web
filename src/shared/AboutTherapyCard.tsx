@@ -1,4 +1,4 @@
-import { therapyType } from "@/models/typeDefinations";
+import { therapyType } from "@/models/typeDefinitions";
 import { Image } from "@chakra-ui/react";
 import React from "react";
 import ActionButton from "./ActionButton";
@@ -12,12 +12,12 @@ interface therapyCardProps {
 
 const AboutTherapyCard: React.FC<therapyCardProps> = ({ therapy }) => {
   const { name, about, image, id } = therapy;
-  const { setSelectedTherapy,setSelectedDoctor } = useAppointmentContext();
+  const { setSelectedTherapy, setSelectedDoctor } = useAppointmentContext();
   const navigate = useNavigate();
 
   const handleBookTherapy = () => {
     setSelectedTherapy(id);
-    setSelectedDoctor("")
+    setSelectedDoctor("");
     window.scrollTo(0, 0);
     navigate("/user/book-appointment");
   };

@@ -13,7 +13,7 @@ import { Image } from "@chakra-ui/react";
 import ActionButton from "./ActionButton";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { useNavigate } from "react-router-dom";
-import { Doctor } from "@/models/typeDefinations";
+import { Doctor } from "@/models/typeDefinitions";
 
 interface ourTherapistProps {
   Therapists: Doctor[];

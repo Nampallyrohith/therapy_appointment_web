@@ -3,7 +3,7 @@ import { FaPen } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useFetchData } from "@/hooks/apiCall";
 import { useAppointmentContext } from "@/context/AppointmentContext";
-import { User } from "@/models/typeDefinations";
+import { User } from "@/models/typeDefinitions";
 
 const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
