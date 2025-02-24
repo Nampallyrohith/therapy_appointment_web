@@ -3,7 +3,7 @@ import Modal from "react-modal";
 import { IoClose } from "react-icons/io5";
 import { RiShareForward2Fill } from "react-icons/ri";
 import React, { useState } from "react";
-import { Appointment, AppointmentFilterProps } from "@/models/typeDefinations";
+import { Appointment, AppointmentFilterProps } from "@/models/typeDefinitions";
 import { dummyData } from "@/mock-data/staticData";
 import { Button } from "@chakra-ui/react";
 
