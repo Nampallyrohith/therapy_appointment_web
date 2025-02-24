@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 
+// This type should be here, no need to shift it to typeDefinitions file!
 type AppointmentContextType = {
   user: User | null;
   userMeta: UserMeta | null;

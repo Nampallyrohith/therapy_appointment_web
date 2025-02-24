@@ -12,7 +12,6 @@ import { convertToISO8601 } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toaster } from "./ui/toaster";
-import { Therapists } from "@/mock-data/staticData";
 import Modal from "react-modal";
 import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
@@ -30,21 +29,11 @@ interface Therapy {
   therapyName: string;
 }
 
-const DoctorOptions = Therapists.reduce((acc, therapist) => {
-  acc[therapist.id] = {
-    name: therapist.name,
-    avatar: avatar,
-  };
-  return acc;
-}, {} as Record<string, { name: string; avatar: string }>);
-
 type TherapyKeys = keyof typeof TherapyOptions;
-
-type DoctorKeys = keyof typeof DoctorOptions;
 
 interface FormInputs {
   therapy: TherapyKeys;
-  doctor: DoctorKeys;
+  doctor: string;
   date: string;
   time: string;
   eventDescription: string;
@@ -59,7 +48,7 @@ const BookAppointment: React.FC = () => {
   const { register, handleSubmit, setValue, watch } = useForm<FormInputs>({
     defaultValues: {
       therapy: "" as TherapyKeys,
-      doctor: "" as DoctorKeys,
+      doctor: "",
       date: "",
       time: "",
       eventDescription: "",
@@ -180,7 +169,7 @@ const BookAppointment: React.FC = () => {
     if (selectedTherapy) {
       setValue("therapy", selectedTherapy as TherapyKeys);
       if (selectedDoctor) {
-        setValue("doctor", selectedDoctor as DoctorKeys);
+        setValue("doctor", selectedDoctor);
       }
     }
   }, [selectedTherapy, selectedDoctor, setValue]);
