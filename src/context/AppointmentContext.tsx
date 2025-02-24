@@ -1,5 +1,5 @@
 import { useFetchData } from "@/hooks/apiCall";
-import { User, UserMeta } from "@/models/typeDefinations";
+import { User, UserMeta } from "@/models/typeDefinitions";
 import { supabaseClient } from "@/supabase/connection";
 import React, {
   createContext,
@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 
+// This type should be here, no need to shift it to typeDefinitions file!
 type AppointmentContextType = {
   user: User | null;
   userMeta: UserMeta | null;
@@ -50,7 +51,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const {
     data: userResult,
     loading,
-    fetchDataNow,
+    call,
   } = useFetchData<{
     userDetails: User;
     userMeta: UserMeta;
@@ -67,14 +68,13 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   }, [user]);
 
   const getUserDetailsFromDB = async () => {
-    await fetchDataNow(`user/profile-info/${user?.googleUserId}`, "GET");
+    await call(`user/profile-info/${user?.googleUserId}`);
   };
 
   useEffect(() => {
     if (!loading && userResult) {
       setUser(userResult.userDetails);
       setUserMeta(userResult.userMeta);
-      console.log("storing");
     }
   }, [loading, userResult]);
 

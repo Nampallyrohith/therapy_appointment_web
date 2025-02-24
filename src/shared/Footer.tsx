@@ -6,7 +6,6 @@ const Footer = () => {
   return (
     <div className="bg-green-primary-2 w-full h-full flex flex-col md:flex-row justify-around items-center gap-10 p-10">
       <Link to="/user/home">
-        {/* <h1 className="text-4xl">Logo</h1> */}
         <Image src={logo} className="w-[250px]" />
       </Link>
       <div className="space-y-4 text-green-primary-1">

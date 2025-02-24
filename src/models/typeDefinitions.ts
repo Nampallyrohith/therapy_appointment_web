@@ -5,14 +5,15 @@ export interface therapyType {
   about: string;
 }
 
-export interface TherapistType {
-  id: string;
+export interface Doctor {
+  id: number;
+  therapyId: string;
   name: string;
-  experience: string;
-  specialist: string;
-  specialisationId: string
+  email: string;
+  avatarUrl: string;
+  experience: number;
+  specialistIn: string;
   about: string;
-  image: string;
 }
 
 export interface User {
@@ -34,6 +35,7 @@ export interface UserMeta {
   accessToken: string | undefined;
 }
 
+// TODO: Temporary typedefs for appointment list
 interface BaseUpcoming {
   typeOfTherapy: string;
   doctorName: string;
@@ -53,7 +55,14 @@ interface Previous extends BaseUpcoming {
 
 export type Appointment = BaseUpcoming | Cancelled | Previous;
 
-export interface FilterProps {
+export interface AppointmentFilterProps {
   filterId: string;
   filterButtonText: string;
+}
+
+export interface DateTimeType {
+  id: number;
+  doctorId: number;
+  leaveDates: string[];
+  availableTime: null;
 }
