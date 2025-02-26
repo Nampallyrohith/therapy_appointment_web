@@ -60,9 +60,13 @@ export interface AppointmentFilterProps {
   filterButtonText: string;
 }
 
-export interface DateTimeType {
+export interface DateType {
   id: number;
   doctorId: number;
   leaveDates: string[];
-  availableTime: null;
+}
+export interface TimeType {
+  id: number;
+  doctorId: number;
+  availableTimeSlots: string[];
 }

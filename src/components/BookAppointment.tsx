@@ -8,14 +8,14 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { LuInfo } from "react-icons/lu";
 import avatar from "@/assets/images/doctor-avatar.png";
 import { Input, Textarea } from "@chakra-ui/react";
-import { convertToISO8601 } from "./utils/commonFunction";
+import { convertISTTOUTC } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toaster } from "./ui/toaster";
 import Modal from "react-modal";
 import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
-import { DateTimeType, Doctor } from "@/models/typeDefinitions";
+import { DateType, Doctor, TimeType } from "@/models/typeDefinitions";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -72,8 +72,11 @@ const BookAppointment: React.FC = () => {
     doctors: Doctor[];
   }>();
 
-  const { data: dateTimeResult, call: DateTimeAPICaller } = useFetchData<{
-    dateTime: DateTimeType;
+  const { data: dateResult, call: DateAPICaller } = useFetchData<{
+    date: DateType;
+  }>();
+  const { data: timeResult, call: TimeAPICaller } = useFetchData<{
+    time: TimeType;
   }>();
 
   const { data: insertResult, call: CreateEventAPICaller } = useFetchData<{
@@ -91,22 +94,35 @@ const BookAppointment: React.FC = () => {
   useEffect(() => {
     if (activeTherapy) {
       getDoctors();
+      setValue("doctor", "");
     }
   }, [activeTherapy]);
 
   useEffect(() => {
     if (activeDoctor) {
-      getDateTime();
+      getDate();
     }
   }, [activeDoctor]);
+
+  useEffect(() => {
+    if (meetingDate) {
+      getTime();
+      setValue("time", "");
+      setValue("eventDescription", "");
+    }
+  }, [meetingDate]);
 
   const getDoctors = async () => {
     await DoctorsAPICaller(`user/appointment/${activeTherapy}/doctors`);
   };
 
-  const getDateTime = async () => {
-    await DateTimeAPICaller(
-      `user/appointment/${activeDoctor}/available_datetime`
+  const getDate = async () => {
+    await DateAPICaller(`user/appointment/${activeDoctor}/available_date`);
+  };
+
+  const getTime = async () => {
+    await TimeAPICaller(
+      `user/appointment/${activeDoctor}/available_time?date=${meetingDate}`
     );
   };
 
@@ -119,8 +135,7 @@ const BookAppointment: React.FC = () => {
   maxSelectableDate.setDate(today.getDate() + 20);
   const formattedMaxDate = maxSelectableDate.toISOString().split("T")[0];
 
-  const leaveDates =
-    (dateTimeResult && dateTimeResult.dateTime.leaveDates) || [];
+  const leaveDates = (dateResult && dateResult.date.leaveDates) || [];
 
   const leaveDatesFormatted = leaveDates.map((leaveDate) => {
     const leaveDateObj = new Date(leaveDate);
@@ -201,11 +216,11 @@ const BookAppointment: React.FC = () => {
       summary: user?.name + " is scheduled with " + doctor?.name,
       description: eventDetails.eventDescription,
       start: {
-        dateTime: convertToISO8601(eventDetails.date, eventDetails.time),
+        dateTime: convertISTTOUTC(eventDetails.date, eventDetails.time),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       end: {
-        dateTime: convertToISO8601(eventDetails.date, eventDetails.time, 1),
+        dateTime: convertISTTOUTC(eventDetails.date, eventDetails.time, 1),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       // TODO: Add doctors email further
@@ -259,6 +274,7 @@ const BookAppointment: React.FC = () => {
           end: event.end,
           attendees: event.attendees,
           hangoutLink: responseData.hangoutLink,
+          doctorId: doctor?.id,
         };
         console.log("event:", body);
 
@@ -397,12 +413,25 @@ const BookAppointment: React.FC = () => {
             }
           }}
         />
-        <Input
-          type="time"
+        <select
+          value={meetingTime}
           {...register("time")}
-          className="text-green-primary-1 border-0 rounded-xl min-w-full sm:min-w-[40%] p-3 shadow-inset-2"
+          className="border-0 text-green-primary-1 outline-none rounded-xl min-w-full sm:min-w-[40%] p-2 shadow-inset-2"
           disabled={!meetingDate || isDateDisabled(meetingDate)}
-        />
+        >
+          <option value="" className="text-green-primary-1" disabled>
+            Select time
+          </option>{" "}
+          {timeResult?.time?.availableTimeSlots?.map((timeSlot) => (
+            <option
+              key={timeSlot}
+              value={timeSlot}
+              className="text-green-primary-1"
+            >
+              {timeSlot}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );
