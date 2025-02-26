@@ -230,6 +230,7 @@ const BookAppointment: React.FC = () => {
           },
         },
       },
+      colorId: "3",
     };
     console.log("event", event);
 
