@@ -1,20 +1,31 @@
-name: Code Quality Checks
-on: push
+name: React Vite Build Check
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  react-build-check:
-    name: React.js Build Check
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Create React Build
+      - name: Build React app (Vite)
         run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
