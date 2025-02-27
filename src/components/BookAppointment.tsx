@@ -11,11 +11,11 @@ import { Input, Textarea } from "@chakra-ui/react";
 import { convertISTTOUTC } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { Link, useNavigate } from "react-router-dom";
-import { toaster } from "./ui/toaster";
 import Modal from "react-modal";
 import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
 import { DateType, Doctor, TimeType } from "@/models/typeDefinitions";
+import toast, { Toaster } from "react-hot-toast";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -191,19 +191,24 @@ const BookAppointment: React.FC = () => {
   }, [selectedTherapy, selectedDoctor, setValue]);
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
-    console.log("data", data);
     await createEventWithGuestsAndReminders(data);
   };
 
   useEffect(() => {
     if (insertResult?.message) {
-      toaster.create({
-        description: "File saved successfully",
-        type: "info",
+      toast.success("Appointment created successfully.", {
+        duration: 3000,
+        style: {
+          backgroundColor: "#1f5d5d",
+          color: "#fff",
+          fontWeight: 700,
+        },
       });
-      navigate("/user/my-appointments");
+      setTimeout(() => {
+        navigate("/user/my-appointments");
+      }, 3000);
     }
-  });
+  }, [insertResult, navigate]);
 
   const createEventWithGuestsAndReminders = async (
     eventDetails: FormInputs
@@ -212,7 +217,6 @@ const BookAppointment: React.FC = () => {
     const doctor =
       doctorsResult &&
       doctorsResult?.doctors.find((doc) => doc.id === Number(activeDoctor));
-    console.log(doctor);
     const event = {
       summary: user?.name + " is scheduled with " + doctor?.name,
       description: eventDetails.eventDescription,
@@ -247,48 +251,47 @@ const BookAppointment: React.FC = () => {
       },
       colorId: "3",
     };
-    console.log("event", event);
 
-    try {
-      const { data } = await supabaseClient.auth.getSession();
-      const accessToken = data.session?.provider_token;
-      const response = await fetch(
-        "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(event),
-        }
-      );
-      const responseData = await response.json();
-      console.log(responseData);
-      if (response.ok) {
-        console.log(responseData.hangoutLink);
-        const body = {
-          summary: event.summary,
-          description: event.description,
-          start: event.start,
-          end: event.end,
-          attendees: event.attendees,
-          hangoutLink: responseData.hangoutLink,
-          doctorId: doctor?.id,
-          eventId: responseData.id,
-        };
-        console.log("event:", body);
-
-        await CreateEventAPICaller(
-          `user/appointment/create-event/${user?.googleUserId}`,
-          "POST",
-          body
-        );
-
-        //TODO: Update the list of upcoming events
+    const { data } = await supabaseClient.auth.getSession();
+    const accessToken = data.session?.provider_token;
+    const response = await fetch(
+      "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(event),
       }
-    } catch (error) {
-      console.error("Error creating event:", error);
+    );
+    const responseData = await response.json();
+    if (responseData.error) {
+      toast.error(responseData.error.errors[0].message, {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      return;
+    }
+
+    if (response.ok) {
+      const body = {
+        summary: event.summary,
+        description: event.description,
+        start: event.start,
+        end: event.end,
+        attendees: event.attendees,
+        hangoutLink: responseData.hangoutLink,
+        doctorId: doctor?.id,
+        eventId: responseData.id,
+      };
+
+      //TODO: Update the list of upcoming events
+      await CreateEventAPICaller(
+        `user/appointment/create-event/${user?.googleUserId}`,
+        "POST",
+        body
+      );
     }
   };
 
@@ -522,6 +525,8 @@ const BookAppointment: React.FC = () => {
         {activeDoctor && renderDateAndTimeSection()}
         {meetingDate && meetingTime && renderDescriptionAndBookButton()}
       </form>
+
+      <Toaster position="bottom-right" />
       {/* <div>
         Necessary
         <p>Add Guest to join</p>
