@@ -223,7 +223,6 @@ const BookAppointment: React.FC = () => {
         dateTime: convertISTTOUTC(eventDetails.date, eventDetails.time, 1),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
-      // TODO: Add doctors email further
       attendees: [
         { email: user?.email },
         { email: doctor?.email },
@@ -263,8 +262,8 @@ const BookAppointment: React.FC = () => {
           body: JSON.stringify(event),
         }
       );
-      console.log(response);
       const responseData = await response.json();
+      console.log(responseData);
       if (response.ok) {
         console.log(responseData.hangoutLink);
         const body = {
@@ -275,6 +274,7 @@ const BookAppointment: React.FC = () => {
           attendees: event.attendees,
           hangoutLink: responseData.hangoutLink,
           doctorId: doctor?.id,
+          eventId: responseData.id
         };
         console.log("event:", body);
 
