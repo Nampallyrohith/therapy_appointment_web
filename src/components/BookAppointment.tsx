@@ -101,6 +101,7 @@ const BookAppointment: React.FC = () => {
   useEffect(() => {
     if (activeDoctor) {
       getDate();
+      setValue("date", "");
     }
   }, [activeDoctor]);
 
@@ -274,7 +275,7 @@ const BookAppointment: React.FC = () => {
           attendees: event.attendees,
           hangoutLink: responseData.hangoutLink,
           doctorId: doctor?.id,
-          eventId: responseData.id
+          eventId: responseData.id,
         };
         console.log("event:", body);
 
