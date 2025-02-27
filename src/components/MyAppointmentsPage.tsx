@@ -268,7 +268,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full">
-      <h1 className="text-2xl mb-6 mt-16 lg:mt-20">My Appointments</h1>
+      <h1 className="text-2xl mb-6 mt-20">My Appointments</h1>
       {renderAppointmentFilters()}
       {renderAppointments()}
       {renderAppropriateModal()}
