@@ -311,7 +311,7 @@ const BookAppointment: React.FC = () => {
           therapiesResult.therapies.map((therapy: Therapy) => (
             <label
               key={therapy.id}
-              className={`min-w-[70%] sm:min-w-[80%] md:min-w-[40%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
+              className={`lg:min-w-[40%] sm:min-w-[80%] md:min-w-[50%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
                 ${
                   activeTherapy === therapy.id
                     ? "bg-[#2CC3B4] text-white"
@@ -464,7 +464,7 @@ const BookAppointment: React.FC = () => {
       >
         Book Event
       </Button>
-      <p className="text-[#2CC3B4] text-xs mb-20">
+      <p className="text-[#2CC3B4] text-xs mb-20 w-3/4">
         *After clicking on "Book Event", you will be sent an email regarding the
         appointment that has been created
       </p>

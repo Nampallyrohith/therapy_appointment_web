@@ -52,7 +52,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   // Renders
   const renderAppointmentFilters = () => (
-    <div className="flex flex-wrap justify-center gap-4">
+    <div className="flex flex-wrap justify-center gap-4 mid:w-[1/3]">
       {filterDetails.map((eachFilter) => (
         <FilterButton
           key={eachFilter.filterId}
