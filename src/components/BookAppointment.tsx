@@ -16,6 +16,7 @@ import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
 import { DateType, Doctor, TimeType } from "@/models/typeDefinitions";
 import toast, { Toaster } from "react-hot-toast";
+import Loader from "@/shared/Loader";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -64,7 +65,11 @@ const BookAppointment: React.FC = () => {
   ] = watch(["therapy", "doctor", "date", "time", "eventDescription"]);
 
   // API's Call
-  const { data: therapiesResult, call: TherapyAPICaller } = useFetchData<{
+  const {
+    data: therapiesResult,
+    call: TherapyAPICaller,
+    loading,
+  } = useFetchData<{
     therapies: Therapy[];
   }>();
 
@@ -204,6 +209,7 @@ const BookAppointment: React.FC = () => {
           fontWeight: 700,
         },
       });
+      // After 3 seconds it'll navigate
       setTimeout(() => {
         navigate("/user/my-appointments");
       }, 3000);
@@ -529,10 +535,16 @@ const BookAppointment: React.FC = () => {
             </div>
           </Modal>
         )}
-        {renderTherapyOptions()}
-        {activeTherapy && renderDoctorOptions()}
-        {activeDoctor && renderDateAndTimeSection()}
-        {meetingDate && meetingTime && renderDescriptionAndBookButton()}
+        {loading ? (
+          <Loader />
+        ) : (
+          <>
+            {renderTherapyOptions()}
+            {activeTherapy && renderDoctorOptions()}
+            {activeDoctor && renderDateAndTimeSection()}
+            {meetingDate && meetingTime && renderDescriptionAndBookButton()}
+          </>
+        )}
       </form>
 
       <Toaster position="bottom-right" />
