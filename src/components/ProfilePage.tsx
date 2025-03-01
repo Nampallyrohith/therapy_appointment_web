@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { useFetchData } from "@/hooks/apiCall";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { User } from "@/models/typeDefinitions";
+import { ThreeDot } from "react-loading-indicators";
+import toast, { Toaster } from "react-hot-toast";
 
 const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { user, userMeta, getUserDetailsFromDB } = useAppointmentContext();
 
-  const { call: UpdateUserAPICaller } = useFetchData<User>();
+  const { call: UpdateUserAPICaller, loading } = useFetchData<User>();
 
   const {
     register,
@@ -31,6 +33,14 @@ const UserProfileCard = () => {
       ...userMeta,
     });
     setIsEditing(false);
+    toast.success("Profile updated", {
+      duration: 3000,
+      style: {
+        backgroundColor: "#1f5d5d",
+        color: "#fff",
+        fontWeight: 700,
+      },
+    });
     getUserDetailsFromDB();
   };
 
@@ -60,7 +70,7 @@ const UserProfileCard = () => {
         )}
         <div className="flex flex-col items-center">
           <img
-            src={watch("avatarUrl")}
+            src={user?.avatarUrl}
             alt="Profile"
             className="w-24 h-24 rounded-full"
           />
@@ -159,7 +169,11 @@ const UserProfileCard = () => {
               type="submit"
               className="px-4 py-2 bg-[#2EC4B6] text-white rounded-md"
             >
-              Save
+              {loading ? (
+                <ThreeDot easing="ease-in" size="small" color="#fff" />
+              ) : (
+                "Save"
+              )}
             </button>
           </div>
         )}
@@ -169,6 +183,7 @@ const UserProfileCard = () => {
           </p>
         )}
       </form>
+      <Toaster position="bottom-right" />
     </div>
   );
 };
