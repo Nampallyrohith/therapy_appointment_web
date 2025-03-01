@@ -1,6 +1,6 @@
 import {
   therapyType,
-} from "@/models/typeDefinations";
+} from "@/models/typeDefinitions";
 import Psychodynamic from "@/assets/images/therapies/psychodynamic.jpg";
 import Behavioural from "@/assets/images/therapies/behavioural.jpg";
 import CBT from "@/assets/images/therapies/cbt.jpg";

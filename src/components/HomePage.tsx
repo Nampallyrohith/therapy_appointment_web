@@ -1,6 +1,6 @@
 import { useFetchData } from "@/hooks/apiCall";
 import { ourTherapiesList } from "@/mock-data/staticData";
-import { Doctor } from "@/models/typeDefinations";
+import { Doctor } from "@/models/typeDefinitions";
 import AboutTherapyCard from "@/shared/AboutTherapyCard";
 import Banner from "@/shared/Banner";
 import OurTherapists from "@/shared/OurTherapists";

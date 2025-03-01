@@ -1,5 +1,5 @@
 import top from "../assets/images/AuthenticationIcons/top.png";
-import { Image } from "@chakra-ui/react";
+import { Button, Image } from "@chakra-ui/react";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { supabaseClient } from "@/supabase/connection";
 import { FcGoogle } from "react-icons/fc";
@@ -53,15 +53,16 @@ const AuthenticationPage = () => {
         width={80}
         className="block lg:hidden mt-16 mb-10 text-center w-11/12 mx-auto"
       />
-      <div className="flex w-full lg:h-full justify-center items-center gap-2 text-green-primary-1">
-        <span className="flex items-center p-2 border border-green-primary-1 rounded-lg hover:shadow-lg hover:scale-105 hover:linear hover:delay-100">
-          Sign in with{" "}
-          <button type="button" onClick={handleOAuthSignUp} className="p-1 ">
-            {/* hover:drop-shadow-[0_6px_6px_rgba(72,187,120,1)] */}
-            <FcGoogle size={30} />
-          </button>
+      <Button
+        onClick={handleOAuthSignUp}
+        className="flex w-full lg:h-full justify-center items-center gap-2 text-green-primary-1"
+      >
+        <span className="flex items-center p-2 border border-green-primary-1 gap-2 rounded-lg hover:shadow-lg hover:scale-105 hover:linear hover:delay-100">
+          Sign in with
+          {/* hover:drop-shadow-[0_6px_6px_rgba(72,187,120,1)] */}
+          <FcGoogle size={30} />
         </span>
-      </div>
+      </Button>
     </div>
   );
 };

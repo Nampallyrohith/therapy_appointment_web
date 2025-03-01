@@ -1,5 +1,5 @@
 import { useFetchData } from "@/hooks/apiCall";
-import { User, UserMeta } from "@/models/typeDefinations";
+import { User, UserMeta } from "@/models/typeDefinitions";
 import { supabaseClient } from "@/supabase/connection";
 import React, {
   createContext,
