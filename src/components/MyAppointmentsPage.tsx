@@ -2,10 +2,11 @@ import FilterButton from "@/shared/FilterButton";
 import Modal from "react-modal";
 import { IoClose } from "react-icons/io5";
 import { RiShareForward2Fill } from "react-icons/ri";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Appointment, AppointmentFilterProps } from "@/models/typeDefinations";
-import { dummyData } from "@/mock-data/staticData";
 import { Button } from "@chakra-ui/react";
+import { useFetchData } from "@/hooks/apiCall";
+import { useAppointmentContext } from "@/context/AppointmentContext";
 
 export const filterDetails: AppointmentFilterProps[] = [
   {
@@ -27,6 +28,19 @@ const MyAppointmentsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
+
+  const { user } = useAppointmentContext();
+  const { data: appointmentsResult, call: AppointmentAPICaller } =
+    useFetchData<{
+      appointments: Appointment[];
+    }>();
+
+  useEffect(() => {
+    const getAppointments = async () => {
+      await AppointmentAPICaller(`/user/my-appointments/${user?.googleUserId}`);
+    };
+    getAppointments();
+  }, []);
 
   const onFilterChange = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFilter(event.currentTarget.id);
@@ -71,13 +85,13 @@ const MyAppointmentsPage: React.FC = () => {
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
         </h2> */}
       <div className="sm:mx-4 md:mx-12 lg:mx-40 my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {dummyData[filter]?.map((appointment, index) => (
+        {appointmentsResult?.appointments.map((appointment, index) => (
           <div
             key={index}
             className={`px-8 py-4 flex flex-col gap-1 rounded-xl border border-gray-200 cursor-pointer ${
-              filter === "upcoming"
+              appointment.status === "upcoming"
                 ? "text-green-primary-1 bg-white"
-                : filter === "cancelled"
+                : appointment.status === "cancelled"
                 ? "text-gray-500 bg-gray-300"
                 : "bg-green-primary-1 text-white"
             }`}
@@ -90,14 +104,15 @@ const MyAppointmentsPage: React.FC = () => {
               <strong>Doctor:</strong> {appointment.doctorName}
             </p>
             <p className="text-sm">
-              <strong>Booked by:</strong> {appointment.bookedBy}
+              <strong>Booked by:</strong> {user?.name}
             </p>
             <p className="text-sm">
-              <strong>Booked on:</strong> {appointment.bookedOn}
+              <strong>Booked on:</strong> {appointment.createdAt}
             </p>
             <p className="text-sm">
               <strong>Meeting time:</strong>{" "}
-              {new Date(appointment.timingOfMeeting).toLocaleString()}
+              {new Date(appointment.startTime).toLocaleString()} -
+              {new Date(appointment.endTime).toLocaleString()}
             </p>
             {"cancelledOn" in appointment && (
               <p className="text-sm">
@@ -182,8 +197,7 @@ const MyAppointmentsPage: React.FC = () => {
       </h2>
       {/* TODO: Add user and doctor emails */}
       <p className="text-sm">
-        <span className="font-bold">Client:</span>{" "}
-        {selectedAppointment?.bookedBy}
+        <span className="font-bold">Client:</span> {user?.name}
       </p>
       <p className="text-sm">
         <span className="font-bold">Consultant:</span>{" "}
@@ -215,9 +229,14 @@ const MyAppointmentsPage: React.FC = () => {
         Meeting date & time:
       </h2>
       <p>
-        {selectedAppointment?.timingOfMeeting
-          ? new Date(selectedAppointment.timingOfMeeting).toLocaleString()
-          : "No meeting time available"}
+        {selectedAppointment?.startTime ? (
+          <>
+            {new Date(selectedAppointment?.startTime).toLocaleString()} -
+            {new Date(selectedAppointment?.endTime).toLocaleString()}
+          </>
+        ) : (
+          "No meeting time available"
+        )}
       </p>
       {selectedAppointment && "cancelledOn" in selectedAppointment && (
         <div>

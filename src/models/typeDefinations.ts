@@ -36,20 +36,30 @@ export interface UserMeta {
 }
 
 // TODO: Temporary typedefs for appointment list
-interface BaseUpcoming {
+export type Status = "upcoming" | "cancelled" | "previous";
+
+export interface BaseUpcoming {
+  id: number;
+  userId: string;
+  doctorId: number;
+  eventId: string;
+  summary: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  timeZone: string;
+  hangoutLink: string;
+  status: Status;
+  createdAt: string;
   typeOfTherapy: string;
   doctorName: string;
-  bookedBy: string;
-  bookedOn: string;
-  timingOfMeeting: string;
-  description: string;
 }
 
-interface Cancelled extends BaseUpcoming {
+export interface Cancelled extends BaseUpcoming {
   cancelledOn: string;
 }
 
-interface Previous extends BaseUpcoming {
+export interface Previous extends BaseUpcoming {
   attended: boolean;
 }
 
