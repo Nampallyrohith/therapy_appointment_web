@@ -274,7 +274,12 @@ const BookAppointment: React.FC = () => {
       return;
     }
 
+    const therapy = therapiesResult?.therapies.find(
+      (therapy) => therapy.id === activeTherapy
+    );
+
     if (response.ok) {
+      console.log(responseData.hangoutLink);
       const body = {
         summary: event.summary,
         description: event.description,
@@ -284,7 +289,11 @@ const BookAppointment: React.FC = () => {
         hangoutLink: responseData.hangoutLink,
         doctorId: doctor?.id,
         eventId: responseData.id,
+        therapyType: therapy?.therapyName,
+        // cancelledOn: null,
+        // attended: false,
       };
+      console.log("event:", body);
 
       //TODO: Update the list of upcoming events
       await CreateEventAPICaller(
