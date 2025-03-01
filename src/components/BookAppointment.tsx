@@ -279,7 +279,12 @@ const BookAppointment: React.FC = () => {
       return;
     }
 
+    const therapy = therapiesResult?.therapies.find(
+      (therapy) => therapy.id === activeTherapy
+    );
+
     if (response.ok) {
+      console.log(responseData.hangoutLink);
       const body = {
         summary: event.summary,
         description: event.description,
@@ -289,7 +294,11 @@ const BookAppointment: React.FC = () => {
         hangoutLink: responseData.hangoutLink,
         doctorId: doctor?.id,
         eventId: responseData.id,
+        therapyType: therapy?.therapyName,
+        // cancelledOn: null,
+        // attended: false,
       };
+      console.log("event:", body);
 
       //TODO: Update the list of upcoming events
       await CreateEventAPICaller(
@@ -314,12 +323,12 @@ const BookAppointment: React.FC = () => {
   const renderTherapyOptions = () => (
     <>
       <h1 className="text-green-primary-1 text-lg">Select Therapy</h1>
-      <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
+      <div className="grid md:grid-cols-2 lg:flex lg:flex-wrap lg:justify-center gap-6 mt-6 mb-6">
         {therapiesResult &&
           therapiesResult.therapies.map((therapy: Therapy) => (
             <label
               key={therapy.id}
-              className={`min-w-[70%] sm:min-w-[80%] md:min-w-[40%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
+              className={`lg:min-w-[38%] sm:min-w-[80%] md:min-w-[50%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
                 ${
                   activeTherapy === therapy.id
                     ? "bg-[#2CC3B4] text-white"
@@ -352,7 +361,7 @@ const BookAppointment: React.FC = () => {
           doctorsResult.doctors.map((doctor) => (
             <label
               key={doctor.id}
-              className={`bg-white text-[#2CC3B4] min-w-[80%] md:min-w-[40%] px-2 py-1 rounded-xl shadow-inset-2 cursor-pointer flex justify-center items-center gap-2
+              className={`bg-white text-[#2CC3B4] min-w-full md:min-w-[60%] lg:min-w-[40%] px-5 py-1 rounded-xl shadow-inset-2 cursor-pointer flex justify-between items-center gap-2
                 ${
                   Number(activeDoctor) === doctor.id
                     ? "border-2 border-green-primary-1"
@@ -370,7 +379,7 @@ const BookAppointment: React.FC = () => {
                 name="doctor"
                 className="hidden"
               />
-              <span className="text-sm">{doctor.name}</span>
+              <span className="text-sm text-left w-full">{doctor.name}</span>
               <Tooltip
                 showArrow
                 content={`${doctor.name} specialized in ${
@@ -472,7 +481,7 @@ const BookAppointment: React.FC = () => {
       >
         Book Event
       </Button>
-      <p className="text-[#2CC3B4] text-xs mb-20">
+      <p className="text-[#2CC3B4] text-xs mb-20 w-11/12 md:w-3/4">
         *After clicking on "Book Event", you will be sent an email regarding the
         appointment that has been created
       </p>
