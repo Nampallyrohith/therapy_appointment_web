@@ -8,14 +8,14 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { LuInfo } from "react-icons/lu";
 import avatar from "@/assets/images/doctor-avatar.png";
 import { Input, Textarea } from "@chakra-ui/react";
-import { convertToISO8601 } from "./utils/commonFunction";
+import { convertISTTOUTC } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toaster } from "./ui/toaster";
 import Modal from "react-modal";
 import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
-import { DateTimeType, Doctor } from "@/models/typeDefinitions";
+import { DateType, Doctor, TimeType } from "@/models/typeDefinitions";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -72,8 +72,11 @@ const BookAppointment: React.FC = () => {
     doctors: Doctor[];
   }>();
 
-  const { data: dateTimeResult, call: DateTimeAPICaller } = useFetchData<{
-    dateTime: DateTimeType;
+  const { data: dateResult, call: DateAPICaller } = useFetchData<{
+    date: DateType;
+  }>();
+  const { data: timeResult, call: TimeAPICaller } = useFetchData<{
+    time: TimeType;
   }>();
 
   const { data: insertResult, call: CreateEventAPICaller } = useFetchData<{
@@ -91,22 +94,36 @@ const BookAppointment: React.FC = () => {
   useEffect(() => {
     if (activeTherapy) {
       getDoctors();
+      setValue("doctor", "");
     }
   }, [activeTherapy]);
 
   useEffect(() => {
     if (activeDoctor) {
-      getDateTime();
+      getDate();
+      setValue("date", "");
     }
   }, [activeDoctor]);
+
+  useEffect(() => {
+    if (meetingDate) {
+      getTime();
+      setValue("time", "");
+      setValue("eventDescription", "");
+    }
+  }, [meetingDate]);
 
   const getDoctors = async () => {
     await DoctorsAPICaller(`user/appointment/${activeTherapy}/doctors`);
   };
 
-  const getDateTime = async () => {
-    await DateTimeAPICaller(
-      `user/appointment/${activeDoctor}/available_datetime`
+  const getDate = async () => {
+    await DateAPICaller(`user/appointment/${activeDoctor}/available_date`);
+  };
+
+  const getTime = async () => {
+    await TimeAPICaller(
+      `user/appointment/${activeDoctor}/available_time?date=${meetingDate}`
     );
   };
 
@@ -119,8 +136,7 @@ const BookAppointment: React.FC = () => {
   maxSelectableDate.setDate(today.getDate() + 20);
   const formattedMaxDate = maxSelectableDate.toISOString().split("T")[0];
 
-  const leaveDates =
-    (dateTimeResult && dateTimeResult.dateTime.leaveDates) || [];
+  const leaveDates = (dateResult && dateResult.date.leaveDates) || [];
 
   const leaveDatesFormatted = leaveDates.map((leaveDate) => {
     const leaveDateObj = new Date(leaveDate);
@@ -201,14 +217,13 @@ const BookAppointment: React.FC = () => {
       summary: user?.name + " is scheduled with " + doctor?.name,
       description: eventDetails.eventDescription,
       start: {
-        dateTime: convertToISO8601(eventDetails.date, eventDetails.time),
+        dateTime: convertISTTOUTC(eventDetails.date, eventDetails.time),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       end: {
-        dateTime: convertToISO8601(eventDetails.date, eventDetails.time, 1),
+        dateTime: convertISTTOUTC(eventDetails.date, eventDetails.time, 1),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
-      // TODO: Add doctors email further
       attendees: [
         { email: user?.email },
         { email: doctor?.email },
@@ -230,6 +245,7 @@ const BookAppointment: React.FC = () => {
           },
         },
       },
+      colorId: "3",
     };
     console.log("event", event);
 
@@ -247,8 +263,13 @@ const BookAppointment: React.FC = () => {
           body: JSON.stringify(event),
         }
       );
-      console.log(response);
       const responseData = await response.json();
+      console.log(responseData);
+
+      const therapy = therapiesResult?.therapies.find(
+        (therapy) => therapy.id === activeTherapy
+      );
+
       if (response.ok) {
         console.log(responseData.hangoutLink);
         const body = {
@@ -258,6 +279,11 @@ const BookAppointment: React.FC = () => {
           end: event.end,
           attendees: event.attendees,
           hangoutLink: responseData.hangoutLink,
+          doctorId: doctor?.id,
+          eventId: responseData.id,
+          therapyType: therapy?.therapyName,
+          // cancelledOn: null,
+          // attended: false,
         };
         console.log("event:", body);
 
@@ -288,12 +314,12 @@ const BookAppointment: React.FC = () => {
   const renderTherapyOptions = () => (
     <>
       <h1 className="text-green-primary-1 text-lg">Select Therapy</h1>
-      <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
+      <div className="grid md:grid-cols-2 lg:flex lg:flex-wrap lg:justify-center gap-6 mt-6 mb-6">
         {therapiesResult &&
           therapiesResult.therapies.map((therapy: Therapy) => (
             <label
               key={therapy.id}
-              className={`min-w-[70%] sm:min-w-[80%] md:min-w-[40%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
+              className={`lg:min-w-[38%] sm:min-w-[80%] md:min-w-[50%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
                 ${
                   activeTherapy === therapy.id
                     ? "bg-[#2CC3B4] text-white"
@@ -326,7 +352,7 @@ const BookAppointment: React.FC = () => {
           doctorsResult.doctors.map((doctor) => (
             <label
               key={doctor.id}
-              className={`bg-white text-[#2CC3B4] min-w-[80%] md:min-w-[40%] px-2 py-1 rounded-xl shadow-inset-2 cursor-pointer flex justify-center items-center gap-2
+              className={`bg-white text-[#2CC3B4] min-w-full md:min-w-[60%] lg:min-w-[40%] px-5 py-1 rounded-xl shadow-inset-2 cursor-pointer flex justify-between items-center gap-2
                 ${
                   Number(activeDoctor) === doctor.id
                     ? "border-2 border-green-primary-1"
@@ -344,7 +370,7 @@ const BookAppointment: React.FC = () => {
                 name="doctor"
                 className="hidden"
               />
-              <span className="text-sm">{doctor.name}</span>
+              <span className="text-sm text-left w-full">{doctor.name}</span>
               <Tooltip
                 showArrow
                 content={`${doctor.name} specialized in ${
@@ -396,12 +422,25 @@ const BookAppointment: React.FC = () => {
             }
           }}
         />
-        <Input
-          type="time"
+        <select
+          value={meetingTime}
           {...register("time")}
-          className="text-green-primary-1 border-0 rounded-xl min-w-full sm:min-w-[40%] p-3 shadow-inset-2"
+          className="border-0 text-green-primary-1 outline-none rounded-xl min-w-full sm:min-w-[40%] p-2 shadow-inset-2"
           disabled={!meetingDate || isDateDisabled(meetingDate)}
-        />
+        >
+          <option value="" className="text-green-primary-1" disabled>
+            Select time
+          </option>{" "}
+          {timeResult?.time?.availableTimeSlots?.map((timeSlot) => (
+            <option
+              key={timeSlot}
+              value={timeSlot}
+              className="text-green-primary-1"
+            >
+              {timeSlot}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );
@@ -433,7 +472,7 @@ const BookAppointment: React.FC = () => {
       >
         Book Event
       </Button>
-      <p className="text-[#2CC3B4] text-xs mb-20">
+      <p className="text-[#2CC3B4] text-xs mb-20 w-11/12 md:w-3/4">
         *After clicking on "Book Event", you will be sent an email regarding the
         appointment that has been created
       </p>
