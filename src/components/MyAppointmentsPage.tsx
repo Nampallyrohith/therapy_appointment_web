@@ -52,7 +52,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   // Renders
   const renderAppointmentFilters = () => (
-    <div className="flex flex-wrap justify-center gap-4 mid:w-[1/3]">
+    <div className="flex flex-wrap justify-center gap-4 w-full">
       {filterDetails.map((eachFilter) => (
         <FilterButton
           key={eachFilter.filterId}
@@ -66,11 +66,11 @@ const MyAppointmentsPage: React.FC = () => {
   );
 
   const renderAppointments = () => (
-    <div className="mt-6 pb-8 px-6 w-full bg-[#FDF8EF] shadow-inner">
+    <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-full shadow-inner">
       {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
         </h2> */}
-      <div className="sm:mx-4 md:mx-12 lg:mx-40 my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {dummyData[filter]?.map((appointment, index) => (
           <div
             key={index}
@@ -267,7 +267,7 @@ const MyAppointmentsPage: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full">
+    <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full lg:h-screen ">
       <h1 className="text-2xl mb-6 mt-20">My Appointments</h1>
       {renderAppointmentFilters()}
       {renderAppointments()}
