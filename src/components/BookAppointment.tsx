@@ -209,6 +209,7 @@ const BookAppointment: React.FC = () => {
           fontWeight: 700,
         },
       });
+      // After 3 seconds it'll navigate
       setTimeout(() => {
         navigate("/user/my-appointments");
       }, 3000);
