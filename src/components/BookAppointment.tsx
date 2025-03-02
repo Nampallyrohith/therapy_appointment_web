@@ -17,6 +17,7 @@ import { useFetchData } from "@/hooks/apiCall";
 import { DateType, Doctor, TimeType } from "@/models/typeDefinitions";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "@/shared/Loader";
+import { ThreeDot } from "react-loading-indicators";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -84,7 +85,11 @@ const BookAppointment: React.FC = () => {
     time: TimeType;
   }>();
 
-  const { data: insertResult, call: CreateEventAPICaller } = useFetchData<{
+  const {
+    data: insertResult,
+    call: CreateEventAPICaller,
+    loading: createEventLoading,
+  } = useFetchData<{
     message: string;
     error: string;
   }>();
@@ -480,7 +485,11 @@ const BookAppointment: React.FC = () => {
         disabled={eventDescription.length < 100}
         className="bg-green-primary-1 text-white shadow-inset px-12 mt-8 mb-8 rounded-3xl"
       >
-        Book Event
+        {createEventLoading ? (
+          <ThreeDot easing="ease-in" size="small" color="#fff" />
+        ) : (
+          " Book Event"
+        )}
       </Button>
       <p className="text-[#2CC3B4] text-xs mb-20 w-11/12 md:w-3/4">
         *After clicking on "Book Event", you will be sent an email regarding the
