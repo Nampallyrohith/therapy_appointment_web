@@ -20,11 +20,11 @@ import { SlBadge } from "react-icons/sl";
 //import { LiaGraduationCapSolid } from "react-icons/lia";
 interface OurTherapistProps {
   Therapists: {
-    id: string;
+    id: number;
     name: string;
     avatarUrl: string;
     specialistIn: string;
-    experience: string;
+    experience: number;
     therapyId: string;
     about: string;
   }[];
@@ -73,10 +73,15 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
         {Therapists.map((therapist) => (
           <SwiperSlide key={therapist.id} className="h-full w-full">
             <div
-              className="flex justify-center mt-2 w-full h-full rounded-lg cursor-pointer"
+              className="flex justify-center mt-2 w-full h-full rounded-2xl cursor-pointer"
               onClick={() => setSelectedTherapist(therapist)}
             >
               <div className="flex flex-col justify-center space-y-2 mb-2 md:min-w-[300px] min-w-[200px] min-h-auto">
+                <div className="relative">
+                  <p className="text-white text-xs bg-red-500 self-end px-5 py-1 rounded-tr-2xl rounded-bl-2xl absolute top-2 right-0">
+                    {therapist.therapyId}
+                  </p>
+                </div>
                 <Image
                   src={therapist.avatarUrl}
                   alt="therapist image"
@@ -94,7 +99,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
                   buttonText="Schedule an appointment"
                   onClick={() =>
                     handleTherapistAppointment(
-                      therapist.id,
+                      therapist.id.toString(),
                       therapist.therapyId
                     )
                   }
@@ -111,7 +116,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
           isOpen={!!selectedTherapist}
           onRequestClose={() => setSelectedTherapist(null)}
           ariaHideApp={false}
-          className="bg-white text-green-primary-1 flex flex-col outline-0 rounded-md shadow-lg px-4 py-10 relative h-3/4 md:h-4/5 overflow-y-auto"
+          className="bg-white text-green-primary-1 flex flex-col outline-0 rounded-md shadow-lg relative h-3/4 md:h-auto overflow-y-auto"
           style={{
             content: {
               position: "absolute",
@@ -120,7 +125,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
               transform: "translate(-50%, -50%)",
               width: "80%",
               maxWidth: "650px",
-              padding: "20px",
+              padding: "10px",
               borderRadius: "8px",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             },
@@ -131,34 +136,35 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
             },
           }}
         >
-          <div className="flex flex-col">
-            <div className="relative flex flex-col-reverse md:flex-row items-center gap-6 p-4 text-sm">
-              <button
-                onClick={() => setSelectedTherapist(null)}
-                className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 text-2xl"
-              >
-                <IoIosClose />
-              </button>
-              <div className="flex-1 text-left space-y-3 font-medium">
-                <h1 className="text-lg font-semibold">
-                  {selectedTherapist.name}
-                </h1>
+          <div className="relative">
+            <button
+              onClick={() => setSelectedTherapist(null)}
+              className="absolute top-0 right-0 text-gray-600 hover:text-gray-800 text-2xl"
+            >
+              <IoIosClose size={35} />
+            </button>
+          </div>
+          <div className="flex md:flex-row items-center gap-6 px-4 text-sm">
+            <div className="flex-1 text-left space-y-3 font-medium">
+              <h1 className="text-lg font-semibold">
+                {selectedTherapist.name}
+              </h1>
 
-                <div>
-                  <h2 className="flex items-center gap-2 ">
-                    <FaStethoscope /> Experience
-                  </h2>
-                  <p>{selectedTherapist.experience}</p>
-                </div>
+              <div>
+                <h2 className="flex items-center gap-2 ">
+                  <FaStethoscope /> Experience
+                </h2>
+                <p>{selectedTherapist.experience}</p>
+              </div>
 
-                <div>
-                  <h2 className="flex items-center gap-2">
-                    <SlBadge /> Specialization
-                  </h2>
-                  <p>{selectedTherapist.specialistIn}</p>
-                </div>
+              <div>
+                <h2 className="flex items-center gap-2">
+                  <SlBadge /> Specialization
+                </h2>
+                <p>{selectedTherapist.specialistIn}</p>
+              </div>
 
-                {/* <div>
+              {/* <div>
                   <h2 className="flex items-center gap-2">
                     <IoLocationOutline /> Available At Clinics
                   </h2>
@@ -171,28 +177,29 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
                   </h2>
                   <p>MD Psychiatry</p>
                 </div> */}
-              </div>
-              <img
-                src={selectedTherapist.avatarUrl}
-                className="w-60 h-89"
-                alt="Therapist"
-              />
             </div>
+            <img
+              src={selectedTherapist.avatarUrl}
+              className="w-60 h-89"
+              alt="Therapist"
+            />
+          </div>
+          <div className="px-4">
             <h1 className="text-lg font-semibold">About</h1>
             <p className="text-xs text-gray-600 leading-relaxed">
               {selectedTherapist.about}
             </p>
-            <div className="mt-4 w-4/5 text-sm items-center mx-auto justify-center flex space-x-4">
-              <ActionButton
-                buttonText="Schedule an appointment"
-                onClick={() =>
-                  handleTherapistAppointment(
-                    selectedTherapist.id,
-                    selectedTherapist.therapyId
-                  )
-                }
-              />
-            </div>
+          </div>
+          <div className="my-4 text-sm mx-auto">
+            <ActionButton
+              buttonText="Schedule an appointment"
+              onClick={() =>
+                handleTherapistAppointment(
+                  selectedTherapist.id.toString(),
+                  selectedTherapist.therapyId
+                )
+              }
+            />
           </div>
         </Modal>
       )}

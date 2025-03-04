@@ -16,7 +16,7 @@ const HomePage = () => {
   }, []);
 
   const getDoctors = async () => {
-    await AllDoctorsAPICaller(`user/appointment/doctors`);
+    await AllDoctorsAPICaller(`doctors`);
   };
   return (
     <div className="w-full h-full flex flex-col justify-around items-start">
