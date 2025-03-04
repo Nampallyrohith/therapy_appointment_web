@@ -155,7 +155,6 @@ const UserProfileCard = () => {
             )}
           </div>
         </div>
-        {/* Buttons */}
         {isEditing && (
           <div className="flex gap-4 justify-end my-2">
             <button

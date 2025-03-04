@@ -16,6 +16,8 @@ import { GoAlertFill } from "react-icons/go";
 import { useFetchData } from "@/hooks/apiCall";
 import { DateType, Doctor, TimeType } from "@/models/typeDefinitions";
 import toast, { Toaster } from "react-hot-toast";
+import Loader from "@/shared/Loader";
+import { ThreeDot } from "react-loading-indicators";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -64,7 +66,11 @@ const BookAppointment: React.FC = () => {
   ] = watch(["therapy", "doctor", "date", "time", "eventDescription"]);
 
   // API's Call
-  const { data: therapiesResult, call: TherapyAPICaller } = useFetchData<{
+  const {
+    data: therapiesResult,
+    call: TherapyAPICaller,
+    loading,
+  } = useFetchData<{
     therapies: Therapy[];
   }>();
 
@@ -79,7 +85,11 @@ const BookAppointment: React.FC = () => {
     time: TimeType;
   }>();
 
-  const { data: insertResult, call: CreateEventAPICaller } = useFetchData<{
+  const {
+    data: insertResult,
+    call: CreateEventAPICaller,
+    loading: createEventLoading,
+  } = useFetchData<{
     message: string;
     error: string;
   }>();
@@ -204,6 +214,7 @@ const BookAppointment: React.FC = () => {
           fontWeight: 700,
         },
       });
+      // After 3 seconds it'll navigate
       setTimeout(() => {
         navigate("/user/my-appointments");
       }, 3000);
@@ -274,7 +285,12 @@ const BookAppointment: React.FC = () => {
       return;
     }
 
+    const therapy = therapiesResult?.therapies.find(
+      (therapy) => therapy.id === activeTherapy
+    );
+
     if (response.ok) {
+      console.log(responseData.hangoutLink);
       const body = {
         summary: event.summary,
         description: event.description,
@@ -284,7 +300,11 @@ const BookAppointment: React.FC = () => {
         hangoutLink: responseData.hangoutLink,
         doctorId: doctor?.id,
         eventId: responseData.id,
+        therapyType: therapy?.therapyName,
+        // cancelledOn: null,
+        // attended: false,
       };
+      console.log("event:", body);
 
       //TODO: Update the list of upcoming events
       await CreateEventAPICaller(
@@ -314,7 +334,7 @@ const BookAppointment: React.FC = () => {
           therapiesResult.therapies.map((therapy: Therapy) => (
             <label
               key={therapy.id}
-              className={`lg:min-w-[38%] sm:min-w-[80%] md:min-w-[50%] p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
+              className={`lg:min-w-[35%] md:min-w-1/2 p-3 rounded-xl shadow-inset cursor-pointer flex justify-center items-center gap-2
                 ${
                   activeTherapy === therapy.id
                     ? "bg-[#2CC3B4] text-white"
@@ -465,7 +485,11 @@ const BookAppointment: React.FC = () => {
         disabled={eventDescription.length < 100}
         className="bg-green-primary-1 text-white shadow-inset px-12 mt-8 mb-8 rounded-3xl"
       >
-        Book Event
+        {createEventLoading ? (
+          <ThreeDot easing="ease-in" size="small" color="#fff" />
+        ) : (
+          " Book Event"
+        )}
       </Button>
       <p className="text-[#2CC3B4] text-xs mb-20 w-11/12 md:w-3/4">
         *After clicking on "Book Event", you will be sent an email regarding the
@@ -520,10 +544,16 @@ const BookAppointment: React.FC = () => {
             </div>
           </Modal>
         )}
-        {renderTherapyOptions()}
-        {activeTherapy && renderDoctorOptions()}
-        {activeDoctor && renderDateAndTimeSection()}
-        {meetingDate && meetingTime && renderDescriptionAndBookButton()}
+        {loading ? (
+          <Loader />
+        ) : (
+          <>
+            {renderTherapyOptions()}
+            {activeTherapy && renderDoctorOptions()}
+            {activeDoctor && renderDateAndTimeSection()}
+            {meetingDate && meetingTime && renderDescriptionAndBookButton()}
+          </>
+        )}
       </form>
 
       <Toaster position="bottom-right" />

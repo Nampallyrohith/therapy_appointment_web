@@ -2,10 +2,13 @@ import FilterButton from "@/shared/FilterButton";
 import Modal from "react-modal";
 import { IoClose } from "react-icons/io5";
 import { RiShareForward2Fill } from "react-icons/ri";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Appointment, AppointmentFilterProps } from "@/models/typeDefinitions";
-import { dummyData } from "@/mock-data/staticData";
 import { Button } from "@chakra-ui/react";
+import { useFetchData } from "@/hooks/apiCall";
+import { useAppointmentContext } from "@/context/AppointmentContext";
+import emptyBox from "@/assets/images/empty-box.png";
+import Loader from "@/shared/Loader";
 
 export const filterDetails: AppointmentFilterProps[] = [
   {
@@ -28,6 +31,22 @@ const MyAppointmentsPage: React.FC = () => {
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
 
+  const { user } = useAppointmentContext();
+  const {
+    data: appointmentsResult,
+    call: AppointmentAPICaller,
+    loading,
+  } = useFetchData<{
+    appointments: Appointment[];
+  }>();
+
+  useEffect(() => {
+    const getAppointments = async () => {
+      await AppointmentAPICaller(`/user/my-appointments/${user?.googleUserId}`);
+    };
+    getAppointments();
+  }, []);
+
   const onFilterChange = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFilter(event.currentTarget.id);
   };
@@ -43,12 +62,18 @@ const MyAppointmentsPage: React.FC = () => {
   };
 
   const isMeetingUpcoming = !(
-    (selectedAppointment && "cancelledOn" in selectedAppointment) ||
-    (selectedAppointment && "attended" in selectedAppointment)
+    (selectedAppointment &&
+      "cancelledOn" in selectedAppointment &&
+      selectedAppointment["cancelledOn"] !== null) ||
+    (selectedAppointment &&
+      "attended" in selectedAppointment &&
+      selectedAppointment["attended"] !== null)
   );
 
   const isMeetingCancelled =
-    selectedAppointment && "cancelledOn" in selectedAppointment;
+    selectedAppointment &&
+    "cancelledOn" in selectedAppointment &&
+    selectedAppointment["cancelledOn"] !== null;
 
   // Renders
   const renderAppointmentFilters = () => (
@@ -65,55 +90,77 @@ const MyAppointmentsPage: React.FC = () => {
     </div>
   );
 
-  const renderAppointments = () => (
-    <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-full shadow-inner">
-      {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
+  const renderAppointments = () => {
+    const filteredAppointments = appointmentsResult?.appointments.filter(
+      (eachAppointment) => eachAppointment.status === filter
+    );
+
+    return (
+      <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-full shadow-inner">
+        {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
         </h2> */}
-      <div className="my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {dummyData[filter]?.map((appointment, index) => (
-          <div
-            key={index}
-            className={`px-8 py-4 flex flex-col gap-1 rounded-xl border border-gray-200 cursor-pointer ${
-              filter === "upcoming"
-                ? "text-green-primary-1 bg-white"
-                : filter === "cancelled"
-                ? "text-gray-500 bg-gray-300"
-                : "bg-green-primary-1 text-white"
-            }`}
-            onClick={() => openModal(appointment)}
-          >
-            <p className="text-xl font-semibold mb-2">
-              {appointment.typeOfTherapy}
-            </p>
-            <p className="text-sm">
-              <strong>Doctor:</strong> {appointment.doctorName}
-            </p>
-            <p className="text-sm">
-              <strong>Booked by:</strong> {appointment.bookedBy}
-            </p>
-            <p className="text-sm">
-              <strong>Booked on:</strong> {appointment.bookedOn}
-            </p>
-            <p className="text-sm">
-              <strong>Meeting time:</strong>{" "}
-              {new Date(appointment.timingOfMeeting).toLocaleString()}
-            </p>
-            {"cancelledOn" in appointment && (
-              <p className="text-sm">
-                <strong>Cancelled on:</strong> {appointment.cancelledOn}
-              </p>
-            )}
-            {"attended" in appointment && (
-              <p className="text-sm">
-                <strong>Attended:</strong> {appointment.attended ? "Yes" : "No"}
-              </p>
-            )}
-          </div>
-        ))}
+        <div
+          className={`${
+            filteredAppointments?.length === 0
+              ? "flex justify-center items-center w-full h-full"
+              : "sm:mx-4 md:mx-12 lg:mx-40 my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          }`}
+        >
+          {filteredAppointments?.length === 0 ? (
+            <div className="flex flex-col items-center gap-4">
+              <img src={emptyBox} alt="empty icon" className="w-28" />
+              <p>You don't have any {filter} appointments</p>
+            </div>
+          ) : (
+            filteredAppointments?.map((appointment, index) => (
+              <div
+                key={index}
+                className={`px-8 py-4 flex flex-col gap-1 rounded-xl border border-gray-200 cursor-pointer ${
+                  appointment.status === "upcoming"
+                    ? "text-green-primary-1 bg-white"
+                    : appointment.status === "cancelled"
+                    ? "text-gray-500 bg-gray-300"
+                    : "bg-green-primary-1 text-white"
+                }`}
+                onClick={() => openModal(appointment)}
+              >
+                <p className="text-xl font-semibold mb-2">
+                  {appointment.typeOfTherapy}
+                </p>
+                <p className="text-sm">
+                  <strong>Doctor:</strong> {appointment.doctorName}
+                </p>
+                <p className="text-sm">
+                  <strong>Booked by:</strong> {user?.name}
+                </p>
+                <p className="text-sm">
+                  <strong>Booked on:</strong> {appointment.createdAt}
+                </p>
+                <p className="text-sm">
+                  <strong>Meeting time:</strong> {appointment.startTime} -{" "}
+                  {appointment.endTime}
+                </p>
+                {"cancelledOn" in appointment &&
+                  appointment["cancelledOn"] !== null && (
+                    <p className="text-sm">
+                      <strong>Cancelled on:</strong> {appointment.cancelledOn}
+                    </p>
+                  )}
+                {"attended" in appointment &&
+                  appointment["attended"] !== null && (
+                    <p className="text-sm">
+                      <strong>Attended:</strong>{" "}
+                      {appointment.attended ? "Yes" : "No"}
+                    </p>
+                  )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderAppropriateModal = () => (
     <Modal
@@ -121,13 +168,7 @@ const MyAppointmentsPage: React.FC = () => {
       ariaHideApp={false}
       onRequestClose={closeModal}
       contentLabel="Appointment Details"
-      className={`flex flex-col outline-0 text-center md:text-left ${
-        isMeetingUpcoming
-          ? "bg-white text-green-primary-1"
-          : isMeetingCancelled
-          ? "bg-gray-300 text-gray-500"
-          : "bg-green-primary-1 text-white"
-      }`}
+      className="flex flex-col outline-0 text-center md:text-left bg-gray-200 text-gray-600"
       style={{
         content: {
           position: "absolute",
@@ -152,85 +193,56 @@ const MyAppointmentsPage: React.FC = () => {
         className="absolute top-3 right-3 hover:scale-125 ease-in delay-200"
         onClick={closeModal}
       >
-        <IoClose
-          size={40}
-          color={isMeetingCancelled ? "white" : ""}
-          strokeWidth={16}
-        />
+        <IoClose size={40} strokeWidth={16} />
       </Button>
-      <h1
-        className={`text-lg font-semibold my-4 ${
-          isMeetingUpcoming
-            ? "text-green-primary-1"
-            : isMeetingCancelled
-            ? "text-gray-500"
-            : "text-white"
-        }`}
-      >
+      <h1 className="text-lg font-bold my-4 text-green-primary-1">
         Meeting: {selectedAppointment?.typeOfTherapy}
       </h1>
-      <h2
-        className={`underline mb-2 ${
-          isMeetingUpcoming
-            ? "text-green-primary-1"
-            : isMeetingCancelled
-            ? "text-gray-500"
-            : "text-white"
-        }`}
-      >
+      <h2 className="underline mb-2 font-semibold text-green-primary-1">
         Guests:
       </h2>
       {/* TODO: Add user and doctor emails */}
       <p className="text-sm">
-        <span className="font-bold">Client:</span>{" "}
-        {selectedAppointment?.bookedBy}
+        <span className="font-bold">Client:</span> {user?.name}
       </p>
       <p className="text-sm">
         <span className="font-bold">Consultant:</span>{" "}
         {selectedAppointment?.doctorName}
       </p>
-      <h2
-        className={`underline my-2 ${
-          isMeetingUpcoming
-            ? "text-green-primary-1"
-            : isMeetingCancelled
-            ? "text-gray-500"
-            : "text-white"
-        }`}
-      >
+      <h2 className="underline my-2 font-semibold text-green-primary-1">
         Description:
       </h2>
       <p className="text-sm indent-8 mb-4">
         {selectedAppointment?.description}
       </p>
-      <h2
-        className={`underline my-2 ${
-          isMeetingUpcoming
-            ? "text-green-primary-1"
-            : isMeetingCancelled
-            ? "text-gray-500"
-            : "text-white"
-        }`}
-      >
+      <h2 className="underline my-2 font-semibold text-green-primary-1">
         Meeting date & time:
       </h2>
       <p>
-        {selectedAppointment?.timingOfMeeting
-          ? new Date(selectedAppointment.timingOfMeeting).toLocaleString()
-          : "No meeting time available"}
+        {selectedAppointment?.startTime ? (
+          <>
+            {selectedAppointment?.startTime} - {selectedAppointment?.endTime}
+          </>
+        ) : (
+          "No meeting time available"
+        )}
       </p>
-      {selectedAppointment && "cancelledOn" in selectedAppointment && (
-        <div>
-          <h2 className="underline my-2 text-gray-500">Cancelled on:</h2>
-          <p>{selectedAppointment?.cancelledOn}</p>
-        </div>
-      )}
-      {selectedAppointment && "attended" in selectedAppointment && (
-        <div>
-          <h2 className="underline text-white my-2">Attended:</h2>
-          <p>{selectedAppointment?.attended ? "Yes" : "No"}</p>
-        </div>
-      )}
+      {selectedAppointment &&
+        "cancelledOn" in selectedAppointment &&
+        selectedAppointment["cancelledOn"] !== null && (
+          <div>
+            <h2 className="underline my-2 text-gray-500">Cancelled on:</h2>
+            <p>{selectedAppointment?.cancelledOn}</p>
+          </div>
+        )}
+      {selectedAppointment &&
+        "attended" in selectedAppointment &&
+        selectedAppointment["attended"] !== null && (
+          <div>
+            <h2 className="underline text-white my-2">Attended:</h2>
+            <p>{selectedAppointment?.attended ? "Yes" : "No"}</p>
+          </div>
+        )}
       {/* TODO: Redirect to google.meet.com on clicking the link */}
       {/* TODO: Disable the button all the time, enable just 30 minutes before the meet */}
       <button
@@ -270,8 +282,14 @@ const MyAppointmentsPage: React.FC = () => {
     <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full lg:h-screen ">
       <h1 className="text-2xl mb-6 mt-20">My Appointments</h1>
       {renderAppointmentFilters()}
-      {renderAppointments()}
-      {renderAppropriateModal()}
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          {renderAppointments()}
+          {renderAppropriateModal()}
+        </>
+      )}
     </div>
   );
 };
