@@ -42,7 +42,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   useEffect(() => {
     const getAppointments = async () => {
-      await AppointmentAPICaller(`/user/my-appointments/${user?.googleUserId}`);
+      await AppointmentAPICaller(`user/my-appointments/${user?.googleUserId}`);
     };
     getAppointments();
   }, []);
