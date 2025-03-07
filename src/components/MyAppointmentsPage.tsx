@@ -29,6 +29,10 @@ const MyAppointmentsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
+  const [isWithin30Minutes, setIsWithin30Minutes] = useState<boolean>(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
+  const [isReasonModalOpen, setIsReasonModalOpen] = useState<boolean>(false);
+  const [cancelReason, setCancelReason] = useState<string>("");
 
   const { user } = useAppointmentContext();
   const { data: appointmentsResult, call: AppointmentAPICaller } =
@@ -36,12 +40,34 @@ const MyAppointmentsPage: React.FC = () => {
       appointments: Appointment[];
     }>();
 
+  const { call: CancelAPICaller } = useFetchData();
+
+  const getAppointments = async () => {
+    await AppointmentAPICaller(`/user/my-appointments/${user?.googleUserId}`);
+  };
+
   useEffect(() => {
-    const getAppointments = async () => {
-      await AppointmentAPICaller(`/user/my-appointments/${user?.googleUserId}`);
-    };
     getAppointments();
   }, []);
+
+  useEffect(() => {
+    const checkTime = () => {
+      if (!selectedAppointment?.startTime) return;
+
+      const startTime = new Date(selectedAppointment.startTime);
+      const now = new Date();
+
+      setIsWithin30Minutes(
+        now.getTime() >= startTime.getTime() - 30 * 60 * 1000
+      );
+    };
+
+    checkTime();
+
+    const interval = setInterval(checkTime, 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [selectedAppointment]);
 
   const onFilterChange = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFilter(event.currentTarget.id);
@@ -57,19 +83,48 @@ const MyAppointmentsPage: React.FC = () => {
     setSelectedAppointment(null);
   };
 
+  const openConfirmModal = () => setIsConfirmModalOpen(true);
+  const closeConfirmModal = () => setIsConfirmModalOpen(false);
+  const openReasonModal = () => {
+    closeConfirmModal();
+    setIsReasonModalOpen(true);
+  };
+  const closeReasonModal = () => setIsReasonModalOpen(false);
+
+  const handleCancelAppointment = async (
+    appointmentId: number,
+    cancelReason: string
+  ) => {
+    const body = { cancelReason };
+    try {
+      await CancelAPICaller(
+        `user/appointment/cancel/${appointmentId}`,
+        "POST",
+        body
+      );
+
+      getAppointments();
+      closeModal();
+      closeReasonModal();
+      setFilter("cancelled");
+    } catch (error) {
+      console.log("Error cancelling appointment:", error);
+    }
+  };
+
   const isMeetingUpcoming = !(
     (selectedAppointment &&
       "cancelledOn" in selectedAppointment &&
-      selectedAppointment["cancelledOn"] !== null) ||
+      selectedAppointment["cancelledOn"]) ||
     (selectedAppointment &&
       "attended" in selectedAppointment &&
-      selectedAppointment["attended"] !== null)
+      selectedAppointment["attended"])
   );
 
-  const isMeetingCancelled =
-    selectedAppointment &&
-    "cancelledOn" in selectedAppointment &&
-    selectedAppointment["cancelledOn"] !== null;
+  // const isMeetingCancelled =
+  //   selectedAppointment &&
+  //   "cancelledOn" in selectedAppointment &&
+  //   selectedAppointment["cancelledOn"];
 
   // Renders
   const renderAppointmentFilters = () => (
@@ -137,19 +192,17 @@ const MyAppointmentsPage: React.FC = () => {
                   <strong>Meeting time:</strong> {appointment.startTime} -{" "}
                   {appointment.endTime}
                 </p>
-                {"cancelledOn" in appointment &&
-                  appointment["cancelledOn"] !== null && (
-                    <p className="text-sm">
-                      <strong>Cancelled on:</strong> {appointment.cancelledOn}
-                    </p>
-                  )}
-                {"attended" in appointment &&
-                  appointment["attended"] !== null && (
-                    <p className="text-sm">
-                      <strong>Attended:</strong>{" "}
-                      {appointment.attended ? "Yes" : "No"}
-                    </p>
-                  )}
+                {"cancelledOn" in appointment && appointment["cancelledOn"] && (
+                  <p className="text-sm">
+                    <strong>Cancelled on:</strong> {appointment.cancelledOn}
+                  </p>
+                )}
+                {"attended" in appointment && appointment["attended"] && (
+                  <p className="text-sm">
+                    <strong>Attended:</strong>{" "}
+                    {appointment.attended ? "Yes" : "No"}
+                  </p>
+                )}
               </div>
             ))
           )}
@@ -159,12 +212,13 @@ const MyAppointmentsPage: React.FC = () => {
   };
 
   const renderAppropriateModal = () => (
+    //TODO: Display user and doctor dps in modal
     <Modal
       isOpen={isModalOpen}
       ariaHideApp={false}
       onRequestClose={closeModal}
       contentLabel="Appointment Details"
-      className="flex flex-col outline-0 text-center md:text-left bg-gray-200 text-gray-600"
+      className="flex flex-col outline-0 text-center md:text-left bg-gray-200 text-gray-600 max-h-[75%] overflow-auto"
       style={{
         content: {
           position: "absolute",
@@ -172,7 +226,7 @@ const MyAppointmentsPage: React.FC = () => {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: "80%",
-          maxWidth: "500px",
+          maxWidth: "600px",
           padding: "20px 30px",
           borderRadius: "8px",
           boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
@@ -211,6 +265,12 @@ const MyAppointmentsPage: React.FC = () => {
       <p className="text-sm indent-8 mb-4">
         {selectedAppointment?.description}
       </p>
+      <p>
+        <span className="underline my-2 font-semibold text-green-primary-1">
+          Booked on:
+        </span>{" "}
+        {selectedAppointment?.createdAt}
+      </p>
       <h2 className="underline my-2 font-semibold text-green-primary-1">
         Meeting date & time:
       </h2>
@@ -225,52 +285,175 @@ const MyAppointmentsPage: React.FC = () => {
       </p>
       {selectedAppointment &&
         "cancelledOn" in selectedAppointment &&
-        selectedAppointment["cancelledOn"] !== null && (
+        selectedAppointment["cancelledOn"] && (
           <div>
-            <h2 className="underline my-2 text-gray-500">Cancelled on:</h2>
+            <p className="underline my-2 font-semibold text-green-primary-1">
+              Cancelled on:
+            </p>
             <p>{selectedAppointment?.cancelledOn}</p>
+            <p className="underline my-2 font-semibold text-green-primary-1">
+              Cancel reason:
+            </p>
+            <p>{selectedAppointment?.cancelReason}</p>
           </div>
         )}
       {selectedAppointment &&
         "attended" in selectedAppointment &&
-        selectedAppointment["attended"] !== null && (
+        selectedAppointment["attended"] && (
           <div>
             <h2 className="underline text-white my-2">Attended:</h2>
             <p>{selectedAppointment?.attended ? "Yes" : "No"}</p>
           </div>
         )}
-      {/* TODO: Redirect to google.meet.com on clicking the link */}
-      {/* TODO: Disable the button all the time, enable just 30 minutes before the meet */}
-      <button
-        className={`self-end text-white flex gap-3 items-center shadow-inset-2 my-4 px-6 py-2 rounded-3xl
-          ${
-            isMeetingUpcoming
-              ? "bg-green-primary-1"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-      >
-        {isMeetingUpcoming ? (
-          <>
-            <span>Join meet</span>
-            <RiShareForward2Fill size={20} />
-          </>
-        ) : (
-          <span>Can't join meet</span>
-        )}
-      </button>
-      {!isMeetingUpcoming ? (
-        <p
-          className={`self-end text-[10px] ${
-            isMeetingCancelled ? "text-gray-500" : "text-white"
-          }`}
-        >
-          *The meeting is either a previous or a cancelled one
-        </p>
-      ) : (
-        ""
-      )}
-
+      {isMeetingUpcoming ? (
+        <div className="w-full self-center flex justify-between items-start mt-8 cursor-default">
+          <button
+            className="bg-transparent text-red-400 border-2 border-red-400 rounded-lg px-4 py-2"
+            onClick={() => openConfirmModal()}
+          >
+            Cancel meet
+          </button>
+          {renderConfirmCancelModal()}
+          {renderReasonModal()}
+          <div>
+            <a
+              href={isWithin30Minutes ? selectedAppointment?.hangoutLink : "#"}
+              target={isWithin30Minutes ? "_blank" : ""}
+            >
+              <button
+                className={`text-white flex gap-3 items-center shadow-inset-2 mb-4 px-6 py-2 rounded-3xl bg-green-primary-1 ${
+                  isWithin30Minutes ? "" : "opacity-50 cursor-not-allowed"
+                }`}
+                title={
+                  !isWithin30Minutes
+                    ? "You can only join meet within half an hour of the scheduled time"
+                    : "Click to join meet"
+                }
+              >
+                <span>Join meet</span>
+                <RiShareForward2Fill size={20} />
+              </button>
+            </a>
+          </div>
+        </div>
+      ) : null}
       {/* TODO: Add review inputs*/}
+    </Modal>
+  );
+
+  const renderConfirmCancelModal = () => (
+    <Modal
+      isOpen={isConfirmModalOpen}
+      onRequestClose={closeConfirmModal}
+      style={{
+        content: {
+          width: "350px",
+          height: "fit-content",
+          padding: "30px 20px",
+          borderRadius: "8px",
+          textAlign: "center",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "20px",
+        },
+        overlay: {
+          backgroundColor: "rgba(0, 0, 0, 0.2)",
+          backdropFilter: "blur(2px)",
+          zIndex: 1100,
+        },
+      }}
+    >
+      <h2 className="text-orange-primary-1 text-lg mb-3">
+        Are you sure you want to cancel this appointment?
+      </h2>
+      <div className="flex gap-4">
+        <button
+          className="bg-orange-primary-2 text-white px-5 py-2 rounded-md"
+          onClick={openReasonModal}
+        >
+          Yes
+        </button>
+        <button
+          className="bg-green-primary-1 text-white px-5 py-2 rounded-md"
+          onClick={closeConfirmModal}
+        >
+          No
+        </button>
+      </div>
+    </Modal>
+  );
+
+  const renderReasonModal = () => (
+    <Modal
+      isOpen={isReasonModalOpen}
+      onRequestClose={closeReasonModal}
+      style={{
+        content: {
+          width: "350px",
+          height: "fit-content",
+          padding: "50px 30px 20px",
+          borderRadius: "8px",
+          textAlign: "center",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "20px",
+        },
+        overlay: {
+          backgroundColor: "rgba(0, 0, 0, 0.2)",
+          backdropFilter: "blur(2px)",
+          zIndex: 1100,
+        },
+      }}
+    >
+      <button
+        type="button"
+        className="absolute top-5 right-4 hover:scale-125 ease-in delay-200"
+        onClick={closeReasonModal}
+      >
+        <IoClose size={20} strokeWidth={16} />
+      </button>
+      <h2 className="text-orange-primary-1 text-lg">
+        Why do you want to cancel this appointment?
+      </h2>
+      <textarea
+        rows={5}
+        minLength={50}
+        maxLength={500}
+        className="shadow-inset border-0 rounded-md w-full text-gray-600"
+        value={cancelReason}
+        onChange={(e) => setCancelReason(e.target.value)}
+      />
+      <div className="self-end text-xs text-green-primary-1">
+        {cancelReason.length}/500
+      </div>
+      <button
+        className={`bg-red-400 text-white px-4 py-2 rounded-lg ${
+          cancelReason.length < 50 && "opacity-50 cursor-not-allowed"
+        }`}
+        disabled={cancelReason.length < 50}
+        onClick={() =>
+          handleCancelAppointment(
+            selectedAppointment?.id as number,
+            cancelReason
+          )
+        }
+      >
+        Cancel appointment
+      </button>
     </Modal>
   );
 
