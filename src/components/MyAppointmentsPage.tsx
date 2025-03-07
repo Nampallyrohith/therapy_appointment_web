@@ -8,6 +8,7 @@ import { Button } from "@chakra-ui/react";
 import { useFetchData } from "@/hooks/apiCall";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import emptyBox from "@/assets/images/empty-box.png";
+import Loader from "@/shared/Loader";
 
 export const filterDetails: AppointmentFilterProps[] = [
   {
@@ -35,10 +36,13 @@ const MyAppointmentsPage: React.FC = () => {
   const [cancelReason, setCancelReason] = useState<string>("");
 
   const { user } = useAppointmentContext();
-  const { data: appointmentsResult, call: AppointmentAPICaller } =
-    useFetchData<{
-      appointments: Appointment[];
-    }>();
+  const {
+    data: appointmentsResult,
+    call: AppointmentAPICaller,
+    loading,
+  } = useFetchData<{
+    appointments: Appointment[];
+  }>();
 
   const { call: CancelAPICaller } = useFetchData();
 
@@ -461,8 +465,14 @@ const MyAppointmentsPage: React.FC = () => {
     <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full lg:h-screen ">
       <h1 className="text-2xl mb-6 mt-20">My Appointments</h1>
       {renderAppointmentFilters()}
-      {renderAppointments()}
-      {renderAppropriateModal()}
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          {renderAppointments()}
+          {renderAppropriateModal()}
+        </>
+      )}
     </div>
   );
 };
