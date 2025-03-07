@@ -47,7 +47,7 @@ const MyAppointmentsPage: React.FC = () => {
   const { call: CancelAPICaller } = useFetchData();
 
   const getAppointments = async () => {
-    await AppointmentAPICaller(`/user/my-appointments/${user?.googleUserId}`);
+    await AppointmentAPICaller(`user/my-appointments/${user?.googleUserId}`);
   };
 
   useEffect(() => {
@@ -201,12 +201,13 @@ const MyAppointmentsPage: React.FC = () => {
                     <strong>Cancelled on:</strong> {appointment.cancelledOn}
                   </p>
                 )}
-                {"attended" in appointment && appointment["attended"] && (
-                  <p className="text-sm">
-                    <strong>Attended:</strong>{" "}
-                    {appointment.attended ? "Yes" : "No"}
-                  </p>
-                )}
+                {"attended" in appointment &&
+                  appointment["attended"] !== null && (
+                    <p className="text-sm">
+                      <strong>Attended:</strong>{" "}
+                      {appointment.attended ? "Yes" : "No"}
+                    </p>
+                  )}
               </div>
             ))
           )}
