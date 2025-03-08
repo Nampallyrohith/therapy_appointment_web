@@ -173,10 +173,10 @@ const MyAppointmentsPage: React.FC = () => {
                 key={index}
                 className={`px-8 py-4 flex flex-col gap-1 rounded-xl border border-gray-200 cursor-pointer ${
                   appointment.status === "upcoming"
-                    ? "text-green-primary-1 bg-white"
+                    ? "border-0 border-l-8 border-l-green-primary-1 bg-white text-green-primary-1"
                     : appointment.status === "cancelled"
-                    ? "text-gray-500 bg-gray-300"
-                    : "bg-green-primary-1 text-white"
+                    ? "text-gray-500 bg-gray-200"
+                    : "border-0 border-l-8 border-l-gray-500 bg-white text-gray-500"
                 }`}
                 onClick={() => openModal(appointment)}
               >
