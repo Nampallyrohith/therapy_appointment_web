@@ -17,13 +17,13 @@ type AppointmentContextType = {
   isAuthToken: boolean;
   isSessionExpired: boolean;
   selectedTherapy: string;
-  selectedDoctor: string;
+  selectedDoctor: number | null;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
   isLoading: boolean;
   setIsSessionExpired: (session: boolean) => void;
   setSelectedTherapy: (therapy: string) => void;
-  setSelectedDoctor: (doctor: string) => void;
+  setSelectedDoctor: (doctorId: number | null) => void;
   getUserDetailsFromDB: () => void;
 };
 
@@ -43,7 +43,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const [isAuthToken, setIsAuthToken] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTherapy, setSelectedTherapy] = useState<string>("");
-  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
+  const [selectedDoctor, setSelectedDoctor] = useState<number | null>(null);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
   const navigate = useNavigate();
 

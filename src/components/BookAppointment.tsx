@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { env, supabaseClient } from "@/supabase/connection";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { LuInfo } from "react-icons/lu";
-import avatar from "@/assets/images/doctor-avatar.png";
 import { Input, Textarea } from "@chakra-ui/react";
 import { convertISTTOUTC } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
@@ -35,7 +34,7 @@ type TherapyKeys = keyof typeof TherapyOptions;
 
 interface FormInputs {
   therapy: TherapyKeys;
-  doctor: string;
+  doctor: number | null;
   date: string;
   time: string;
   eventDescription: string;
@@ -50,7 +49,7 @@ const BookAppointment: React.FC = () => {
   const { register, handleSubmit, setValue, watch } = useForm<FormInputs>({
     defaultValues: {
       therapy: "" as TherapyKeys,
-      doctor: "",
+      doctor: null,
       date: "",
       time: "",
       eventDescription: "",
@@ -104,7 +103,6 @@ const BookAppointment: React.FC = () => {
   useEffect(() => {
     if (activeTherapy) {
       getDoctors();
-      setValue("doctor", "");
     }
   }, [activeTherapy]);
 
@@ -112,6 +110,7 @@ const BookAppointment: React.FC = () => {
     if (activeDoctor) {
       getDate();
       setValue("date", "");
+      setValue("time", "");
     }
   }, [activeDoctor]);
 
@@ -259,12 +258,9 @@ const BookAppointment: React.FC = () => {
         doctorId: doctor?.id,
         eventId: responseData.id,
         therapyType: therapy?.therapyName,
-        // cancelledOn: null,
-        // attended: false,
       };
       console.log("event:", body);
 
-      //TODO: Update the list of upcoming events
       await CreateEventAPICaller(
         `user/appointment/create-event/${user?.googleUserId}`,
         "POST",
@@ -317,24 +313,25 @@ const BookAppointment: React.FC = () => {
   const renderDoctorOptions = () => (
     <div className="bg-[#CBF6EF] w-3/4 px-6 py-4 my-4 shadow-inset rounded-3xl">
       <h1 className="text-green-primary-1 text-lg">Select Doctor</h1>
-      {/* TODO: Dynamically update doctor list based on selected therapy
-                retrieve only doctors who have specialisationId as the
-                current selected therapy option */}
       <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
         {doctorsResult &&
           doctorsResult.doctors.map((doctor) => (
             <label
               key={doctor.id}
               className={`bg-white text-[#2CC3B4] min-w-full md:min-w-[60%] lg:min-w-[40%] px-5 py-1 rounded-xl shadow-inset-2 cursor-pointer flex justify-between items-center gap-2
-                ${
-                  Number(activeDoctor) === doctor.id
-                    ? "border-2 border-green-primary-1"
-                    : ""
-                }`}
+                  ${
+                    Number(activeDoctor) === doctor.id
+                      ? "border-2 border-green-primary-1"
+                      : ""
+                  }`}
               htmlFor={doctor.name}
             >
               {/* TODO: Temporary image (avatar) */}
-              <img src={avatar} alt="doc-avatar" className="w-[40px]" />
+              <img
+                src={doctor.avatarUrl}
+                alt="doc-avatar"
+                className="w-[40px] border-2 border-green-primary-1 rounded-full"
+              />
               <Input
                 type="radio"
                 id={doctor.name}
@@ -402,6 +399,7 @@ const BookAppointment: React.FC = () => {
             format="yyyy-MM-dd"
             shouldDisableDate={disabledDate}
             className="custom-datepicker"
+            {...register("date")}
             onChange={(date) =>
               setValue("date", date?.toISOString().split("T")[0] || "")
             }
