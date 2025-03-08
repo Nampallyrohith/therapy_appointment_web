@@ -37,7 +37,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
     null | OurTherapistProps["Therapists"][0]
   >(null);
 
-  const handleTherapistAppointment = (id: string, specialisationId: string) => {
+  const handleTherapistAppointment = (id: number, specialisationId: string) => {
     setSelectedTherapy(specialisationId);
     setSelectedDoctor(id);
     window.scrollTo(0, 0);
@@ -99,7 +99,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
                   buttonText="Schedule an appointment"
                   onClick={() =>
                     handleTherapistAppointment(
-                      therapist.id.toString(),
+                      therapist.id,
                       therapist.therapyId
                     )
                   }
@@ -195,7 +195,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
               buttonText="Schedule an appointment"
               onClick={() =>
                 handleTherapistAppointment(
-                  selectedTherapist.id.toString(),
+                  selectedTherapist.id,
                   selectedTherapist.therapyId
                 )
               }

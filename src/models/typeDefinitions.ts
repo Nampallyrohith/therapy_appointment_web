@@ -57,6 +57,7 @@ export interface BaseUpcoming {
 
 export interface Cancelled extends BaseUpcoming {
   cancelledOn: string;
+  cancelReason: string;
 }
 
 export interface Previous extends BaseUpcoming {

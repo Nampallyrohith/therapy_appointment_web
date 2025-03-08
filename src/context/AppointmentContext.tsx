@@ -17,13 +17,13 @@ type AppointmentContextType = {
   isAuthToken: boolean;
   isSessionExpired: boolean;
   selectedTherapy: string;
-  selectedDoctor: string;
+  selectedDoctor: number | null;
   handleUpdateUserDetailsState: (data: User) => void;
   handleUserSignOut: () => void;
   isLoading: boolean;
   setIsSessionExpired: (session: boolean) => void;
   setSelectedTherapy: (therapy: string) => void;
-  setSelectedDoctor: (doctor: string) => void;
+  setSelectedDoctor: (doctorId: number | null) => void;
   getUserDetailsFromDB: () => void;
 };
 
@@ -43,7 +43,7 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
   const [isAuthToken, setIsAuthToken] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTherapy, setSelectedTherapy] = useState<string>("");
-  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
+  const [selectedDoctor, setSelectedDoctor] = useState<number | null>(null);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
   const navigate = useNavigate();
 
@@ -124,16 +124,16 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
 
   useEffect(() => {
     if (user) {
-      const loginTimestamp = sessionStorage.getItem("loginTimestamp");
+      const loginTimestamp = localStorage.getItem("loginTimestamp");
       if (!loginTimestamp) {
-        sessionStorage.setItem("loginTimestamp", Date.now().toString());
+        localStorage.setItem("loginTimestamp", Date.now().toString());
       }
       startSessionTimer();
     }
   }, [user]);
 
   const startSessionTimer = () => {
-    const loginTimestamp = Number(sessionStorage.getItem("loginTimestamp"));
+    const loginTimestamp = Number(localStorage.getItem("loginTimestamp"));
     const expirationTime = loginTimestamp + 60 * 1000 * 59;
 
     const timeLeft = expirationTime - Date.now();
@@ -150,9 +150,18 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
 
   const getUserSession = async () => {
     const { data, error } = await supabaseClient.auth.getSession();
-    if (error) {
-      console.error("Error fetching session:", error.message);
+    if (error || !data?.session?.user) {
+      console.error("Error fetching session:", error?.message);
       setUser(null);
+      return;
+    }
+
+    if (
+      data?.session?.expires_at &&
+      data.session.expires_at * 1000 < Date.now()
+    ) {
+      console.log("Session has expired.");
+      handleUserSignOut();
       return;
     }
 
@@ -190,8 +199,8 @@ export const AppointmentProvider: React.FC<AppointmentProviderProps> = ({
     setUser(null);
     setUserMeta(null);
     setIsAuthToken(false);
-    sessionStorage.removeItem("intendedRoute");
-    sessionStorage.removeItem("loginTimestamp");
+    localStorage.removeItem("intendedRoute");
+    localStorage.removeItem("loginTimestamp");
     navigate("/login");
   };
 

@@ -9,6 +9,10 @@
   letter-spacing: 0.08em;
 }
 
+.rsuite-picker {
+  font-family: inherit !important; /* Inherits from the project's font */
+}
+
 body {
   box-sizing: border-box;
   font-family: "Young Serif";
@@ -79,4 +83,13 @@ h6 {
 .no-effect-tw {
   /* all: initial; */
   all: unset;
+}
+
+.rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
+  background-color: #fdf8ef !important; /* Background */
+  color: #FF9F1C !important; /* Text color */
+}
+
+.custom-datepicker  {
+  color:#2EC4B6 !important;
 }
