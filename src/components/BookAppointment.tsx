@@ -386,6 +386,10 @@ const BookAppointment: React.FC = () => {
       );
     };
 
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString("en-CA"); // Formats as "YYYY-MM-DD" in local time
+    };
+
     return (
       <div className="bg-[#CBF6EF] w-3/4 py-8 px-6 my-4 flex flex-col items-center justify-center gap-4 shadow-inset rounded-3xl">
         <h1 className="text-lg text-green-primary-1">
@@ -400,9 +404,7 @@ const BookAppointment: React.FC = () => {
             shouldDisableDate={disabledDate}
             className="custom-datepicker"
             {...register("date")}
-            onChange={(date) =>
-              setValue("date", date?.toISOString().split("T")[0] || "")
-            }
+            onChange={(date) => setValue("date", date ? formatDate(date) : "")}
             oneTap
           />
           <select
