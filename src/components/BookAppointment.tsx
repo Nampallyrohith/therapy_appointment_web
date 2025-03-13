@@ -375,19 +375,19 @@ const BookAppointment: React.FC = () => {
       const twentyDaysLater = new Date();
       twentyDaysLater.setDate(today.getDate() + 20);
 
-      const formattedDate = date.toISOString().split("T")[0];
+      const formattedDate = date.toLocaleDateString("en-CA");
       const leaveDates = dateResult?.date?.leaveDates || [];
 
       return (
-        date < today || // Prevents past dates but allows today
+        date < today ||
         date > twentyDaysLater ||
-        date.getDay() === 0 || // Disables Sundays
+        date.getDay() === 0 ||
         leaveDates.includes(formattedDate)
       );
     };
 
     const formatDate = (date: Date) => {
-      return date.toLocaleDateString("en-CA"); // Formats as "YYYY-MM-DD" in local time
+      return date.toLocaleDateString("en-CA");
     };
 
     return (
