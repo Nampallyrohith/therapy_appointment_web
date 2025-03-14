@@ -1,12 +1,9 @@
-// import { Input } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import React, { useEffect, useState } from "react";
-// import { DatePicker } from "@orange_digital/chakra-datepicker";
 import { Button } from "./ui/button";
 import { env, supabaseClient } from "@/supabase/connection";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { LuInfo } from "react-icons/lu";
-import avatar from "@/assets/images/doctor-avatar.png";
 import { Input, Textarea } from "@chakra-ui/react";
 import { convertISTTOUTC } from "./utils/commonFunction";
 import { useAppointmentContext } from "@/context/AppointmentContext";
@@ -18,6 +15,8 @@ import { DateType, Doctor, TimeType } from "@/models/typeDefinitions";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "@/shared/Loader";
 import { ThreeDot } from "react-loading-indicators";
+import { DatePicker } from "rsuite";
+import "rsuite/DatePicker/styles/index.css";
 
 const TherapyOptions = {
   behavioural: "Behavioural Therapy",
@@ -35,7 +34,7 @@ type TherapyKeys = keyof typeof TherapyOptions;
 
 interface FormInputs {
   therapy: TherapyKeys;
-  doctor: string;
+  doctor: number | null;
   date: string;
   time: string;
   eventDescription: string;
@@ -50,7 +49,7 @@ const BookAppointment: React.FC = () => {
   const { register, handleSubmit, setValue, watch } = useForm<FormInputs>({
     defaultValues: {
       therapy: "" as TherapyKeys,
-      doctor: "",
+      doctor: null,
       date: "",
       time: "",
       eventDescription: "",
@@ -104,7 +103,6 @@ const BookAppointment: React.FC = () => {
   useEffect(() => {
     if (activeTherapy) {
       getDoctors();
-      setValue("doctor", "");
     }
   }, [activeTherapy]);
 
@@ -112,6 +110,7 @@ const BookAppointment: React.FC = () => {
     if (activeDoctor) {
       getDate();
       setValue("date", "");
+      setValue("time", "");
     }
   }, [activeDoctor]);
 
@@ -136,48 +135,6 @@ const BookAppointment: React.FC = () => {
       `user/appointment/${activeDoctor}/available_time?date=${meetingDate}`
     );
   };
-
-  // Date and Time -------------------
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const formattedToday = today.toISOString().split("T")[0];
-
-  const maxSelectableDate = new Date();
-  maxSelectableDate.setDate(today.getDate() + 20);
-  const formattedMaxDate = maxSelectableDate.toISOString().split("T")[0];
-
-  const leaveDates = (dateResult && dateResult.date.leaveDates) || [];
-
-  const leaveDatesFormatted = leaveDates.map((leaveDate) => {
-    const leaveDateObj = new Date(leaveDate);
-    leaveDateObj.setHours(0, 0, 0, 0);
-    return leaveDateObj.toISOString().split("T")[0];
-  });
-
-  const isDateDisabled = (date: string) => {
-    const inputDate = new Date(date);
-    inputDate.setHours(0, 0, 0, 0);
-    const formattedInputDate = inputDate.toISOString().split("T")[0];
-
-    if (leaveDatesFormatted.includes(formattedInputDate)) {
-      const doctorName =
-        doctorsResult &&
-        doctorsResult?.doctors.find((doc) => doc.id === Number(activeDoctor));
-      alert(`${doctorName?.name} is in leave on this day`);
-      return true;
-    } // Only disable leave dates
-
-    if (inputDate > maxSelectableDate || inputDate < today) return true; //Disable outside of 20 days range
-
-    if (inputDate.getDay() === 0) {
-      alert("No service on sunday");
-      return true;
-    }
-
-    return false;
-  };
-
-  // -------------------
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -301,12 +258,9 @@ const BookAppointment: React.FC = () => {
         doctorId: doctor?.id,
         eventId: responseData.id,
         therapyType: therapy?.therapyName,
-        // cancelledOn: null,
-        // attended: false,
       };
       console.log("event:", body);
 
-      //TODO: Update the list of upcoming events
       await CreateEventAPICaller(
         `user/appointment/create-event/${user?.googleUserId}`,
         "POST",
@@ -359,24 +313,25 @@ const BookAppointment: React.FC = () => {
   const renderDoctorOptions = () => (
     <div className="bg-[#CBF6EF] w-3/4 px-6 py-4 my-4 shadow-inset rounded-3xl">
       <h1 className="text-green-primary-1 text-lg">Select Doctor</h1>
-      {/* TODO: Dynamically update doctor list based on selected therapy
-                retrieve only doctors who have specialisationId as the
-                current selected therapy option */}
       <div className="flex gap-6 flex-wrap justify-center mt-6 mb-6">
         {doctorsResult &&
           doctorsResult.doctors.map((doctor) => (
             <label
               key={doctor.id}
               className={`bg-white text-[#2CC3B4] min-w-full md:min-w-[60%] lg:min-w-[40%] px-5 py-1 rounded-xl shadow-inset-2 cursor-pointer flex justify-between items-center gap-2
-                ${
-                  Number(activeDoctor) === doctor.id
-                    ? "border-2 border-green-primary-1"
-                    : ""
-                }`}
+                  ${
+                    Number(activeDoctor) === doctor.id
+                      ? "border-2 border-green-primary-1"
+                      : ""
+                  }`}
               htmlFor={doctor.name}
             >
               {/* TODO: Temporary image (avatar) */}
-              <img src={avatar} alt="doc-avatar" className="w-[40px]" />
+              <img
+                src={doctor.avatarUrl}
+                alt="doc-avatar"
+                className="w-[40px] border-2 border-green-primary-1 rounded-full"
+              />
               <Input
                 type="radio"
                 id={doctor.name}
@@ -412,53 +367,68 @@ const BookAppointment: React.FC = () => {
     </div>
   );
 
-  const renderDateAndTimeSection = () => (
-    <div className="bg-[#CBF6EF] w-3/4 py-8 px-6 my-4 flex flex-col items-center justify-center gap-4 shadow-inset rounded-3xl">
-      <h1 className="text-lg text-green-primary-1">
-        Select meeting date & time
-      </h1>
-      <p className="text-green-primary-1 text-xs mb-4">
-        (Please note that you can only select available time slots)
-      </p>
-      <div className="w-full flex flex-col md:flex-row justify-center gap-6">
-        <Input
-          type="date"
-          {...register("date")}
-          value={meetingDate}
-          className={`text-green-primary-1 border-0 rounded-xl min-w-full sm:min-w-[40%] p-3 shadow-inset-2}`}
-          min={formattedToday}
-          max={formattedMaxDate}
-          onChange={(e) => {
-            const selectedDate = e.target.value;
-            if (isDateDisabled(selectedDate)) {
-              setValue("date", "");
-            } else {
-              setValue("date", selectedDate);
-            }
-          }}
-        />
-        <select
-          value={meetingTime}
-          {...register("time")}
-          className="border-0 text-green-primary-1 outline-none rounded-xl min-w-full sm:min-w-[40%] p-2 shadow-inset-2"
-          disabled={!meetingDate || isDateDisabled(meetingDate)}
-        >
-          <option value="" className="text-green-primary-1" disabled>
-            Select time
-          </option>{" "}
-          {timeResult?.time?.availableTimeSlots?.map((timeSlot) => (
-            <option
-              key={timeSlot}
-              value={timeSlot}
-              className="text-green-primary-1"
-            >
-              {timeSlot}
+  const renderDateAndTimeSection = () => {
+    const disabledDate = (date: Date) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const twentyDaysLater = new Date();
+      twentyDaysLater.setDate(today.getDate() + 20);
+
+      const formattedDate = date.toLocaleDateString("en-CA");
+      const leaveDates = dateResult?.date?.leaveDates || [];
+
+      return (
+        date < today ||
+        date > twentyDaysLater ||
+        date.getDay() === 0 ||
+        leaveDates.includes(formattedDate)
+      );
+    };
+
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString("en-CA");
+    };
+
+    return (
+      <div className="bg-[#CBF6EF] w-3/4 py-8 px-6 my-4 flex flex-col items-center justify-center gap-4 shadow-inset rounded-3xl">
+        <h1 className="text-lg text-green-primary-1">
+          Select meeting date & time
+        </h1>
+        <p className="text-green-primary-1 text-xs mb-4">
+          (Please note that you can only select available time slots)
+        </p>
+        <div className="w-full flex flex-col md:flex-row justify-center gap-6">
+          <DatePicker
+            format="yyyy-MM-dd"
+            shouldDisableDate={disabledDate}
+            className="custom-datepicker"
+            {...register("date")}
+            onChange={(date) => setValue("date", date ? formatDate(date) : "")}
+            oneTap
+          />
+          <select
+            value={meetingTime}
+            {...register("time")}
+            className="border-0 text-green-primary-1 outline-none rounded-xl min-w-full sm:min-w-[40%] p-2 shadow-inset-2"
+          >
+            <option value="" className="text-green-primary-1" disabled>
+              Select time
             </option>
-          ))}
-        </select>
+            {timeResult?.time?.availableTimeSlots?.map((timeSlot) => (
+              <option
+                key={timeSlot}
+                value={timeSlot}
+                className="text-green-primary-1"
+              >
+                {timeSlot}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderDescriptionAndBookButton = () => (
     <>
