@@ -9,6 +9,8 @@ import { useFetchData } from "@/hooks/apiCall";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import emptyBox from "@/assets/images/empty-box.png";
 import Loader from "@/shared/Loader";
+import { supabaseClient } from "@/supabase/connection";
+import toast, { Toaster } from "react-hot-toast";
 
 export const filterDetails: AppointmentFilterProps[] = [
   {
@@ -97,22 +99,58 @@ const MyAppointmentsPage: React.FC = () => {
 
   const handleCancelAppointment = async (
     appointmentId: number,
-    cancelReason: string
+    cancelReason: string,
+    eventId: string
   ) => {
     const body = { cancelReason };
+
     try {
+      const { data } = await supabaseClient.auth.getSession();
+      const accessToken = data.session?.provider_token;
+
+      if (!accessToken) {
+        throw new Error("Access token not found. Please re-authenticate.");
+      }
+
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}?conferenceDataVersion=1&sendUpdates=all`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete event: ${response.statusText}`);
+      }
+
+      let responseData = null;
+      try {
+        responseData = await response.json();
+      } catch {
+        // Ignore JSON parsing error if response is empty (204 No Content)
+      }
+
+      console.log(responseData);
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+      toast.error(error as string, {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+    } finally {
       await CancelAPICaller(
         `user/appointment/cancel/${appointmentId}`,
         "POST",
         body
       );
-
       getAppointments();
       closeModal();
       closeReasonModal();
       setFilter("cancelled");
-    } catch (error) {
-      console.log("Error cancelling appointment:", error);
     }
   };
 
@@ -445,20 +483,23 @@ const MyAppointmentsPage: React.FC = () => {
       <div className="self-end text-xs text-green-primary-1">
         {cancelReason.length}/500
       </div>
-      <button
-        className={`bg-red-400 text-white px-4 py-2 rounded-lg ${
-          cancelReason.length < 50 && "opacity-50 cursor-not-allowed"
-        }`}
-        disabled={cancelReason.length < 50}
-        onClick={() =>
-          handleCancelAppointment(
-            selectedAppointment?.id as number,
-            cancelReason
-          )
-        }
-      >
-        Cancel appointment
-      </button>
+      {selectedAppointment && (
+        <button
+          className={`bg-red-400 text-white px-4 py-2 rounded-lg ${
+            cancelReason.length < 50 && "opacity-50 cursor-not-allowed"
+          }`}
+          disabled={cancelReason.length < 50}
+          onClick={() =>
+            handleCancelAppointment(
+              selectedAppointment?.id as number,
+              cancelReason,
+              selectedAppointment?.eventId
+            )
+          }
+        >
+          Cancel appointment
+        </button>
+      )}
     </Modal>
   );
 
@@ -474,6 +515,7 @@ const MyAppointmentsPage: React.FC = () => {
           {renderAppropriateModal()}
         </>
       )}
+      <Toaster position="bottom-right" />
     </div>
   );
 };
