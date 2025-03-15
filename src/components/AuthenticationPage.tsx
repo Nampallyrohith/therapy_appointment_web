@@ -25,7 +25,6 @@ const AuthenticationPage = () => {
       provider: "google",
       options: {
         scopes: "https://www.googleapis.com/auth/calendar",
-        redirectTo: "http://localhost:5173/user/home",
       },
     });
     console.log(data);

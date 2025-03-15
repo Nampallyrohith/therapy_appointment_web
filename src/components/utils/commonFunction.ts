@@ -50,7 +50,7 @@ export const useBookAppointment = () => {
       setSelectedTherapy("");
     }
     if (selectedDoctor) {
-      setSelectedDoctor("");
+      setSelectedDoctor(null);
     }
     navigate("/user/book-appointment");
   };
