@@ -202,8 +202,14 @@ const MyAppointmentsPage: React.FC = () => {
         >
           {filteredAppointments?.length === 0 ? (
             <div className="flex flex-col items-center gap-4">
-              <img src={emptyBox} alt="empty icon" className="w-28" />
-              <p>You don't have any {filter} appointments</p>
+              <img
+                src={emptyBox}
+                alt="empty icon"
+                className="w-14 md:w-28 mt-3"
+              />
+              <p className="text-center text-xs md:text-base ">
+                You don't have any {filter} appointments
+              </p>
             </div>
           ) : (
             filteredAppointments?.map((appointment, index) => (
@@ -349,7 +355,7 @@ const MyAppointmentsPage: React.FC = () => {
           </div>
         )}
       {isMeetingUpcoming ? (
-        <div className="w-full self-center flex justify-between items-start mt-8 cursor-default">
+        <div className="w-full self-center flex justify-center items-center mt-8 cursor-default flex-col md:flex-row md:justify-between md:items-start gap-5">
           <button
             className="bg-transparent text-red-400 border-2 border-red-400 rounded-lg px-4 py-2"
             onClick={() => openConfirmModal()}

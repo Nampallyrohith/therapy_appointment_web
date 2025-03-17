@@ -124,7 +124,13 @@ const Header = () => {
               <Link to="/user/book-appointment">Book an Appointment</Link>
             </MenuItem>
             <MenuItem asChild value="logout">
-              <Button onClick={handleLogout}>Logout</Button>
+              <Button
+                type="button"
+                onClick={handleLogout}
+                className="bg-red-500 text-white rounded-full w-3/5 shadow-inset text-xs mx-auto my-2"
+              >
+                Logout
+              </Button>
             </MenuItem>
           </MenuContent>
         </MenuRoot>

@@ -17,7 +17,7 @@ import { IoIosClose } from "react-icons/io";
 import { FaStethoscope } from "react-icons/fa";
 import { SlBadge } from "react-icons/sl";
 //import { IoLocationOutline } from "react-icons/io5";
-//import { LiaGraduationCapSolid } from "react-icons/lia";
+import { LiaGraduationCapSolid } from "react-icons/lia";
 interface OurTherapistProps {
   Therapists: {
     id: number;
@@ -144,47 +144,40 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
               <IoIosClose size={35} />
             </button>
           </div>
-          <div className="flex md:flex-row items-center gap-6 px-4 text-sm">
-            <div className="flex-1 text-left space-y-3 font-medium">
+          <div className="flex md:flex-row flex-col sm:items-center gap-6 px-4 text-sm ">
+            <div className="flex-1 md:text-left text-center space-y-3 font-medium sm:order-first order-last">
               <h1 className="text-lg font-semibold">
                 {selectedTherapist.name}
               </h1>
 
-              <div>
-                <h2 className="flex items-center gap-2 ">
+              <div className="flex flex-col justify-center md:justify-start items-center md:items-start">
+                <h2 className="flex items-center  gap-2 ">
                   <FaStethoscope /> Experience
                 </h2>
                 <p>{selectedTherapist.experience}</p>
               </div>
 
-              <div>
-                <h2 className="flex items-center gap-2">
+              <div className="flex flex-col justify-center md:justify-start items-center md:items-start">
+                <h2 className="flex items-center  gap-2">
                   <SlBadge /> Specialization
                 </h2>
                 <p>{selectedTherapist.specialistIn}</p>
               </div>
 
-              {/* <div>
-                  <h2 className="flex items-center gap-2">
-                    <IoLocationOutline /> Available At Clinics
-                  </h2>
-                  <p>Gachibowli, Hyderabad</p>
-                </div>
-
-                <div>
-                  <h2 className="flex items-center gap-2">
-                    <LiaGraduationCapSolid /> Qualification
-                  </h2>
-                  <p>MD Psychiatry</p>
-                </div> */}
+              <div className="flex flex-col justify-center md:justify-start items-center md:items-start">
+                <h2 className="flex items-center  gap-2">
+                  <LiaGraduationCapSolid /> Qualification
+                </h2>
+                <p>MD Psychiatry</p>
+              </div>
             </div>
             <img
               src={selectedTherapist.avatarUrl}
-              className="w-60 h-89"
+              className="w-60 h-89 "
               alt="Therapist"
             />
           </div>
-          <div className="px-4">
+          <div className="px-4 py-4 md:text-left text-center">
             <h1 className="text-lg font-semibold">About</h1>
             <p className="text-xs text-gray-600 leading-relaxed">
               {selectedTherapist.about}
