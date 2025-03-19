@@ -89,7 +89,7 @@ const Header = () => {
           // TODO: Dumming data for UI testing
           <div
             ref={dropdownRef}
-            className="w-1/6 px-5 py-3 bg-white border-2 border-orange-primary-3 text-orange-primary-1 flex flex-col text-center shadow-md absolute top-20 right-20 rounded-md gap-2"
+            className="w-1/6 px-5 !z-[9999] py-3 bg-white border-2 border-orange-primary-3 text-orange-primary-1 flex flex-col text-center shadow-md absolute top-20 right-20 rounded-md gap-2"
           >
             <p className="my-2">{user?.name}</p>
             <hr className="border-orange-primary-2" />
@@ -124,7 +124,13 @@ const Header = () => {
               <Link to="/user/book-appointment">Book an Appointment</Link>
             </MenuItem>
             <MenuItem asChild value="logout">
-              <Button onClick={handleLogout}>Logout</Button>
+              <Button
+                type="button"
+                onClick={handleLogout}
+                className="bg-red-500 text-white rounded-full w-3/5 shadow-inset text-xs mx-auto my-2"
+              >
+                Logout
+              </Button>
             </MenuItem>
           </MenuContent>
         </MenuRoot>
