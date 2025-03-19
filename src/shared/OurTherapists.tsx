@@ -47,10 +47,10 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
   return (
     <div className="mx-auto relative w-3/4 h-full mb-6">
       {/* Navigation Buttons */}
-      <button className="custom-swiper-button-prev absolute -left-[42px] sm:-left-[48px] top-1/2 -translate-y-1/2 z-10 rounded-full p-2 transition-colors">
+      <button className="custom-swiper-button-prev absolute -left-[42px] sm:-left-[48px] top-1/2 -translate-y-1/2 rounded-full p-2 transition-colors">
         <ChevronLeft size={42} className="text-[#5281A2]" />
       </button>
-      <button className="custom-swiper-button-next absolute -right-[42px] sm:-right-[48px] top-1/2 -translate-y-1/2 z-10 rounded-full p-2 transition-colors">
+      <button className="custom-swiper-button-next absolute -right-[42px] sm:-right-[48px] top-1/2 -translate-y-1/2 rounded-full p-2 transition-colors">
         <ChevronRight size={42} className="text-[#5281A2]" />
       </button>
 
@@ -116,7 +116,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
           isOpen={!!selectedTherapist}
           onRequestClose={() => setSelectedTherapist(null)}
           ariaHideApp={false}
-          className="bg-white text-green-primary-1 flex flex-col outline-0 rounded-md shadow-lg relative h-3/4 md:h-auto overflow-y-auto"
+          className="bg-white text-green-primary-1 flex flex-col outline-0 rounded-md shadow-lg h-3/5 md:h-auto relative overflow-y-auto"
           style={{
             content: {
               position: "absolute",
@@ -145,7 +145,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
             </button>
           </div>
           <div className="flex md:flex-row flex-col sm:items-center gap-6 px-4 text-sm ">
-            <div className="flex-1 md:text-left text-center space-y-3 font-medium sm:order-first order-last">
+            <div className="flex-1 md:text-left text-center space-y-3 font-medium order-1 md:order-0">
               <h1 className="text-lg font-semibold">
                 {selectedTherapist.name}
               </h1>
@@ -173,7 +173,7 @@ const OurTherapists: React.FC<OurTherapistProps> = ({ Therapists }) => {
             </div>
             <img
               src={selectedTherapist.avatarUrl}
-              className="w-60 h-89 "
+              className="w-60 h-89 mx-auto order-0 md:order-1"
               alt="Therapist"
             />
           </div>
