@@ -48,6 +48,8 @@ const MyAppointmentsPage: React.FC = () => {
 
   const { call: CancelAPICaller } = useFetchData();
 
+  const { call: UpdateCancellAppointmentAPICaller } = useFetchData();
+
   const getAppointments = async () => {
     await AppointmentAPICaller(`user/my-appointments/${user?.googleUserId}`);
   };
@@ -55,6 +57,44 @@ const MyAppointmentsPage: React.FC = () => {
   useEffect(() => {
     getAppointments();
   }, []);
+
+  useEffect(() => {
+    const checkAppointmentInGoogleCalendar = async () => {
+      let filteredAppointments = appointmentsResult?.appointments.filter(
+        (eachAppointment) => eachAppointment.status === filter
+      );
+      console.log("heyyyy");
+      if (filter === "upcoming") {
+        if (!filteredAppointments?.length) return;
+
+        // Fetch all appointment data
+        const appointmentDetails = await Promise.all(
+          filteredAppointments.map((appointment) =>
+            fetchAppointmentByEventId(appointment.eventId)
+          )
+        );
+        console.log(appointmentDetails);
+
+        // Check for cancelled appointments and update them
+        for (const [index, appointment] of appointmentDetails.entries()) {
+          console.log("Hello canncedl");
+          if (appointment.status === "cancelled") {
+            console.log(
+              `Updating status of appointment ID ${filteredAppointments[index].eventId} to 'cancelled'`
+            );
+
+            // API call to update status
+            await UpdateCancellAppointmentAPICaller(
+              `user/upcoming-cancelled/cancel/${filteredAppointments[index].eventId}`,
+              "PUT"
+            );
+            await getAppointments();
+          }
+        }
+      }
+    };
+    checkAppointmentInGoogleCalendar();
+  }, [filter]);
 
   useEffect(() => {
     const checkTime = () => {
@@ -74,6 +114,23 @@ const MyAppointmentsPage: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [selectedAppointment]);
+
+  const fetchAppointmentByEventId = async (eventId: string) => {
+    const { data } = await supabaseClient.auth.getSession();
+    const accessToken = data.session?.provider_token;
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}?conferenceDataVersion=1`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const responseData = response.json();
+    console.log(responseData);
+    return responseData;
+  };
 
   const onFilterChange = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFilter(event.currentTarget.id);
@@ -189,7 +246,7 @@ const MyAppointmentsPage: React.FC = () => {
     );
 
     return (
-      <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-full shadow-inner">
+      <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-screen shadow-inner">
         {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
         </h2> */}
@@ -386,7 +443,6 @@ const MyAppointmentsPage: React.FC = () => {
           </div>
         </div>
       ) : null}
-      {/* TODO: Add review inputs*/}
     </Modal>
   );
 
