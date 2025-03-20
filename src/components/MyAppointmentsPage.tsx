@@ -63,7 +63,6 @@ const MyAppointmentsPage: React.FC = () => {
       let filteredAppointments = appointmentsResult?.appointments.filter(
         (eachAppointment) => eachAppointment.status === filter
       );
-      console.log("heyyyy");
       if (filter === "upcoming") {
         if (!filteredAppointments?.length) return;
 
@@ -73,11 +72,9 @@ const MyAppointmentsPage: React.FC = () => {
             fetchAppointmentByEventId(appointment.eventId)
           )
         );
-        console.log(appointmentDetails);
 
         // Check for cancelled appointments and update them
         for (const [index, appointment] of appointmentDetails.entries()) {
-          console.log("Hello canncedl");
           if (appointment.status === "cancelled") {
             console.log(
               `Updating status of appointment ID ${filteredAppointments[index].eventId} to 'cancelled'`
