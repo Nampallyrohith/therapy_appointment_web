@@ -18,7 +18,7 @@ const ProtectedRoute = () => {
   }
 
   if (!isAuthToken) {
-    sessionStorage.setItem("intendedRoute", location.pathname);
+    localStorage.setItem("intendedRoute", location.pathname);
     return <Navigate to="/login" />;
   }
 

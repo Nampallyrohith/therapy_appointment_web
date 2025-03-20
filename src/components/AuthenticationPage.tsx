@@ -16,8 +16,8 @@ const AuthenticationPage = () => {
   useEffect(() => {
     if (isAuthToken) {
       const intendedRoute =
-        sessionStorage.getItem("intendedRoute") || "/user/home";
-      sessionStorage.removeItem("intendedRoute");
+        localStorage.getItem("intendedRoute") || "/user/home";
+      localStorage.removeItem("intendedRoute");
       navigate(intendedRoute, { replace: true });
     }
   }, [isAuthToken, navigate]);
