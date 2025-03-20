@@ -6,10 +6,12 @@ import { useAppointmentContext } from "@/context/AppointmentContext";
 import { User } from "@/models/typeDefinitions";
 import { ThreeDot } from "react-loading-indicators";
 import toast, { Toaster } from "react-hot-toast";
+import { supabaseClient } from "@/supabase/connection";
 
 const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { user, userMeta, getUserDetailsFromDB } = useAppointmentContext();
+  const [file, setFile] = useState<File | null>(null);
 
   const { call: UpdateUserAPICaller, loading } = useFetchData<User>();
 
@@ -19,6 +21,7 @@ const UserProfileCard = () => {
     formState: { errors },
     reset,
     watch,
+    setValue,
   } = useForm<User>();
 
   useEffect(() => {
@@ -28,6 +31,12 @@ const UserProfileCard = () => {
   }, [user, reset]);
 
   const onSubmit = async (data: User) => {
+    if (file) {
+      const newAvatarUrl = await uploadAvatar();
+      if (newAvatarUrl) {
+        data.avatarUrl = newAvatarUrl;
+      }
+    }
     await UpdateUserAPICaller("auth/google/signin", "POST", {
       ...data,
       ...userMeta,
@@ -51,6 +60,33 @@ const UserProfileCard = () => {
     setIsEditing(false);
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setFile(event.target.files[0]);
+    }
+  };
+
+  const uploadAvatar = async (): Promise<string | null> => {
+    if (!file) return null;
+
+    const filePath = `users/${user?.googleUserId}/${file.name}`;
+    const { error } = await supabaseClient.storage
+      .from("users_avatar")
+      .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+    if (error) {
+      toast("Upload failed");
+      return null;
+    }
+
+    // Get public URL
+    const { data } = supabaseClient.storage
+      .from("users_avatar")
+      .getPublicUrl(filePath);
+    setValue("avatarUrl", data.publicUrl);
+    return data.publicUrl;
+  };
+
   return (
     <div className="flex justify-center items-center w-full min-h-screen">
       <form
@@ -69,11 +105,32 @@ const UserProfileCard = () => {
           </div>
         )}
         <div className="flex flex-col items-center">
-          <img
-            src={user?.avatarUrl}
-            alt="Profile"
-            className="w-24 h-24 rounded-full"
+          <div className="relative w-24 h-24">
+            <img
+              src={watch("avatarUrl")}
+              className="w-24 h-24 rounded-full object-cover bg-gray-100"
+              alt="Profile"
+            />
+            {isEditing && (
+              <label
+                htmlFor="fileInput"
+                className="absolute -bottom-1 right-1 w-8 h-8 bg-white p-2 rounded-full text-gray-700 shadow border border-gray-300 flex items-center justify-center cursor-pointer"
+              >
+                <FaPen className="w-4 h-4" />
+              </label>
+            )}
+          </div>
+          <input
+            id="fileInput"
+            type="file"
+            {...register("avatarUrl")}
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
           />
+          {errors.avatarUrl && (
+            <p className="text-red-500 text-xs">{errors.avatarUrl.message}</p>
+          )}
         </div>
         <div className="grid grid-cols-1 md:mx-10 md:grid-cols-2 gap-2 md:gap-4">
           {/* Name */}
