@@ -17,7 +17,7 @@ const AboutTherapyCard: React.FC<therapyCardProps> = ({ therapy }) => {
 
   const handleBookTherapy = () => {
     setSelectedTherapy(id);
-    setSelectedDoctor("");
+    setSelectedDoctor(null);
     window.scrollTo(0, 0);
     navigate("/user/book-appointment");
   };

@@ -17,6 +17,7 @@ export const useFetchData = <T>() => {
     setData(result.data);
     setError(result.error || null);
     setLoading(false);
+    return result;
   };
 
   return { data, error, loading, call };

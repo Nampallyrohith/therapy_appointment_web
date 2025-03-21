@@ -7,6 +7,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/images/Logo2.png";
 
+const GOOGLE_REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URI as string;
+
 const AuthenticationPage = () => {
   const { isAuthToken } = useAppointmentContext();
   const navigate = useNavigate();
@@ -14,8 +16,8 @@ const AuthenticationPage = () => {
   useEffect(() => {
     if (isAuthToken) {
       const intendedRoute =
-        sessionStorage.getItem("intendedRoute") || "/user/home";
-      sessionStorage.removeItem("intendedRoute");
+        localStorage.getItem("intendedRoute") || "/user/home";
+      localStorage.removeItem("intendedRoute");
       navigate(intendedRoute, { replace: true });
     }
   }, [isAuthToken, navigate]);
@@ -25,7 +27,7 @@ const AuthenticationPage = () => {
       provider: "google",
       options: {
         scopes: "https://www.googleapis.com/auth/calendar",
-        redirectTo: "http://localhost:5173/user/home",
+        redirectTo: `${GOOGLE_REDIRECT_URI}/user/home`,
       },
     });
     console.log(data);

@@ -78,6 +78,7 @@ h6 {
 .swiper-button-next,
 .swiper-button-prev {
   display: none !important;
+
 }
 
 .no-effect-tw {
@@ -87,9 +88,9 @@ h6 {
 
 .rs-calendar-table-cell-selected .rs-calendar-table-cell-content {
   background-color: #fdf8ef !important; /* Background */
-  color: #FF9F1C !important; /* Text color */
+  color: #ff9f1c !important; /* Text color */
 }
 
-.custom-datepicker  {
-  color:#2EC4B6 !important;
+.custom-datepicker {
+  color: #2ec4b6 !important;
 }

@@ -20,6 +20,8 @@ const emojiMap: Record<string, string> = {
   4: "😊",
   5: "😍",
 };
+import { supabaseClient } from "@/supabase/connection";
+import toast, { Toaster } from "react-hot-toast";
 
 export const filterDetails: AppointmentFilterProps[] = [
   {
@@ -74,6 +76,8 @@ const MyAppointmentsPage: React.FC = () => {
   const { call: PostAppointmentFeedbackCaller } = useFetchData();
   const { call: PostAbsentReasonCaller } = useFetchData();
 
+  const { call: UpdateCancellAppointmentAPICaller } = useFetchData();
+
   const getAppointments = async () => {
     await AppointmentAPICaller(`user/my-appointments/${user?.googleUserId}`);
   };
@@ -81,6 +85,41 @@ const MyAppointmentsPage: React.FC = () => {
   useEffect(() => {
     getAppointments();
   }, []);
+
+  useEffect(() => {
+    const checkAppointmentInGoogleCalendar = async () => {
+      let filteredAppointments = appointmentsResult?.appointments.filter(
+        (eachAppointment) => eachAppointment.status === filter
+      );
+      if (filter === "upcoming") {
+        if (!filteredAppointments?.length) return;
+
+        // Fetch all appointment data
+        const appointmentDetails = await Promise.all(
+          filteredAppointments.map((appointment) =>
+            fetchAppointmentByEventId(appointment.eventId)
+          )
+        );
+
+        // Check for cancelled appointments and update them
+        for (const [index, appointment] of appointmentDetails.entries()) {
+          if (appointment.status === "cancelled") {
+            console.log(
+              `Updating status of appointment ID ${filteredAppointments[index].eventId} to 'cancelled'`
+            );
+
+            // API call to update status
+            await UpdateCancellAppointmentAPICaller(
+              `user/upcoming-cancelled/cancel/${filteredAppointments[index].eventId}`,
+              "PUT"
+            );
+            await getAppointments();
+          }
+        }
+      }
+    };
+    checkAppointmentInGoogleCalendar();
+  }, [filter]);
 
   useEffect(() => {
     if (!selectedAppointment?.startTime) return;
@@ -119,6 +158,23 @@ const MyAppointmentsPage: React.FC = () => {
     });
   }, [appointmentsResult?.appointments]);
 
+  const fetchAppointmentByEventId = async (eventId: string) => {
+    const { data } = await supabaseClient.auth.getSession();
+    const accessToken = data.session?.provider_token;
+    const response = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}?conferenceDataVersion=1`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const responseData = response.json();
+    console.log(responseData);
+    return responseData;
+  };
+
   const onFilterChange = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFilter(event.currentTarget.id);
   };
@@ -143,23 +199,59 @@ const MyAppointmentsPage: React.FC = () => {
 
   const handleCancelAppointment = async (
     appointmentId: number,
-    cancelReason: string
+    cancelReason: string,
+    eventId: string
   ) => {
     const body = { cancelReason };
+
     try {
+      const { data } = await supabaseClient.auth.getSession();
+      const accessToken = data.session?.provider_token;
+
+      if (!accessToken) {
+        throw new Error("Access token not found. Please re-authenticate.");
+      }
+
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}?conferenceDataVersion=1&sendUpdates=all`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete event: ${response.statusText}`);
+      }
+
+      let responseData = null;
+      try {
+        responseData = await response.json();
+      } catch {
+        // Ignore JSON parsing error if response is empty (204 No Content)
+      }
+
+      console.log(responseData);
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+      toast.error(error as string, {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+    } finally {
       await CancelAPICaller(
         `user/appointment/cancel/${appointmentId}`,
         "POST",
         body
       );
-
       getAppointments();
       closeModal();
       closeReasonModal();
       setFilter("cancelled");
       setCancelReason("");
-    } catch (error) {
-      console.log("Error cancelling appointment:", error);
     }
   };
 
@@ -245,7 +337,7 @@ const MyAppointmentsPage: React.FC = () => {
     );
 
     return (
-      <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-full shadow-inner">
+      <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-screen shadow-inner">
         {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
         </h2> */}
@@ -258,8 +350,12 @@ const MyAppointmentsPage: React.FC = () => {
         >
           {filteredAppointments?.length === 0 ? (
             <div className="flex flex-col items-center gap-4">
-              <img src={emptyBox} alt="empty icon" className="w-28" />
-              <p className="text-center">
+              <img
+                src={emptyBox}
+                alt="empty icon"
+                className="w-14 md:w-28 mt-3"
+              />
+              <p className="text-center text-xs md:text-base ">
                 You don't have any {filter} appointments
               </p>
             </div>
@@ -442,7 +538,7 @@ const MyAppointmentsPage: React.FC = () => {
           </div>
         )}
       {isMeetingUpcoming ? (
-        <div className="w-full self-center flex justify-between items-start mt-8 cursor-default">
+        <div className="w-full self-center flex justify-center items-center mt-8 cursor-default flex-col md:flex-row md:justify-between md:items-start gap-5">
           <button
             className="bg-transparent text-red-400 border-2 border-red-400 rounded-lg px-4 py-2"
             onClick={() => openConfirmModal()}
@@ -593,20 +689,23 @@ const MyAppointmentsPage: React.FC = () => {
       <div className="self-end text-xs text-green-primary-1">
         {cancelReason.length}/500
       </div>
-      <button
-        className={`bg-red-400 text-white px-4 py-2 rounded-lg ${
-          cancelReason.length < 50 && "opacity-50 cursor-not-allowed"
-        }`}
-        disabled={cancelReason.length < 50}
-        onClick={() =>
-          handleCancelAppointment(
-            selectedAppointment?.id as number,
-            cancelReason
-          )
-        }
-      >
-        Cancel appointment
-      </button>
+      {selectedAppointment && (
+        <button
+          className={`bg-red-400 text-white px-4 py-2 rounded-lg ${
+            cancelReason.length < 50 && "opacity-50 cursor-not-allowed"
+          }`}
+          disabled={cancelReason.length < 50}
+          onClick={() =>
+            handleCancelAppointment(
+              selectedAppointment?.id as number,
+              cancelReason,
+              selectedAppointment?.eventId
+            )
+          }
+        >
+          Cancel appointment
+        </button>
+      )}
     </Modal>
   );
 
@@ -810,6 +909,7 @@ const MyAppointmentsPage: React.FC = () => {
           {renderAppropriateModal()}
         </>
       )}
+      <Toaster position="bottom-right" />
     </div>
   );
 };

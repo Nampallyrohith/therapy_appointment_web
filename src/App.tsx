@@ -5,6 +5,7 @@ import AuthenticationPage from "./components/AuthenticationPage";
 import ProtectedRoute from "./Handler/ProtectedRoute";
 import BookAppointment from "./components/BookAppointment";
 import ProfilePage from "./components/ProfilePage";
+import NotFound from "./shared/NotFound";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
           <Route path="/user/book-appointment" element={<BookAppointment />} />
           <Route path="/user/profile" element={<ProfilePage />} />
         </Route>
+        <Route path="/*" element={<NotFound />} />
       </Routes>
     </div>
   );
