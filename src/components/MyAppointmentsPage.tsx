@@ -9,6 +9,17 @@ import { useFetchData } from "@/hooks/apiCall";
 import { useAppointmentContext } from "@/context/AppointmentContext";
 import emptyBox from "@/assets/images/empty-box.png";
 import Loader from "@/shared/Loader";
+import { parseDate } from "./utils/commonFunction";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { RatingGroup } from "@chakra-ui/react";
+
+const emojiMap: Record<string, string> = {
+  1: "😡",
+  2: "😠",
+  3: "😐",
+  4: "😊",
+  5: "😍",
+};
 
 export const filterDetails: AppointmentFilterProps[] = [
   {
@@ -27,13 +38,27 @@ export const filterDetails: AppointmentFilterProps[] = [
 
 const MyAppointmentsPage: React.FC = () => {
   const [filter, setFilter] = useState<string>("upcoming");
+  // For appointment specific modal
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
-  const [isWithin30Minutes, setIsWithin30Minutes] = useState<boolean>(false);
+  const [isWithin10Minutes, setIsWithin10Minutes] = useState<boolean>(false);
+  // For cancel appointment
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
   const [isReasonModalOpen, setIsReasonModalOpen] = useState<boolean>(false);
   const [cancelReason, setCancelReason] = useState<string>("");
+  // For attendance of appointment
+  const [activeAttendanceAppointment, setActiveAttendanceAppointment] =
+    useState<Appointment | null>(null);
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] =
+    useState<boolean>(false);
+  const [modalStep, setModalStep] = useState<string>("attendance");
+  const [feedback, setFeedback] = useState<{
+    doctorRating: number;
+    doctorFeedback: string;
+    meetFeedback: string;
+  }>({ doctorRating: 3, doctorFeedback: "", meetFeedback: "" });
+  const [absentReason, setAbsentReason] = useState<string>("");
 
   const { user } = useAppointmentContext();
   const {
@@ -45,6 +70,9 @@ const MyAppointmentsPage: React.FC = () => {
   }>();
 
   const { call: CancelAPICaller } = useFetchData();
+  const { call: UpdateAttendedFlagCaller } = useFetchData();
+  const { call: PostAppointmentFeedbackCaller } = useFetchData();
+  const { call: PostAbsentReasonCaller } = useFetchData();
 
   const getAppointments = async () => {
     await AppointmentAPICaller(`user/my-appointments/${user?.googleUserId}`);
@@ -55,23 +83,41 @@ const MyAppointmentsPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const checkTime = () => {
-      if (!selectedAppointment?.startTime) return;
+    if (!selectedAppointment?.startTime) return;
 
-      const startTime = new Date(selectedAppointment.startTime);
-      const now = new Date();
+    const startTime = new Date(parseDate(selectedAppointment.startTime));
+    const thresholdTime = startTime.getTime() - 10 * 60 * 1000;
+    const now = Date.now();
 
-      setIsWithin30Minutes(
-        now.getTime() >= startTime.getTime() - 30 * 60 * 1000
+    setIsWithin10Minutes(now >= thresholdTime);
+
+    if (now < thresholdTime) {
+      const timeout = setTimeout(
+        () => setIsWithin10Minutes(true),
+        thresholdTime - now
       );
-    };
-
-    checkTime();
-
-    const interval = setInterval(checkTime, 60 * 1000);
-
-    return () => clearInterval(interval);
+      return () => clearTimeout(timeout);
+    }
   }, [selectedAppointment]);
+
+  useEffect(() => {
+    const now = new Date();
+
+    appointmentsResult?.appointments.forEach((appointment) => {
+      const endTime = parseDate(appointment.endTime);
+      const showModalTime = new Date(endTime.getTime() - 10 * 60 * 1000);
+
+      if (
+        now >= showModalTime &&
+        "attended" in appointment &&
+        appointment["attended"] === null &&
+        appointment["attendedModalDismissed"] === false
+      ) {
+        setActiveAttendanceAppointment(appointment);
+        setIsAttendanceModalOpen(true);
+      }
+    });
+  }, [appointmentsResult?.appointments]);
 
   const onFilterChange = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFilter(event.currentTarget.id);
@@ -111,24 +157,72 @@ const MyAppointmentsPage: React.FC = () => {
       closeModal();
       closeReasonModal();
       setFilter("cancelled");
+      setCancelReason("");
     } catch (error) {
       console.log("Error cancelling appointment:", error);
     }
   };
 
-  const isMeetingUpcoming = !(
-    (selectedAppointment &&
-      "cancelledOn" in selectedAppointment &&
-      selectedAppointment["cancelledOn"]) ||
-    (selectedAppointment &&
-      "attended" in selectedAppointment &&
-      selectedAppointment["attended"])
-  );
+  const handleAttendanceResponse = (response: string) => {
+    setModalStep(response === "Yes" ? "feedback" : "reason");
+  };
 
-  // const isMeetingCancelled =
-  //   selectedAppointment &&
-  //   "cancelledOn" in selectedAppointment &&
-  //   selectedAppointment["cancelledOn"];
+  const handleSubmitFeedback = async (appointmentId: number) => {
+    const body = feedback;
+    try {
+      await PostAppointmentFeedbackCaller(
+        `user/appointment/${appointmentId}/submit-feedback`,
+        "POST",
+        body
+      );
+
+      setIsAttendanceModalOpen(false);
+      setModalStep("attendance");
+      setFeedback({
+        doctorRating: 3,
+        doctorFeedback: "",
+        meetFeedback: "",
+      });
+      getAppointments();
+    } catch (error) {
+      console.log("Error submitting appointment feedback:", error);
+    }
+  };
+
+  const handleSubmitReason = async (appointmentId: number) => {
+    const body = { absentReason };
+    try {
+      await PostAbsentReasonCaller(
+        `user/appointment/${appointmentId}/submit-absent-reason`,
+        "POST",
+        body
+      );
+
+      setIsAttendanceModalOpen(false);
+      setModalStep("attendance");
+      setAbsentReason("");
+      getAppointments();
+    } catch (error) {
+      console.log("Error submitting absent reason:", error);
+    }
+  };
+
+  const handleCloseAttendanceModal = async (appointmentId: number) => {
+    try {
+      await UpdateAttendedFlagCaller(
+        `user/appointment/${appointmentId}/update-attended-modal-flag`,
+        "POST"
+      );
+      setIsAttendanceModalOpen(false);
+    } catch (err) {
+      console.log("Error updating attended modal flag:", err);
+    }
+  };
+
+  const isMeetingUpcoming =
+    selectedAppointment && selectedAppointment.status === "upcoming";
+  const isMeetingPrevious =
+    selectedAppointment && selectedAppointment.status === "previous";
 
   // Renders
   const renderAppointmentFilters = () => (
@@ -165,7 +259,9 @@ const MyAppointmentsPage: React.FC = () => {
           {filteredAppointments?.length === 0 ? (
             <div className="flex flex-col items-center gap-4">
               <img src={emptyBox} alt="empty icon" className="w-28" />
-              <p>You don't have any {filter} appointments</p>
+              <p className="text-center">
+                You don't have any {filter} appointments
+              </p>
             </div>
           ) : (
             filteredAppointments?.map((appointment, index) => (
@@ -205,7 +301,25 @@ const MyAppointmentsPage: React.FC = () => {
                   appointment["attended"] !== null && (
                     <p className="text-sm">
                       <strong>Attended:</strong>{" "}
-                      {appointment.attended ? "Yes" : "No"}
+                      {appointment.attended ? (
+                        <span className="bg-green-300 p-1 rounded-md text-black">
+                          Yes
+                        </span>
+                      ) : (
+                        <span className="bg-red-400 p-1 rounded-md text-white">
+                          No
+                        </span>
+                      )}
+                    </p>
+                  )}
+                {appointment["status"] === "previous" &&
+                  "attended" in appointment &&
+                  appointment["attended"] === null && (
+                    <p>
+                      <strong>Attended:</strong>{" "}
+                      <span className="bg-orange-primary-2 px-2 rounded-md text-black">
+                        ?
+                      </span>
                     </p>
                   )}
               </div>
@@ -304,10 +418,27 @@ const MyAppointmentsPage: React.FC = () => {
         )}
       {selectedAppointment &&
         "attended" in selectedAppointment &&
-        selectedAppointment["attended"] && (
-          <div>
-            <h2 className="underline text-white my-2">Attended:</h2>
-            <p>{selectedAppointment?.attended ? "Yes" : "No"}</p>
+        selectedAppointment["attended"] !== null && (
+          <div className="mt-2">
+            <span className="underline my-2 font-semibold text-green-primary-1">
+              Attended:
+            </span>{" "}
+            {selectedAppointment?.attended ? <span>Yes</span> : <span>No</span>}
+            {selectedAppointment?.attended ? (
+              <div className="flex items-center gap-2">
+                <p className="underline my-2 font-semibold text-green-primary-1">
+                  Doctor rating:
+                </p>
+                <span>{selectedAppointment?.doctorRating}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <p className="underline my-2 font-semibold text-green-primary-1">
+                  Absent reason:
+                </p>
+                <span>{selectedAppointment?.absentReason}</span>
+              </div>
+            )}
           </div>
         )}
       {isMeetingUpcoming ? (
@@ -322,15 +453,15 @@ const MyAppointmentsPage: React.FC = () => {
           {renderReasonModal()}
           <div>
             <a
-              href={isWithin30Minutes ? selectedAppointment?.hangoutLink : "#"}
-              target={isWithin30Minutes ? "_blank" : ""}
+              href={isWithin10Minutes ? selectedAppointment?.hangoutLink : "#"}
+              target={isWithin10Minutes ? "_blank" : ""}
             >
               <button
                 className={`text-white flex gap-3 items-center shadow-inset-2 mb-4 px-6 py-2 rounded-3xl bg-green-primary-1 ${
-                  isWithin30Minutes ? "" : "opacity-50 cursor-not-allowed"
+                  isWithin10Minutes ? "" : "opacity-50 cursor-not-allowed"
                 }`}
                 title={
-                  !isWithin30Minutes
+                  !isWithin10Minutes
                     ? "You can only join meet within half an hour of the scheduled time"
                     : "Click to join meet"
                 }
@@ -342,6 +473,23 @@ const MyAppointmentsPage: React.FC = () => {
           </div>
         </div>
       ) : null}
+      {isMeetingPrevious &&
+        selectedAppointment &&
+        "attended" in selectedAppointment &&
+        selectedAppointment["attended"] === null && (
+          <p
+            className="flex gap-2 items-center text-orange-primary-1 text-lg mt-4 cursor-pointer w-fit"
+            onClick={() => {
+              setIsModalOpen(false);
+              setActiveAttendanceAppointment(selectedAppointment);
+              setIsAttendanceModalOpen(true);
+              setModalStep("attendance");
+            }}
+          >
+            Fill this appointment's attendance:
+            <FaAngleRight size={20} />
+          </p>
+        )}
       {/* TODO: Add review inputs*/}
     </Modal>
   );
@@ -462,10 +610,198 @@ const MyAppointmentsPage: React.FC = () => {
     </Modal>
   );
 
+  const renderAttendanceModalContent = () => {
+    if (modalStep === "attendance") {
+      return (
+        <div className="flex flex-col justify-center gap-4">
+          <h1 className="text-lg font-semibold">
+            Did you attend this appointment?
+          </h1>
+          <p>
+            A{" "}
+            <span className="font-bold">
+              {activeAttendanceAppointment?.typeOfTherapy}
+            </span>{" "}
+            session with{" "}
+            <span className="font-bold">
+              {activeAttendanceAppointment?.doctorName}
+            </span>
+            , which was at {activeAttendanceAppointment?.startTime}
+          </p>
+          <div className="flex justify-center gap-4 mt-4">
+            <Button
+              className="bg-green-primary-1 text-white font-semibold px-4"
+              onClick={() => handleAttendanceResponse("Yes")}
+            >
+              Yes
+            </Button>
+            <Button
+              className="bg-red-400 text-white font-semibold px-4"
+              onClick={() => handleAttendanceResponse("No")}
+            >
+              No
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (modalStep === "feedback") {
+      return (
+        <>
+          <h1 className="text-md font-semibold text-center my-4">
+            Please provide us your feedback, it helps us improve our system
+          </h1>
+          <hr className="mb-4" />
+          <div className="flex flex-col gap-3">
+            <label className="text-sm">
+              How well would you rate {activeAttendanceAppointment?.doctorName}?
+              (on a scale of 1 to 5)
+            </label>
+            <RatingGroup.Root
+              count={5}
+              defaultValue={3}
+              value={feedback.doctorRating}
+              onValueChange={({ value }) =>
+                setFeedback({ ...feedback, doctorRating: value })
+              }
+              size="lg"
+              className="self-center"
+            >
+              <RatingGroup.Control>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <RatingGroup.Item
+                    key={index}
+                    index={index + 1}
+                    minW="9"
+                    filter={{ base: "grayscale(1)", _checked: "revert" }}
+                    transition="scale 0.1s"
+                    _hover={{ scale: "1.1" }}
+                  >
+                    {emojiMap[index + 1]}
+                  </RatingGroup.Item>
+                ))}
+              </RatingGroup.Control>
+            </RatingGroup.Root>
+            <label className="text-sm">
+              Your feedback on {activeAttendanceAppointment?.doctorName}
+              <textarea
+                value={feedback.doctorFeedback}
+                onChange={(e) =>
+                  setFeedback({ ...feedback, doctorFeedback: e.target.value })
+                }
+                minLength={10}
+                className="border p-2 w-full text-sm mt-3"
+              />
+            </label>
+            <label className="text-sm">
+              Your feedback on appointment (meet):
+              <textarea
+                value={feedback.meetFeedback}
+                onChange={(e) =>
+                  setFeedback({
+                    ...feedback,
+                    meetFeedback: e.target.value,
+                  })
+                }
+                className="border p-2 w-full text-sm mt-3"
+              />
+            </label>
+            <Button
+              className="bg-green-primary-1 text-white font-semibold px-4"
+              disabled={
+                !feedback.doctorRating || feedback.doctorFeedback.length < 10
+              }
+              onClick={() =>
+                handleSubmitFeedback(activeAttendanceAppointment?.id as number)
+              }
+            >
+              Submit Feedback
+            </Button>
+            <Button
+              className="absolute top-3 left-3"
+              onClick={() => setModalStep("attendance")}
+            >
+              <FaAngleLeft />
+            </Button>
+          </div>
+        </>
+      );
+    }
+
+    if (modalStep === "reason") {
+      return (
+        <>
+          <h1 className="text-lg font-semibold my-4">
+            Can we know why did you not attend?
+          </h1>
+          <textarea
+            value={absentReason}
+            onChange={(e) => setAbsentReason(e.target.value)}
+            minLength={10}
+            className="border p-2 w-full"
+            placeholder="Enter reason..."
+          />
+          <Button
+            className="bg-red-400 text-white font-semibold px-4 mt-3"
+            disabled={absentReason.length < 10}
+            onClick={() =>
+              handleSubmitReason(activeAttendanceAppointment?.id as number)
+            }
+          >
+            Submit Reason
+          </Button>
+          <Button
+            className="absolute top-3 left-3"
+            onClick={() => setModalStep("attendance")}
+          >
+            <FaAngleLeft />
+          </Button>
+        </>
+      );
+    }
+  };
+
+  const renderAttendanceModal = () => (
+    <Modal
+      isOpen={isAttendanceModalOpen}
+      onRequestClose={() => setIsAttendanceModalOpen(false)}
+      contentLabel="Attendance Confirmation"
+      style={{
+        content: {
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "400px",
+          height: "fit-content",
+          maxHeight: "500px",
+          padding: "40px 30px",
+          borderRadius: "8px",
+          textAlign: "center",
+          overflow: "auto",
+        },
+        overlay: {
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+        },
+      }}
+    >
+      {renderAttendanceModalContent()}
+      <Button
+        className="absolute top-3 right-3"
+        onClick={() => {
+          handleCloseAttendanceModal(activeAttendanceAppointment?.id as number);
+        }}
+      >
+        <IoClose size={40} strokeWidth={16} />
+      </Button>
+    </Modal>
+  );
+
   return (
     <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full lg:h-screen ">
       <h1 className="text-2xl mb-6 mt-20">My Appointments</h1>
       {renderAppointmentFilters()}
+      {renderAttendanceModal()}
       {loading ? (
         <Loader />
       ) : (
