@@ -124,7 +124,7 @@ const MyAppointmentsPage: React.FC = () => {
   useEffect(() => {
     if (!selectedAppointment?.startTime) return;
 
-    const startTime = new Date(parseDate(selectedAppointment.startTime));
+    const startTime = parseDate(selectedAppointment.startTime);
     const thresholdTime = startTime.getTime() - 10 * 60 * 1000;
     const now = Date.now();
 
@@ -393,7 +393,8 @@ const MyAppointmentsPage: React.FC = () => {
                     <strong>Cancelled on:</strong> {appointment.cancelledOn}
                   </p>
                 )}
-                {"attended" in appointment &&
+                {appointment["status"] === "previous" &&
+                  "attended" in appointment &&
                   appointment["attended"] !== null && (
                     <p className="text-sm">
                       <strong>Attended:</strong>{" "}
@@ -512,7 +513,8 @@ const MyAppointmentsPage: React.FC = () => {
             <p>{selectedAppointment?.cancelReason}</p>
           </div>
         )}
-      {selectedAppointment &&
+      {isMeetingPrevious &&
+        selectedAppointment &&
         "attended" in selectedAppointment &&
         selectedAppointment["attended"] !== null && (
           <div className="mt-2">
@@ -521,14 +523,14 @@ const MyAppointmentsPage: React.FC = () => {
             </span>{" "}
             {selectedAppointment?.attended ? <span>Yes</span> : <span>No</span>}
             {selectedAppointment?.attended ? (
-              <div className="flex items-center gap-2">
+              <div className="flex justify-center md:justify-start items-center gap-2">
                 <p className="underline my-2 font-semibold text-green-primary-1">
                   Doctor rating:
                 </p>
                 <span>{selectedAppointment?.doctorRating}</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex justify-center md:justify-start items-center gap-2">
                 <p className="underline my-2 font-semibold text-green-primary-1">
                   Absent reason:
                 </p>
@@ -574,7 +576,7 @@ const MyAppointmentsPage: React.FC = () => {
         "attended" in selectedAppointment &&
         selectedAppointment["attended"] === null && (
           <p
-            className="flex gap-2 items-center text-orange-primary-1 text-lg mt-4 cursor-pointer w-fit"
+            className="flex-grow flex gap-2 justify-center items-center text-center text-orange-primary-1 text-sm sm:text-lg mt-4 cursor-pointer w-fit mx-auto"
             onClick={() => {
               setIsModalOpen(false);
               setActiveAttendanceAppointment(selectedAppointment);
@@ -871,9 +873,10 @@ const MyAppointmentsPage: React.FC = () => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "400px",
+          width: "450px",
           height: "fit-content",
-          maxHeight: "500px",
+          maxWidth: "80%",
+          maxHeight: "450px",
           padding: "40px 30px",
           borderRadius: "8px",
           textAlign: "center",
@@ -897,7 +900,7 @@ const MyAppointmentsPage: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full lg:h-screen ">
+    <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full">
       <h1 className="text-2xl mb-6 mt-20">My Appointments</h1>
       {renderAppointmentFilters()}
       {renderAttendanceModal()}
