@@ -80,6 +80,7 @@ const BookAppointment: React.FC = () => {
   const { data: dateResult, call: DateAPICaller } = useFetchData<{
     date: DateType;
   }>();
+
   const { data: timeResult, call: TimeAPICaller } = useFetchData<{
     time: TimeType;
   }>();

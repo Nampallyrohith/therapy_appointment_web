@@ -62,6 +62,9 @@ export interface Cancelled extends BaseUpcoming {
 
 export interface Previous extends BaseUpcoming {
   attended: boolean;
+  attendedModalDismissed: boolean;
+  doctorRating: number;
+  absentReason: string;
 }
 
 export type Appointment = BaseUpcoming | Cancelled | Previous;
