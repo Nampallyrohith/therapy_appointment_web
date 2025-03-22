@@ -12,6 +12,9 @@ import Loader from "@/shared/Loader";
 import { parseDate } from "./utils/commonFunction";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { RatingGroup } from "@chakra-ui/react";
+import { supabaseClient } from "@/supabase/connection";
+import toast, { Toaster } from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 
 const emojiMap: Record<string, string> = {
   1: "😡",
@@ -20,8 +23,6 @@ const emojiMap: Record<string, string> = {
   4: "😊",
   5: "😍",
 };
-import { supabaseClient } from "@/supabase/connection";
-import toast, { Toaster } from "react-hot-toast";
 
 export const filterDetails: AppointmentFilterProps[] = [
   {
@@ -75,8 +76,15 @@ const MyAppointmentsPage: React.FC = () => {
   const { call: UpdateAttendedFlagCaller } = useFetchData();
   const { call: PostAppointmentFeedbackCaller } = useFetchData();
   const { call: PostAbsentReasonCaller } = useFetchData();
-
   const { call: UpdateCancellAppointmentAPICaller } = useFetchData();
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === "/user/my-appointments") {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
 
   const getAppointments = async () => {
     await AppointmentAPICaller(`user/my-appointments/${user?.googleUserId}`);
@@ -144,10 +152,11 @@ const MyAppointmentsPage: React.FC = () => {
 
     appointmentsResult?.appointments.forEach((appointment) => {
       const endTime = parseDate(appointment.endTime);
-      const showModalTime = new Date(endTime.getTime() - 10 * 60 * 1000);
+      const showModalTime = new Date(endTime.getTime());
 
       if (
         now >= showModalTime &&
+        appointment["status"] !== "cancelled" &&
         "attended" in appointment &&
         appointment["attended"] === null &&
         appointment["attendedModalDismissed"] === false
@@ -318,7 +327,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   // Renders
   const renderAppointmentFilters = () => (
-    <div className="flex flex-wrap justify-center gap-4 w-full">
+    <div className="flex flex-wrap justify-center gap-4 w-full mt-24">
       {filterDetails.map((eachFilter) => (
         <FilterButton
           key={eachFilter.filterId}
@@ -337,7 +346,7 @@ const MyAppointmentsPage: React.FC = () => {
     );
 
     return (
-      <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-screen shadow-inner">
+      <div className="mt-6 py-10 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-full shadow-inner">
         {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
         </h2> */}
@@ -363,7 +372,7 @@ const MyAppointmentsPage: React.FC = () => {
             filteredAppointments?.map((appointment, index) => (
               <div
                 key={index}
-                className={`px-8 py-4 flex flex-col gap-1 rounded-xl border border-gray-200 cursor-pointer ${
+                className={`relative px-8 py-4 flex flex-col gap-1 rounded-xl border border-gray-200 cursor-pointer ${
                   appointment.status === "upcoming"
                     ? "border-0 border-l-8 border-l-green-primary-1 bg-white text-green-primary-1"
                     : appointment.status === "cancelled"
@@ -388,6 +397,18 @@ const MyAppointmentsPage: React.FC = () => {
                   <strong>Meeting time:</strong> {appointment.startTime} -{" "}
                   {appointment.endTime}
                 </p>
+                {
+                  // This works, but it doesn't check actively, it works after render or a page refresh
+                  parseDate(appointment.startTime).getTime() <= Date.now() &&
+                    parseDate(appointment.endTime).getTime() >= Date.now() && (
+                      <div className="absolute top-5 right-2 group">
+                        <span className="flex w-2 h-2 me-3 bg-green-400 rounded-full animate-ping"></span>
+                        <div className="absolute top-4 -left-8 translate-x-1/2 hidden md:group-hover:flex bg-gray-500 w-28 text-white text-xs px-2 py-1 rounded-md shadow-md">
+                          Join the live meet now!
+                        </div>
+                      </div>
+                    )
+                }
                 {"cancelledOn" in appointment && appointment["cancelledOn"] && (
                   <p className="text-sm">
                     <strong>Cancelled on:</strong> {appointment.cancelledOn}
@@ -792,6 +813,7 @@ const MyAppointmentsPage: React.FC = () => {
                   setFeedback({ ...feedback, doctorFeedback: e.target.value })
                 }
                 minLength={10}
+                placeholder="Please enter atleast 10 characters..."
                 className="border p-2 w-full text-sm mt-3"
               />
             </label>
@@ -805,6 +827,7 @@ const MyAppointmentsPage: React.FC = () => {
                     meetFeedback: e.target.value,
                   })
                 }
+                placeholder="Enter feedback here..."
                 className="border p-2 w-full text-sm mt-3"
               />
             </label>
@@ -841,7 +864,7 @@ const MyAppointmentsPage: React.FC = () => {
             onChange={(e) => setAbsentReason(e.target.value)}
             minLength={10}
             className="border p-2 w-full"
-            placeholder="Enter reason..."
+            placeholder="Enter reason (atleast 10 characters)..."
           />
           <Button
             className="bg-red-400 text-white font-semibold px-4 mt-3"
@@ -901,7 +924,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full">
-      <h1 className="text-2xl mb-6 mt-20">My Appointments</h1>
+      {/* <h1 className="text-2xl mb-6">My Appointments</h1> */}
       {renderAppointmentFilters()}
       {renderAttendanceModal()}
       {loading ? (
