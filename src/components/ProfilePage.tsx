@@ -8,6 +8,8 @@ import { ThreeDot } from "react-loading-indicators";
 import toast, { Toaster } from "react-hot-toast";
 import { supabaseClient } from "@/supabase/connection";
 
+const MAX_SIZE = 2 * 1024 * 1024;
+
 const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { user, userMeta, getUserDetailsFromDB } = useAppointmentContext();
@@ -37,20 +39,22 @@ const UserProfileCard = () => {
         data.avatarUrl = newAvatarUrl;
       }
     }
-    await UpdateUserAPICaller("auth/google/signin", "POST", {
+    const response = await UpdateUserAPICaller("auth/google/signin", "POST", {
       ...data,
       ...userMeta,
     });
-    setIsEditing(false);
-    toast.success("Profile updated", {
-      duration: 3000,
-      style: {
-        backgroundColor: "#1f5d5d",
-        color: "#fff",
-        fontWeight: 700,
-      },
-    });
-    getUserDetailsFromDB();
+    if (response.ok) {
+      setIsEditing(false);
+      toast.success("Profile updated", {
+        duration: 3000,
+        style: {
+          backgroundColor: "#1f5d5d",
+          color: "#fff",
+          fontWeight: 700,
+        },
+      });
+      getUserDetailsFromDB();
+    }
   };
 
   const handleCancel = () => {
@@ -69,13 +73,35 @@ const UserProfileCard = () => {
   const uploadAvatar = async (): Promise<string | null> => {
     if (!file) return null;
 
+    if (!file.type.startsWith("image/")) {
+      toast.error("Invalid image file", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      return "Invalid image type";
+    }
+
+    if (file.size > MAX_SIZE) {
+      toast.error("Image size must be less than 2MB", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      return "Image size must be less than 2MB";
+    }
+
     const filePath = `users/${user?.googleUserId}/${file.name}`;
     const { error } = await supabaseClient.storage
       .from("users_avatar")
-      .upload(filePath, file, { cacheControl: "3600", upsert: true });
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
 
     if (error) {
-      toast("Upload failed");
+      toast.error(error.message, {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
       return null;
     }
 
