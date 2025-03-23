@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { FaPen } from "react-icons/fa";
+import { FaPen, FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useFetchData } from "@/hooks/apiCall";
 import { useAppointmentContext } from "@/context/AppointmentContext";
@@ -9,6 +9,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { supabaseClient } from "@/supabase/connection";
 
 const MAX_SIZE = 2 * 1024 * 1024;
+const BUCKET_BASE_URL = import.meta.env.VITE_BUCKET_BASE_URL as string;
 
 const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -34,7 +35,6 @@ const UserProfileCard = () => {
 
   const onSubmit = async (data: User) => {
     if (file) {
-      console.log(file);
       const newAvatarUrl = await uploadAvatar();
       if (newAvatarUrl) {
         data.avatarUrl = newAvatarUrl;
@@ -96,6 +96,9 @@ const UserProfileCard = () => {
       return;
     }
 
+    const previewUrl = URL.createObjectURL(selectedFile);
+    console.log(previewUrl);
+    setValue("avatarUrl", previewUrl);
     setFile(selectedFile);
   };
 
@@ -136,6 +139,38 @@ const UserProfileCard = () => {
     return null;
   };
 
+  const removeAvatarFromBucket = async (imageUrl: string) => {
+    const bucketName = "users_avatar";
+
+    if (!user?.googleUserId) {
+      toast.error("User ID is missing, cannot upload avatar.", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      return null;
+    }
+
+    const baseUrl = `${BUCKET_BASE_URL}${bucketName}/`;
+    const filePath = decodeURIComponent(imageUrl.replace(baseUrl, ""));
+
+    const { error } = await supabaseClient.storage
+      .from(bucketName)
+      .remove([filePath]);
+
+    if (error) {
+      toast.error(error.message, {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      return false;
+    }
+    setValue("avatarUrl", "");
+    user.avatarUrl = "";
+    setIsEditing(true);
+
+    return true;
+  };
+
   return (
     <div className="flex justify-center items-center w-full min-h-screen">
       <form
@@ -160,14 +195,29 @@ const UserProfileCard = () => {
               className="w-24 h-24 rounded-full object-cover bg-gray-100"
               alt="Profile"
             />
-            {isEditing && (
-              <label
-                htmlFor="fileInput"
-                className="absolute -bottom-1 right-1 w-8 h-8 bg-white p-2 rounded-full text-gray-700 shadow border border-gray-300 flex items-center justify-center cursor-pointer"
-              >
-                <FaPen className="w-4 h-4" />
-              </label>
-            )}
+            {isEditing ? (
+              <>
+                {watch("avatarUrl") ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof user?.avatarUrl === "string")
+                        removeAvatarFromBucket(user.avatarUrl);
+                    }}
+                    className="absolute -bottom-1 z-10 right-1 w-8 h-8 bg-white p-2 rounded-full text-gray-700 shadow border border-gray-300 flex items-center justify-center cursor-pointer"
+                  >
+                    <FaTrash className="w-4 h-4 text-red-500" />
+                  </button>
+                ) : (
+                  <label
+                    htmlFor="fileInput"
+                    className="absolute -bottom-1 right-1 w-8 h-8 bg-white p-2 rounded-full text-gray-700 shadow border border-gray-300 flex items-center justify-center cursor-pointer"
+                  >
+                    <FaPen className="w-4 h-4" />
+                  </label>
+                )}
+              </>
+            ) : null}
           </div>
           <input
             id="fileInput"

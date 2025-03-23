@@ -26,7 +26,7 @@ const AuthenticationPage = () => {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        scopes: "https://www.googleapis.com/auth/calendar",
+        scopes: "openid email profile https://www.googleapis.com/auth/calendar",
         redirectTo: `${GOOGLE_REDIRECT_URI}/user/home`,
       },
     });
