@@ -30,10 +30,11 @@ const UserProfileCard = () => {
     if (user) {
       reset(user);
     }
-  }, [user, reset]);
+  }, [reset]);
 
   const onSubmit = async (data: User) => {
     if (file) {
+      console.log(file);
       const newAvatarUrl = await uploadAvatar();
       if (newAvatarUrl) {
         data.avatarUrl = newAvatarUrl;
@@ -45,6 +46,7 @@ const UserProfileCard = () => {
         ...data,
         ...userMeta,
       });
+      console.log(response);
       if (response.ok) {
         setIsEditing(false);
         toast.success("Profile updated", {
@@ -56,6 +58,11 @@ const UserProfileCard = () => {
           },
         });
         getUserDetailsFromDB();
+      } else {
+        toast.error("Profile update failed!", {
+          duration: 3000,
+          style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+        });
       }
     }
   };
@@ -68,31 +75,41 @@ const UserProfileCard = () => {
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setFile(event.target.files[0]);
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (!selectedFile.type.startsWith("image/")) {
+      toast.error("Invalid file type. Only images allowed.", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      setFile(null);
+      return;
     }
+
+    if (selectedFile.size > MAX_SIZE) {
+      toast.error("File too large! Max 2MB.", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      setFile(null);
+      return;
+    }
+
+    setFile(selectedFile);
   };
 
   const uploadAvatar = async (): Promise<string | null> => {
     if (!file) return null;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Invalid image file", {
+    if (!user?.googleUserId) {
+      toast.error("User ID is missing, cannot upload avatar.", {
         duration: 3000,
         style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
       });
       return null;
     }
-
-    if (file.size > MAX_SIZE) {
-      toast.error("Image size must be less than 2MB", {
-        duration: 3000,
-        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
-      });
-      return null;
-    }
-
-    const filePath = `users/${user?.googleUserId}/${file.name}`;
+    const filePath = `users/${user.googleUserId}/${file.name}`;
     const { error } = await supabaseClient.storage
       .from("users_avatar")
       .upload(filePath, file, {
@@ -112,8 +129,11 @@ const UserProfileCard = () => {
     const { data } = supabaseClient.storage
       .from("users_avatar")
       .getPublicUrl(filePath);
-    setValue("avatarUrl", data.publicUrl);
-    return data.publicUrl;
+    if (data) {
+      setValue("avatarUrl", data.publicUrl);
+      return data.publicUrl;
+    }
+    return null;
   };
 
   return (
