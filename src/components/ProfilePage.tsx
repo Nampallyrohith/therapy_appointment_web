@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { FaPen } from "react-icons/fa";
+import { FaPen, FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useFetchData } from "@/hooks/apiCall";
 import { useAppointmentContext } from "@/context/AppointmentContext";
@@ -7,6 +7,9 @@ import { User } from "@/models/typeDefinitions";
 import { ThreeDot } from "react-loading-indicators";
 import toast, { Toaster } from "react-hot-toast";
 import { supabaseClient } from "@/supabase/connection";
+
+const MAX_SIZE = 2 * 1024 * 1024;
+const BUCKET_BASE_URL = import.meta.env.VITE_BUCKET_BASE_URL as string;
 
 const UserProfileCard = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -28,7 +31,7 @@ const UserProfileCard = () => {
     if (user) {
       reset(user);
     }
-  }, [user, reset]);
+  }, [reset]);
 
   const onSubmit = async (data: User) => {
     if (file) {
@@ -37,20 +40,31 @@ const UserProfileCard = () => {
         data.avatarUrl = newAvatarUrl;
       }
     }
-    await UpdateUserAPICaller("auth/google/signin", "POST", {
-      ...data,
-      ...userMeta,
-    });
-    setIsEditing(false);
-    toast.success("Profile updated", {
-      duration: 3000,
-      style: {
-        backgroundColor: "#1f5d5d",
-        color: "#fff",
-        fontWeight: 700,
-      },
-    });
-    getUserDetailsFromDB();
+
+    if (data.avatarUrl !== null) {
+      const response = await UpdateUserAPICaller("auth/google/signin", "POST", {
+        ...data,
+        ...userMeta,
+      });
+      console.log(response);
+      if (response.ok) {
+        setIsEditing(false);
+        toast.success("Profile updated", {
+          duration: 3000,
+          style: {
+            backgroundColor: "#1f5d5d",
+            color: "#fff",
+            fontWeight: 700,
+          },
+        });
+        getUserDetailsFromDB();
+      } else {
+        toast.error("Profile update failed!", {
+          duration: 3000,
+          style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+        });
+      }
+    }
   };
 
   const handleCancel = () => {
@@ -61,21 +75,56 @@ const UserProfileCard = () => {
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setFile(event.target.files[0]);
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (!selectedFile.type.startsWith("image/")) {
+      toast.error("Invalid file type. Only images allowed.", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      setFile(null);
+      return;
     }
+
+    if (selectedFile.size > MAX_SIZE) {
+      toast.error("File too large! Max 2MB.", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      setFile(null);
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(selectedFile);
+    console.log(previewUrl);
+    setValue("avatarUrl", previewUrl);
+    setFile(selectedFile);
   };
 
   const uploadAvatar = async (): Promise<string | null> => {
     if (!file) return null;
 
-    const filePath = `users/${user?.googleUserId}/${file.name}`;
+    if (!user?.googleUserId) {
+      toast.error("User ID is missing, cannot upload avatar.", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      return null;
+    }
+    const filePath = `users/${user.googleUserId}/${file.name}`;
     const { error } = await supabaseClient.storage
       .from("users_avatar")
-      .upload(filePath, file, { cacheControl: "3600", upsert: true });
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: true,
+      });
 
     if (error) {
-      toast("Upload failed");
+      toast.error(error.message, {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
       return null;
     }
 
@@ -83,8 +132,43 @@ const UserProfileCard = () => {
     const { data } = supabaseClient.storage
       .from("users_avatar")
       .getPublicUrl(filePath);
-    setValue("avatarUrl", data.publicUrl);
-    return data.publicUrl;
+    if (data) {
+      setValue("avatarUrl", data.publicUrl);
+      return data.publicUrl;
+    }
+    return null;
+  };
+
+  const removeAvatarFromBucket = async (imageUrl: string) => {
+    const bucketName = "users_avatar";
+
+    if (!user?.googleUserId) {
+      toast.error("User ID is missing, cannot upload avatar.", {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      return null;
+    }
+
+    const baseUrl = `${BUCKET_BASE_URL}${bucketName}/`;
+    const filePath = decodeURIComponent(imageUrl.replace(baseUrl, ""));
+
+    const { error } = await supabaseClient.storage
+      .from(bucketName)
+      .remove([filePath]);
+
+    if (error) {
+      toast.error(error.message, {
+        duration: 3000,
+        style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
+      });
+      return false;
+    }
+    setValue("avatarUrl", "");
+    user.avatarUrl = "";
+    setIsEditing(true);
+
+    return true;
   };
 
   return (
@@ -111,14 +195,29 @@ const UserProfileCard = () => {
               className="w-24 h-24 rounded-full object-cover bg-gray-100"
               alt="Profile"
             />
-            {isEditing && (
-              <label
-                htmlFor="fileInput"
-                className="absolute -bottom-1 right-1 w-8 h-8 bg-white p-2 rounded-full text-gray-700 shadow border border-gray-300 flex items-center justify-center cursor-pointer"
-              >
-                <FaPen className="w-4 h-4" />
-              </label>
-            )}
+            {isEditing ? (
+              <>
+                {watch("avatarUrl") ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof user?.avatarUrl === "string")
+                        removeAvatarFromBucket(user.avatarUrl);
+                    }}
+                    className="absolute -bottom-1 z-10 right-1 w-8 h-8 bg-white p-2 rounded-full text-gray-700 shadow border border-gray-300 flex items-center justify-center cursor-pointer"
+                  >
+                    <FaTrash className="w-4 h-4 text-red-500" />
+                  </button>
+                ) : (
+                  <label
+                    htmlFor="fileInput"
+                    className="absolute -bottom-1 right-1 w-8 h-8 bg-white p-2 rounded-full text-gray-700 shadow border border-gray-300 flex items-center justify-center cursor-pointer"
+                  >
+                    <FaPen className="w-4 h-4" />
+                  </label>
+                )}
+              </>
+            ) : null}
           </div>
           <input
             id="fileInput"
