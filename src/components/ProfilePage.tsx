@@ -39,21 +39,24 @@ const UserProfileCard = () => {
         data.avatarUrl = newAvatarUrl;
       }
     }
-    const response = await UpdateUserAPICaller("auth/google/signin", "POST", {
-      ...data,
-      ...userMeta,
-    });
-    if (response.ok) {
-      setIsEditing(false);
-      toast.success("Profile updated", {
-        duration: 3000,
-        style: {
-          backgroundColor: "#1f5d5d",
-          color: "#fff",
-          fontWeight: 700,
-        },
+
+    if (data.avatarUrl !== null) {
+      const response = await UpdateUserAPICaller("auth/google/signin", "POST", {
+        ...data,
+        ...userMeta,
       });
-      getUserDetailsFromDB();
+      if (response.ok) {
+        setIsEditing(false);
+        toast.success("Profile updated", {
+          duration: 3000,
+          style: {
+            backgroundColor: "#1f5d5d",
+            color: "#fff",
+            fontWeight: 700,
+          },
+        });
+        getUserDetailsFromDB();
+      }
     }
   };
 
@@ -78,7 +81,7 @@ const UserProfileCard = () => {
         duration: 3000,
         style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
       });
-      return "Invalid image type";
+      return null;
     }
 
     if (file.size > MAX_SIZE) {
@@ -86,7 +89,7 @@ const UserProfileCard = () => {
         duration: 3000,
         style: { backgroundColor: "#eb5766", color: "#fff", fontWeight: 700 },
       });
-      return "Image size must be less than 2MB";
+      return null;
     }
 
     const filePath = `users/${user?.googleUserId}/${file.name}`;
