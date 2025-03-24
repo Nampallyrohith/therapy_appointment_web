@@ -60,7 +60,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   useEffect(() => {
     const checkAppointmentInGoogleCalendar = async () => {
-      let filteredAppointments = appointmentsResult?.appointments.filter(
+      const filteredAppointments = appointmentsResult?.appointments.filter(
         (eachAppointment) => eachAppointment.status === filter
       );
       if (filter === "upcoming") {
@@ -243,7 +243,7 @@ const MyAppointmentsPage: React.FC = () => {
     );
 
     return (
-      <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-screen shadow-inner">
+      <div className="mt-6 pb-8 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] shadow-inner">
         {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
         </h2> */}
@@ -563,7 +563,7 @@ const MyAppointmentsPage: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full lg:h-screen ">
+    <div className="flex flex-col items-center pt-6 text-orange-primary-1 shadow-inset w-full h-full ">
       <h1 className="text-2xl mb-6 mt-20">My Appointments</h1>
       {renderAppointmentFilters()}
       {loading ? (
