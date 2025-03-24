@@ -5,7 +5,7 @@ import { FaPhoneAlt, FaAddressCard } from "react-icons/fa";
 import { MdOutlineMail } from "react-icons/md";
 const Footer = () => {
   return (
-    <div className="flex bg-green-primary-2 flex-col w-full h-full items-center  p-3 justify-center">
+    <div className="flex bg-green-primary-2 flex-col w-full h-full items-center p-3 justify-center">
       <div className="w-4/5 h-full flex flex-col md:flex-row border-b-2 border-b-green-primary-1 border-0 justify-around items-center gap-10 p-7">
         <Link to="/user/home">
           <Image src={logo} className="w-56 md:w-[250px]" />

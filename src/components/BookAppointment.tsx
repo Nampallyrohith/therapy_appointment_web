@@ -80,6 +80,7 @@ const BookAppointment: React.FC = () => {
   const { data: dateResult, call: DateAPICaller } = useFetchData<{
     date: DateType;
   }>();
+
   const { data: timeResult, call: TimeAPICaller } = useFetchData<{
     time: TimeType;
   }>();
@@ -326,7 +327,6 @@ const BookAppointment: React.FC = () => {
                   }`}
               htmlFor={doctor.name}
             >
-              {/* TODO: Temporary image (avatar) */}
               <img
                 src={doctor.avatarUrl}
                 alt="doc-avatar"

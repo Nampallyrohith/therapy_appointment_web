@@ -35,7 +35,6 @@ export interface UserMeta {
   accessToken: string | undefined;
 }
 
-// TODO: Temporary typedefs for appointment list
 export type Status = "upcoming" | "cancelled" | "previous";
 
 export interface BaseUpcoming {
@@ -53,6 +52,7 @@ export interface BaseUpcoming {
   createdAt: string;
   typeOfTherapy: string;
   doctorName: string;
+  doctorAvatarUrl: string;
 }
 
 export interface Cancelled extends BaseUpcoming {
@@ -62,6 +62,9 @@ export interface Cancelled extends BaseUpcoming {
 
 export interface Previous extends BaseUpcoming {
   attended: boolean;
+  attendedModalDismissed: boolean;
+  doctorRating: number;
+  absentReason: string;
 }
 
 export type Appointment = BaseUpcoming | Cancelled | Previous;

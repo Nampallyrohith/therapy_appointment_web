@@ -7,6 +7,7 @@ import { User } from "@/models/typeDefinitions";
 import { ThreeDot } from "react-loading-indicators";
 import toast, { Toaster } from "react-hot-toast";
 import { supabaseClient } from "@/supabase/connection";
+import { useLocation } from "react-router-dom";
 
 const MAX_SIZE = 2 * 1024 * 1024;
 const BUCKET_BASE_URL = import.meta.env.VITE_BUCKET_BASE_URL as string;
@@ -26,6 +27,14 @@ const UserProfileCard = () => {
     watch,
     setValue,
   } = useForm<User>();
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === "/user/profile") {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     if (user) {
