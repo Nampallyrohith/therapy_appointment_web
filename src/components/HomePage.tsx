@@ -44,8 +44,10 @@ const HomePage = () => {
         {therapistsResult && (
           <OurTherapists Therapists={therapistsResult.doctors} />
         )}
-
-        {/* TODO: Review component (displaying the review of users) */}
+        {/* TODO: Review component (displaying the review of users),
+            Approach: Take all user ratings of this particular doctor into an array,
+            take the average of the array and display it as a badge/field in doctor card
+            Ex: Average rating: 4.6 */}
       </>
     </div>
   );

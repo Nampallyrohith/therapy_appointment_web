@@ -327,7 +327,6 @@ const BookAppointment: React.FC = () => {
                   }`}
               htmlFor={doctor.name}
             >
-              {/* TODO: Temporary image (avatar) */}
               <img
                 src={doctor.avatarUrl}
                 alt="doc-avatar"

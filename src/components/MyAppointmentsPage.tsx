@@ -15,6 +15,7 @@ import { RatingGroup } from "@chakra-ui/react";
 import { supabaseClient } from "@/supabase/connection";
 import toast, { Toaster } from "react-hot-toast";
 import { useLocation } from "react-router-dom";
+import { Avatar, AvatarGroup } from "@chakra-ui/react";
 
 const emojiMap: Record<string, string> = {
   1: "😡",
@@ -188,16 +189,17 @@ const MyAppointmentsPage: React.FC = () => {
     setFilter(event.currentTarget.id);
   };
 
-  const openModal = (appointment: Appointment) => {
+  const openAppointmentModal = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  const closeAppointmentModal = () => {
     setIsModalOpen(false);
     setSelectedAppointment(null);
   };
 
+  // Functions needed for cancelling appointments
   const openConfirmModal = () => setIsConfirmModalOpen(true);
   const closeConfirmModal = () => setIsConfirmModalOpen(false);
   const openReasonModal = () => {
@@ -257,7 +259,7 @@ const MyAppointmentsPage: React.FC = () => {
         body
       );
       getAppointments();
-      closeModal();
+      closeAppointmentModal();
       closeReasonModal();
       setFilter("cancelled");
       setCancelReason("");
@@ -346,7 +348,10 @@ const MyAppointmentsPage: React.FC = () => {
     );
 
     return (
-      <div className="mt-6 py-10 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-full shadow-inner">
+      // FIXME: I gave min-h-screen to this div but it is not looking good at all,
+      // I tried giving flex-grow to it so it can fill the empty space on the screen,
+      // but it's not working for some reason.
+      <div className="mt-6 py-10 px-6 w-full flex flex-grow justify-center items-start bg-[#FDF8EF] h-full shadow-inner min-h-screen">
         {/* <h2 className="mt-8 mb-6 text-center text-2xl font-bold">
           {filterDetails.find((f) => f.filterId === filter)?.filterButtonText}
         </h2> */}
@@ -354,7 +359,7 @@ const MyAppointmentsPage: React.FC = () => {
           className={`${
             filteredAppointments?.length === 0
               ? "flex justify-center items-center w-full h-full"
-              : "sm:mx-4 md:mx-12 lg:mx-40 my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              : "sm:mx-4 md:mx-12 lg:mx-20 my-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
           }`}
         >
           {filteredAppointments?.length === 0 ? (
@@ -379,9 +384,25 @@ const MyAppointmentsPage: React.FC = () => {
                     ? "text-gray-500 bg-gray-200"
                     : "border-0 border-l-8 border-l-gray-500 bg-white text-gray-500"
                 }`}
-                onClick={() => openModal(appointment)}
+                onClick={() => openAppointmentModal(appointment)}
               >
-                <p className="text-xl font-semibold mb-2">
+                <AvatarGroup gap="0" spaceX="-3" size="lg" className="my-3">
+                  <Avatar.Root>
+                    <Avatar.Fallback name={user?.name} />
+                    <Avatar.Image
+                      src={user?.avatarUrl}
+                      className="h-full rounded-full border border-white"
+                    />
+                  </Avatar.Root>
+                  <Avatar.Root>
+                    <Avatar.Fallback name={appointment.doctorName} />
+                    <Avatar.Image
+                      src={appointment.doctorAvatarUrl}
+                      className="border border-white"
+                    />
+                  </Avatar.Root>
+                </AvatarGroup>
+                <p className="text-base md:text-lg font-semibold mb-2">
                   {appointment.typeOfTherapy}
                 </p>
                 <p className="text-sm">
@@ -448,12 +469,11 @@ const MyAppointmentsPage: React.FC = () => {
     );
   };
 
-  const renderAppropriateModal = () => (
-    //TODO: Display user and doctor dps in modal
+  const renderAppointmentModal = () => (
     <Modal
       isOpen={isModalOpen}
       ariaHideApp={false}
-      onRequestClose={closeModal}
+      onRequestClose={closeAppointmentModal}
       contentLabel="Appointment Details"
       className="flex flex-col outline-0 text-center md:text-left bg-gray-200 text-gray-600 max-h-[75%] overflow-auto"
       style={{
@@ -478,17 +498,32 @@ const MyAppointmentsPage: React.FC = () => {
       <Button
         type="button"
         className="absolute top-3 right-3 hover:scale-125 ease-in delay-200"
-        onClick={closeModal}
+        onClick={closeAppointmentModal}
       >
         <IoClose size={40} strokeWidth={16} />
       </Button>
+      <AvatarGroup gap="0" spaceX="-3" size="2xl" className="my-3">
+        <Avatar.Root>
+          <Avatar.Fallback name={user?.name} />
+          <Avatar.Image
+            src={user?.avatarUrl}
+            className="h-full rounded-full border border-white"
+          />
+        </Avatar.Root>
+        <Avatar.Root>
+          <Avatar.Fallback name={selectedAppointment?.doctorName} />
+          <Avatar.Image
+            src={selectedAppointment?.doctorAvatarUrl}
+            className="border border-white"
+          />
+        </Avatar.Root>
+      </AvatarGroup>
       <h1 className="text-lg font-bold my-4 text-green-primary-1">
         Meeting: {selectedAppointment?.typeOfTherapy}
       </h1>
       <h2 className="underline mb-2 font-semibold text-green-primary-1">
         Guests:
       </h2>
-      {/* TODO: Add user and doctor emails */}
       <p className="text-sm">
         <span className="font-bold">Client:</span> {user?.name}
       </p>
@@ -609,7 +644,6 @@ const MyAppointmentsPage: React.FC = () => {
             <FaAngleRight size={20} />
           </p>
         )}
-      {/* TODO: Add review inputs*/}
     </Modal>
   );
 
@@ -932,7 +966,7 @@ const MyAppointmentsPage: React.FC = () => {
       ) : (
         <>
           {renderAppointments()}
-          {renderAppropriateModal()}
+          {renderAppointmentModal()}
         </>
       )}
       <Toaster position="bottom-right" />

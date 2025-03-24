@@ -86,14 +86,12 @@ const Header = () => {
           </div>
         </div>
         {isDropdown && (
-          // TODO: Dumming data for UI testing
           <div
             ref={dropdownRef}
             className="w-1/6 px-5 !z-[9999] py-3 bg-white border-2 border-orange-primary-3 text-orange-primary-1 flex flex-col text-center shadow-md absolute top-20 right-20 rounded-md gap-2"
           >
             <p className="my-2">{user?.name}</p>
             <hr className="border-orange-primary-2" />
-            {/* TODO: Add close out functionality after navigating to profile */}
             <Link to="/user/profile" className="my-2">
               Profile
             </Link>
