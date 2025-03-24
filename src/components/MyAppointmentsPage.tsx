@@ -19,7 +19,7 @@ import { Avatar, AvatarGroup } from "@chakra-ui/react";
 
 const emojiMap: Record<string, string> = {
   1: "😡",
-  2: "😠",
+  2: "😖",
   3: "😐",
   4: "😊",
   5: "😍",

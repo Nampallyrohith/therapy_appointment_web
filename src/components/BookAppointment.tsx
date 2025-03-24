@@ -452,7 +452,7 @@ const BookAppointment: React.FC = () => {
       </div>
       <Button
         type="submit"
-        disabled={eventDescription.length < 100}
+        disabled={eventDescription.length < 100 || createEventLoading}
         className="bg-green-primary-1 text-white shadow-inset px-12 mt-8 mb-8 rounded-3xl"
       >
         {createEventLoading ? (

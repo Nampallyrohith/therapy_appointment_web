@@ -269,10 +269,10 @@ const UserProfileCard = () => {
             ) : (
               <p className="ml-5">{watch("gender")}</p>
             )}
-            {errors.gender && (
-              <p className="text-red-500 text-xs">{errors.gender.message}</p>
-            )}
           </div>
+          {errors.gender && (
+            <p className="text-red-500 text-xs">{errors.gender.message}</p>
+          )}
           {/* Phone */}
           <div className="flex gap-3 justify-center md:justify-start items-center text-green-primary-3">
             <label>Phone:</label>
@@ -292,10 +292,10 @@ const UserProfileCard = () => {
             ) : (
               <p>{watch("phone")}</p>
             )}
-            {errors.phone && (
-              <p className="text-red-500 text-xs">{errors.phone.message}</p>
-            )}
           </div>
+          {errors.phone && (
+            <p className="text-red-500 text-xs">{errors.phone.message}</p>
+          )}
           {/* Age */}
           <div className="flex gap-3 justify-center md:justify-start items-center text-green-primary-3 w-full">
             <label>Age:</label>
@@ -308,17 +308,17 @@ const UserProfileCard = () => {
                     message: "Age must be a number",
                   },
                 })}
-                placeholder="dob"
+                placeholder="age"
                 className="bg-transparent border-0 border-b-green-primary-1 focus:border-b-green-primary-1 focus:ring-0 border-b-2 focus:outline-none w-1/5"
                 type="text"
               />
             ) : (
               <p>{watch("dob")}</p>
             )}
-            {errors.dob && (
-              <p className="text-red-500 text-xs">{errors.dob.message}</p>
-            )}
           </div>
+          {errors.dob && (
+            <p className="text-red-500 text-xs">{errors.dob.message}</p>
+          )}
         </div>
         {isEditing && (
           <div className="flex gap-4 justify-end my-2">
@@ -332,6 +332,7 @@ const UserProfileCard = () => {
             <button
               type="submit"
               className="px-4 py-2 bg-[#2EC4B6] text-white rounded-md"
+              disabled={loading}
             >
               {loading ? (
                 <ThreeDot easing="ease-in" size="small" color="#fff" />
