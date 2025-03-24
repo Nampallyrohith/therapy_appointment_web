@@ -96,7 +96,7 @@ const MyAppointmentsPage: React.FC = () => {
 
   useEffect(() => {
     const checkAppointmentInGoogleCalendar = async () => {
-      let filteredAppointments = appointmentsResult?.appointments.filter(
+      const filteredAppointments = appointmentsResult?.appointments.filter(
         (eachAppointment) => eachAppointment.status === filter
       );
       if (filter === "upcoming") {
