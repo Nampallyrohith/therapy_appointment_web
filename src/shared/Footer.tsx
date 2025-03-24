@@ -23,8 +23,21 @@ const Footer = () => {
         </div>
       </div>
       <div className="flex md:flex-row items-center gap-3 md:gap-6 text-sm mt-3 text-green-primary-1">
-        <Link to="/privacy-policy.html">Privacy policy</Link> |{" "}
-        <Link to="/terms-of-service.html">Terms of Services</Link>
+        <a
+          href="/privacy-policy.html"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Privacy Policy
+        </a>{" "}
+        |{" "}
+        <a
+          href="/terms-of-service.html"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Terms of Service
+        </a>
       </div>
     </div>
   );
