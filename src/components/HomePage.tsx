@@ -8,7 +8,11 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 const HomePage = () => {
-  const { call: AllDoctorsAPICaller, data: therapistsResult } = useFetchData<{
+  const {
+    call: AllDoctorsAPICaller,
+    data: therapistsResult,
+    loading: therapistLoading,
+  } = useFetchData<{
     doctors: Doctor[];
   }>();
 
@@ -42,7 +46,10 @@ const HomePage = () => {
         <h1 className="text-3xl text-center w-full mt-10">Our Therapists</h1>
         <hr className="border-2 border-green-primary-1 rounded-full  my-2 w-36 mx-auto" />
         {therapistsResult && (
-          <OurTherapists Therapists={therapistsResult.doctors} />
+          <OurTherapists
+            Therapists={therapistsResult.doctors}
+            loading={therapistLoading}
+          />
         )}
         {/* TODO: Review component (displaying the review of users),
             Approach: Take all user ratings of this particular doctor into an array,
