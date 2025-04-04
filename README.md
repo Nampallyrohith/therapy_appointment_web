@@ -2,8 +2,8 @@
 
 This repo contains the source code and documentation of `Therahub` - A therapy appointment web app. 
 
-This app has three different repos specific to user portal(this repo), backend logic and therapist portal.
-Check the following repos for backend and therapist portal codes respectively:
+This app has three different repos specific to the user portal(this repo), backend logic, and therapist portal.
+Check the following repos for backend and therapist portal codes, respectively:
 
 <a href="https://github.com/Nampallyrohith/therapy_appointment_server" target="_blank">Backend Repo</a>
 
@@ -11,7 +11,7 @@ Check the following repos for backend and therapist portal codes respectively:
 
 You can visit the `user portal webpage` from the `about section` of this repo.
 
-Check the `about section` of therapist portal repo given above to visit the `therapist portal webpage`
+Check the `about section` of the therapist portal repo given above to visit the `therapist portal webpage`
 
 ## Project Overview
 ### Description:
